@@ -1,4 +1,11 @@
 # Byte-compiled / optimized / DLL files
+*.pyc
+/.idea
+.idea
+.vscode
+備份
+
+
 __pycache__/
 *.py[codz]
 *$py.class
