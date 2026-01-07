@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="purchase_order_line_tree_view_ep_thenone" model="ir.ui.view">
+        <field name="name">purchase.order.line.tree.ep.thenone</field>
+        <field name="model">purchase.order.line</field>
+        <field name="inherit_id" ref="purchase.purchase_history_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_id']" position="after">
+                <field name="old_product_code"/>
+                <field name="supplier_code"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="purchase_order_form_view_ep_thenone" model="ir.ui.view">
+        <field name="name">purchase.order.form.ep.thenone</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']//list//field[@name='name']" position="after">
+                <field name="old_product_code"/>
+                <field name="supplier_code"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

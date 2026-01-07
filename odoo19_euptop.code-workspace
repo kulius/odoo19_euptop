@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../odoo_19"
+		},
+		{
+			"path": "../odoo_conf"
+		}
+	],
+    "settings": {
+        "python.languageServer": "None",
+        "files.associations": {
+            "*.xml": "xml",
+            "*.csv": "csv",
+            "*.rng": "xml"
+        },
+        "emmet.includeLanguages": {
+            "xml": "html"
+        },
+        "terminal.integrated.env.windows": {
+            "PYTHONPATH": "D:\\odoo\\odoo_19;D:\\odoo\\odoo19_euptop",
+            "PYTHONUNBUFFERED": "1"
+        },
+        "chatgpt.openOnStartup": true
+    }
+}

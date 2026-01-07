@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_view_ep_thenone" model="ir.ui.view">
+        <field name="name">product.template.form.ep.thenone</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <field name="type" position="after">
+                <field name="old_product_code"/>
+                <field name="supplier_code"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="product_product_form_view_ep_thenone" model="ir.ui.view">
+        <field name="name">product.product.form.ep.thenone</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <field name="type" position="after">
+                <field name="old_product_code"/>
+                <field name="supplier_code"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="product_template_tree_view_ep_thenone" model="ir.ui.view">
+        <field name="name">product.template.tree.ep.thenone</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="old_product_code"/>
+                <field name="supplier_code"/>
+            </field>
+        </field>
+    </record>
+    <record id="product_template_search_view_ep_thenone" model="ir.ui.view">
+        <field name="name">product.template.search.thenone</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <field name="categ_id" position="after">
+                <field name="old_product_code" string="舊產品編號"/>
+                <field name="supplier_code" string="供應商編號"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>
