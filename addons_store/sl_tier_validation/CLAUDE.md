@@ -263,3 +263,21 @@ export class ReviewLogTable extends Component {
 | 審批日誌 | ✗ | ✓ (新增) |
 | 退回上一關 | ✗ | ✓ (新增) |
 | 日誌 Widget | ✗ | ✓ (新增) |
+
+---
+
+## 升級/安裝問題記錄
+
+> **注意**: Odoo 19 通用升級問題請參考根目錄 `CLAUDE.md`
+
+### 本模組修復記錄 (2026-01-12)
+
+| 問題 | 檔案 | 修復內容 |
+|------|------|----------|
+| OWL 1 語法 | `static/src/.../tier_review_log_widget.js` | 更新為 OWL 2 語法 |
+| jQuery 使用 | `static/src/.../tier_review_log_widget.js` | 改用原生 JavaScript |
+| print 語句 | `models/tier_review.py` | 改用 logging |
+| wizard 未 import | `__init__.py` | 加入 `from . import wizard` |
+| model 未 import | `models/__init__.py` | 加入 `tier_portal_form` |
+| 權限缺失 | `security/ir.model.access.csv` | 加入 `tier.portal.form` 權限 |
+| view 未聲明 | `__manifest__.py` | 加入 `views/tier_portal_form.xml` |

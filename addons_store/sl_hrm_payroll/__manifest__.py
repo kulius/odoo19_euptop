@@ -47,6 +47,7 @@
 
         'wizard/wizard_payslip_salary_rule_add.xml',
         'wizard/wizard_payslip_line_edit.xml',
+        'wizard/hr_payslip_batch_processing.xml',
 
         'wizard/view_payslip_sheet_report_wizard.xml',
 

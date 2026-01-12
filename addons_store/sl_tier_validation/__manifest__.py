@@ -17,6 +17,7 @@
         'security/sl_tier_review_security.xml',
         'security/ir.model.access.csv',
         'views/tier_portal_todo.xml',
+        'views/tier_portal_form.xml',
         'views/menu.xml',
         "templates/tier_validation_templates.xml",
     ],

@@ -370,3 +370,19 @@ sl_hrm_payroll/
 - 獎金管理
 - 薪資調整
 - 代扣申報
+
+---
+
+## 升級/安裝問題記錄
+
+> **注意**: Odoo 19 通用升級問題請參考根目錄 `CLAUDE.md`
+
+### 本模組修復記錄 (2026-01-12)
+
+| 問題 | 檔案 | 修復內容 |
+|------|------|----------|
+| PyPDF2 API 變更 | `models/hr_payslip.py` | `PdfFileWriter/Reader` → `PdfWriter/Reader` |
+| name_get 已棄用 | `models/starrylord_employee_payslip_salary_setting.py` | 改用 `_compute_display_name()` |
+| wizard 未 import | `wizard/__init__.py` | 加入 `wizard_payslip_batch_process`, `wizard_payslip_sheet_select_employee` |
+| wizard 權限缺失 | `security/ir.model.access.csv` | 加入 `hr.payslip.batch.processing`, `wizard.payslip.select.employee` 權限 |
+| wizard XML 未聲明 | `__manifest__.py` | 加入 `wizard/hr_payslip_batch_processing.xml` |
