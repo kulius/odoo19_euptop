@@ -1,0 +1,67 @@
+<!-- data/holiday_cron.xml -->
+<odoo>
+  <!-- 分配生理假 -->
+  <record id="ir_cron_holiday_menstrual" model="ir.cron">
+      <field name="name">自動分配生理假</field>
+      <field name="model_id" ref="model_starrylord_holiday_job"/>
+      <field name="state">code</field>
+      <field name="code">model.holiday_menstrual_run()</field>
+      <field name="interval_number">1</field>
+      <field name="interval_type">days</field>
+      <field name="numbercall">-1</field>
+      <field name="doall" eval="False"/>
+      <field name="active" eval="True"/>
+  </record>
+
+  <!-- 分配病假 -->
+  <record id="ir_cron_holiday_sick" model="ir.cron">
+      <field name="name">自動分配病假</field>
+      <field name="model_id" ref="model_starrylord_holiday_job"/>
+      <field name="state">code</field>
+      <field name="code">model.holiday_sick_run()</field>
+      <field name="interval_number">1</field>
+      <field name="interval_type">days</field>
+      <field name="numbercall">-1</field>
+      <field name="doall" eval="False"/>
+      <field name="active" eval="True"/>
+  </record>
+
+  <!-- 分配事假 -->
+  <record id="ir_cron_holiday_leave" model="ir.cron">
+      <field name="name">自動分配事假</field>
+      <field name="model_id" ref="model_starrylord_holiday_job"/>
+      <field name="state">code</field>
+      <field name="code">model.holiday_leave_run()</field>
+      <field name="interval_number">1</field>
+      <field name="interval_type">days</field>
+      <field name="numbercall">-1</field>
+      <field name="doall" eval="False"/>
+      <field name="active" eval="True"/>
+  </record>
+
+  <!-- 分配特休 -->
+  <record id="ir_cron_holiday_special" model="ir.cron">
+      <field name="name">自動分配特休</field>
+      <field name="model_id" ref="model_starrylord_holiday_job"/>
+      <field name="state">code</field>
+      <field name="code">model.holiday_special_run()</field>
+      <field name="interval_number">1</field>
+      <field name="interval_type">days</field>
+      <field name="numbercall">-1</field>
+      <field name="doall" eval="False"/>
+      <field name="active" eval="True"/>
+  </record>
+
+  <!-- 補遺過去特休 -->
+  <record id="ir_cron_holiday_special_makeup" model="ir.cron">
+      <field name="name">自動補遺過去特休</field>
+      <field name="model_id" ref="model_starrylord_holiday_job"/>
+      <field name="state">code</field>
+      <field name="code">model.holiday_special_run_makeup() # 輸入時間後 (date='2020-01-01')，將從該時間點以及往後加一天重複執行，直到超過今天</field>
+      <field name="interval_number">1</field>
+      <field name="interval_type">days</field>
+      <field name="numbercall">-1</field>
+      <field name="doall" eval="False"/>
+      <field name="active" eval="False"/>
+  </record>
+</odoo>

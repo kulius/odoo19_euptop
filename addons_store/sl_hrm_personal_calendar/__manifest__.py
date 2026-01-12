@@ -1,0 +1,23 @@
+{
+    'name': "Starry Lord 個人行事曆",
+    'summary': "Starry Lord HRM",
+    'description': "Starry Lord HRM 個人行事曆",
+    'author': "Starry Lord",
+    'website': "https://www.starrylord.com.tw",
+    'category': 'HRM',
+    'version': '19.0.0.1',
+    'depends': ['base', 'hr'],
+    'data': [
+        'security/hr_personal_calendar_security.xml',
+        'security/ir.model.access.csv',
+        'views/hr_schedule.xml',
+        'views/hr_schedule_time_type.xml',
+        'views/hr_personal_calendar.xml',
+        'views/hr_employee.xml',
+        'views/menu.xml',
+    ],
+    'installable': True,
+    'auto_install': False,
+    'application': True,
+    'license': 'LGPL-3',
+}

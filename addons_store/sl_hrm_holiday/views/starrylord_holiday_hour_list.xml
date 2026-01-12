@@ -1,0 +1,21 @@
+<odoo>
+    <record id="starrylord_holiday_hour_list_tree_view" model="ir.ui.view">
+        <field name="name">starrylord.holiday.hour.list.tree</field>
+        <field name="model">starrylord.holiday.hour.list</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" string="休假-小時表">
+                <field name="name"/>
+                <field name="hour"/>
+                <field name="is_select"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="starrylord_holiday_hour_list_action" model="ir.actions.act_window">
+        <field name="name">休假-小時表</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">starrylord.holiday.hour.list</field>
+        <field name="view_mode">tree</field>
+        <field name="views" eval="[(ref('starrylord_holiday_hour_list_tree_view'), 'tree')]"/>
+    </record>
+</odoo>

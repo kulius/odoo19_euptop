@@ -1,0 +1,93 @@
+<odoo>
+    <data noupdate="1">
+        <record id="starrylord_overtime_weekday" model="starrylord.overtime.type">
+            <field name="name">平日加班</field>
+            <field name="time_type">hour</field>
+            <field name="date_type">schedule</field>
+        </record>
+
+        <record id="starrylord_overtime_vacation" model="starrylord.overtime.type">
+            <field name="name">休假日加班</field>
+            <field name="time_type">half</field>
+            <field name="date_type">day_off</field>
+        </record>
+
+        <record id="starrylord_overtime_fix_vacation" model="starrylord.overtime.type">
+            <field name="name">例假日加班</field>
+            <field name="time_type">half</field>
+            <field name="date_type">regular_holiday</field>
+        </record>
+
+        <record id="starrylord_overtime_holiday" model="starrylord.overtime.type">
+            <field name="name">國定假日加班</field>
+            <field name="time_type">hour</field>
+            <field name="date_type">holiday</field>
+            <field name="eight_hours">True</field>
+        </record>
+    </data>
+    <data noupdate="1">
+        <record id="starrylord_overtime_weekday_rule_one" model="starrylord.overtime.type.rule">
+            <field name="rule_id" ref="starrylord_overtime_weekday"/>
+            <field name="name">第9-10小時</field>
+            <field name="time">2</field>
+            <field name="rate">1.34</field>
+        </record>
+
+        <record id="starrylord_overtime_weekday_rule_two" model="starrylord.overtime.type.rule">
+            <field name="rule_id" ref="starrylord_overtime_weekday"/>
+            <field name="name">第11-12小時</field>
+            <field name="time">4</field>
+            <field name="rate">1.67</field>
+        </record>
+
+        <record id="starrylord_overtime_vacation_rule_one" model="starrylord.overtime.type.rule">
+            <field name="rule_id" ref="starrylord_overtime_vacation"/>
+            <field name="name">第1-2小時</field>
+            <field name="time">2</field>
+            <field name="rate">2.34</field>
+        </record>
+
+        <record id="starrylord_overtime_vacation_rule_two" model="starrylord.overtime.type.rule">
+            <field name="rule_id" ref="starrylord_overtime_vacation"/>
+            <field name="name">第2-12小時</field>
+            <field name="time">12</field>
+            <field name="rate">2.67</field>
+        </record>
+
+        <record id="starrylord_overtime_fix_vacation_rule_one" model="starrylord.overtime.type.rule">
+            <field name="rule_id" ref="starrylord_overtime_fix_vacation"/>
+            <field name="name">第1-12小時</field>
+            <field name="time">12</field>
+            <field name="rate">2</field>
+        </record>
+
+        <record id="starrylord_overtime_holiday_rule_one" model="starrylord.overtime.type.rule">
+            <field name="rule_id" ref="starrylord_overtime_holiday"/>
+            <field name="name">第1-8小時</field>
+            <field name="time">8</field>
+            <field name="rate">2</field>
+        </record>
+
+        <record id="starrylord_overtime_holiday_rule_two" model="starrylord.overtime.type.rule">
+            <field name="rule_id" ref="starrylord_overtime_holiday"/>
+            <field name="name">第9-10小時</field>
+            <field name="time">10</field>
+            <field name="rate">1.34</field>
+        </record>
+
+        <record id="starrylord_overtime_holiday_rule_three" model="starrylord.overtime.type.rule">
+            <field name="rule_id" ref="starrylord_overtime_holiday"/>
+            <field name="name">第11-12小時</field>
+            <field name="time">12</field>
+            <field name="rate">1.67</field>
+        </record>
+
+        <record id="starrylord_overtime_number" model="ir.sequence">
+			<field name="name">starrylord overtime number</field>
+			<field name="code">starrylord.overtime.number</field>
+			<field name="prefix">%(year)s%(month)s%(day)s</field>
+			<field name="padding">3</field>
+			<field name="company_id" eval="False"/>
+		</record>
+    </data>
+</odoo>

@@ -1,0 +1,8 @@
+<odoo>
+    <menuitem id="starrylord_hr_schedule" name="班別設定"
+              parent="hr.menu_human_resources_configuration"
+              action="hr_schedule_action"
+              groups="sl_hrm_personal_calendar.group_starrylord_personal_calendar_manager"
+              sequence="12"
+    />
+</odoo>

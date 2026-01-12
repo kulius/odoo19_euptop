@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="starrylord_holiday_allocation_view_tree_inherit" model="ir.ui.view">
+        <field name="name">starrylord.holiday.allocation.tree.inherit</field>
+        <field name="model">starrylord.holiday.allocation</field>
+        <field name="inherit_id" ref="sl_hrm_holiday.starrylord_holiday_allocation_tree_view" />
+        <field name="priority">600</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='note']" position="after">
+                <field name="sl_overtime_apply_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="starrylord_holiday_allocation_form_view_inherit" model="ir.ui.view">
+        <field name="name">starrylord.holiday.allocation.form.inherit</field>
+        <field name="model">starrylord.holiday.allocation</field>
+        <field name="inherit_id" ref="sl_hrm_holiday.starrylord_holiday_allocation_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='note']" position="after">
+                <field name="sl_overtime_apply_id"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <record id="action_overtime_apply_record_wizard" model="ir.actions.act_window">
+        <field name="name">加班申請報表查詢</field>
+        <field name="res_model">overtime.apply.record.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

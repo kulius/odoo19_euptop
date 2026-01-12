@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="starrylord_hr_attendance_view_tree" model="ir.ui.view">
+        <field name="name">starrylord.hr.attendance.tree</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.view_attendance_tree" />
+        <field name="priority">600</field>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="replace">
+                <tree string="Employee attendances" decoration-success="color == 10"
+                    decoration-danger="color == 1" sample="1">
+                    <field name="employee_id" widget="many2one_avatar_user" />
+                    <field name="employee_number" />
+                    <field name="department_id" />
+                    <field name="check_in" />
+                    <field name="check_out" options="{}" />
+                    <!--                    <field name="worked_hours" string="Work Hours" widget="float_time"/>-->
+                    <field name="color" column_invisible="1" />
+                </tree>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="starrylord_hr_attendance_view_form" model="ir.ui.view">
+        <field name="name">starrylord.hr.attendance.form</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form" />
+        <field name="priority">600</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='overtime_hours']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="starrylord_hr_attendance_check_manager_view_tree" model="ir.ui.view">
+        <field name="name">starrylord.hr.attendance.check.manager.tree</field>
+        <field name="model">hr.attendance.check</field>
+        <field name="arch" type="xml">
+            <tree string="刷卡紀錄管理"
+                decoration-danger="warning_id == '1'">
+                <field name="warning_id" column_invisible="1" />
+                <field name="employee_number" />
+                <field name="employee_id" />
+                <field name="department_id" />
+                <field name="date" />
+                <field name="day_of_week" />
+                <field name="work_check_start_str" />
+                <field name="work_check_end_str" />
+                <!-- <field name="time_diff" /> -->
+                <field name="work_memo" />
+                <field name="holiday_memo" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="starrylord_my_hr_attendance_check_view_tree" model="ir.ui.view">
+        <field name="name">starrylord.my.hr.attendance.check.tree</field>
+        <field name="model">hr.attendance.check</field>
+        <field name="arch" type="xml">
+            <tree string="我的刷卡紀錄"
+                decoration-danger="warning_id == '1'">
+                <field name="warning_id" column_invisible="1" />
+                <field name="date" />
+                <field name="work_check_start_str" />
+                <field name="work_check_end_str" />
+                <field name="work_memo" />
+                <field name="holiday_memo" />
+                <field name="warning_id" column_invisible="1" />
+                <button name="action_create_attendance_repair"
+                    string="補卡說明" type="object" invisible="warning_id == '0'" class="btn-primary" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="hr_attendance_check_manager_search" model="ir.ui.view">
+        <field name="name">hr attendance check manager search</field>
+        <field name="model">hr.attendance.check</field>
+        <field name="arch" type="xml">
+            <search string="打卡紀錄搜尋">
+                <field name="employee_id" />
+                <field name="employee_number" />
+                <field name="department_id" />
+                <field name="date" />
+
+                <separator />
+                <filter string="日期" name="group_date" context="{'group_by': 'date'}" />
+                <filter string="人員" name="group_employee_id" context="{'group_by': 'employee_id'}" />
+                <filter string="部門" name="group_department_id"
+                    context="{'group_by': 'department_id'}" />
+                <separator />
+                <filter string="日期" name="filter_start_date" date="date" />
+                <filter string="本月記錄" name="this_month"
+                    domain="[('date', '&gt;=', ((context_today()).strftime('%Y-%m-1')))]" />
+                <separator />
+                <filter string="上月記錄" name="last_month"
+                    domain="[('date', '&gt;=', ((context_today() - relativedelta(months=1)).strftime('%Y-%m-1'))), ('date', '&lt;', ((context_today()).strftime('%Y-%m-1')))]" />
+                <separator />
+                <filter string="出勤異常" name="attendance_variance"
+                    domain="[('warning_id', '=', '1')]" />
+                <!--                <filter string="日期區間" name="filter_start_and_end" domain="[('date', '&gt;=',
+                context.get('start_date')), ('date', '&lt;=', context.get('end_date'))]"/>-->
+                <separator />
+                <!--                <searchpanel>-->
+                <!--                    <field name="department_id" icon="fa-users" enable_counters="1"/>-->
+                <!--                    <field name="employee_id"/>-->
+                <!--                </searchpanel>-->
+            </search>
+        </field>
+    </record>
+
+    <record id="hr_attendance_check_create_action" model="ir.actions.server">
+        <field name="name">出勤紀錄管理</field>
+        <field name="model_id" ref="model_hr_attendance_check" />
+        <field name="state">code</field>
+        <field name="code">
+            action = env['hr.attendance.check'].create_attendance()
+        </field>
+    </record>
+
+    <record id="hr_attendance_check_action" model="ir.actions.act_window">
+        <field name="name">我的出勤紀錄</field>
+        <field name="res_model">hr.attendance.check</field>
+        <field name="view_mode">tree</field>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="view_id" ref="starrylord_my_hr_attendance_check_view_tree" />
+        <field name="context">{'edit': 0,'create': 0}</field>
+        <!--        <field name="view_ids"-->
+        <!--                   eval="[(5, 0, 0),-->
+        <!--                          (0, 0, {'view_mode': 'tree', 'view_id':
+        ref('starrylord_my_hr_attendance_check_view_tree')})]"/>-->
+    </record>
+
+    <record id="hr_attendance_check_manager_action" model="ir.actions.act_window">
+        <field name="name">出勤紀錄管理</field>
+        <field name="res_model">hr.attendance.check</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="starrylord_hr_attendance_check_manager_view_tree" />
+        <field name="context">{'edit': 0,'create': 0}</field>
+        <!--        <field name="view_ids"-->
+        <!--                   eval="[(5, 0, 0),-->
+        <!--                          (0, 0, {'view_mode': 'tree', 'view_id':
+        ref('starrylord_hr_attendance_check_manager_view_tree')})]"/>-->
+    </record>
+
+    <record id="wizard_hr_attendance_check_action" model="ir.actions.act_window">
+        <field name="name">出勤紀錄管理-手動產生</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">wizard.hr.attendance.check</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="wizard_hr_attendance_check_form_view" />
+        <field name="target">new</field>
+    </record>
+
+</odoo>

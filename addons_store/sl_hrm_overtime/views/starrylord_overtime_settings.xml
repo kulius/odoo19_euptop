@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="starrylord_overtime_setting_form">
+            <field name="name">starrylord_overtime_setting_form</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="100"/>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="inside">
+                    <app data-string="Overtime" string="加班設定" name="sl_hrm_overtime">
+                        <block title="加班設定">
+                            <setting string="單月加班時數上限"
+                                     help="週年制:以人員到職日為基礎，計算年資自動配給。曆年制:以1/1為基礎，計算年資自動配給。">
+                                <div class="content-group">
+                                    <div class="mt8">
+                                        <field name="max_overtime_month"/>
+                                    </div>
+                                </div>
+                            </setting>
+
+                            <setting string="三月內加班時數上限"
+                                     help="以歷年制為配假起訖基礎，於每年1月1日自動配給所有員工30天。">
+                                <div class="content-group">
+                                    <div class="mt8">
+                                        <field name="max_overtime_three_month"/>
+                                    </div>
+                                </div>
+                            </setting>
+
+                            <setting string="是否要人資進行確認"
+                                     help="以歷年制為配假起迄基礎，於每年1月1日自動配給女性員工3日。">
+                                <div class="content-group">
+                                    <div class="mt8">
+                                        <field name="is_hr_check_overtime"/>
+                                    </div>
+                                </div>
+                            </setting>
+
+                            <setting string="加班起算時間(分)"
+                                     help="以歷年制為配假起迄基礎，於每年1月1日自動配給所有員工14日。">
+                                <div class="content-group">
+                                    <div class="mt8">
+                                        <field name="start_overtime"/>
+                                    </div>
+                                </div>
+                            </setting>
+
+                            <setting string="最小加班單位">
+                                <div class="content-group">
+                                    <div class="mt8">
+                                        <field name="min_overtime_unit"/>
+                                    </div>
+                                </div>
+                            </setting>
+
+                        </block>
+                    </app>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

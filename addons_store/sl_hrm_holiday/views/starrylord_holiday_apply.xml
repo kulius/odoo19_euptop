@@ -1,0 +1,304 @@
+<odoo>
+    <record id="starrylord_holiday_apply_tree_view" model="ir.ui.view">
+        <field name="name">starrylord.holiday.apply.tree</field>
+        <field name="model">starrylord.holiday.apply</field>
+        <field name="arch" type="xml">
+            <tree decoration-info="state == 'f_approve'"
+                  decoration-success="state == 'agree'" decoration-danger="state == 'refused'" js_class="sl_hrm_holiday_dashboard_list">
+                <field name="state"/>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="start_day"/>
+                <field name="end_day"/>
+                <field name="substitute_id"/>
+                <field name="holiday_allocation_id"/>
+                <field name="holiday_time_total"/>
+                <field name="next_review" optional="show" string="審核階段"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- 日曆視圖 -->
+    <record id="starrylord_holiday_apply_calendar_view" model="ir.ui.view">
+        <field name="name">starrylord.holiday.apply.calendar</field>
+        <field name="model">starrylord.holiday.apply</field>
+        <field name="arch" type="xml">
+            <calendar string="請假日曆" 
+                      date_start="start_day" 
+                      date_stop="end_day"
+                      color="employee_id"
+                      create="0"
+                      delete="0"
+                      mode="month"
+                      event_open_popup="1"
+                      hide_time="1"
+                      scales="day,week,month,year">
+                <!-- 第一個 field 會作為日曆上的顯示標題 -->
+                <field name="calendar_display_name"/>
+                <field name="employee_id" filters="1" avatar_field="avatar_128"/>
+                <field name="holiday_allocation_id"/>
+                <field name="state" filters="1" invisible="1"/>
+                <field name="holiday_time_total"/>
+                <field name="department_id" invisible="1"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="starrylord_holiday_apply_form_view" model="ir.ui.view">
+        <field name="name">starrylord.holiday.apply.form</field>
+        <field name="model">starrylord.holiday.apply</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,f_approve,agree,refused"/>
+                    <button name="to_f_approve" string="送出簽核"
+                            type="object" class="btn-primary"
+                            invisible="state not in ['draft']"/>
+                    <button string="重置為草稿" name="to_draft" type="object"
+                            invisible="state not in ['f_approve', 'refused']"/>
+                </header>
+                <sheet>
+                    <h1>
+                        <field name="name" readonly="1" string="單號"/>
+                    </h1>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="1"/>
+                            <field name="company_id" readonly="1" options="{'no_open':True, 'no_create':True}"/>
+                        </group>
+                        <group>
+                            <field name="create_date" string="填單時間" readonly="1"
+                                   invisible="not create_date"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="holiday_allocation_id" widget="selection" options="{'no_create': True, 'no_open': True}" class="w-100" readonly="state != 'draft'"/>
+                            <field name="holiday_type_leave_time_total"/>
+                            <field name="last_time"/>
+                        </group>
+                        <group>
+                            <field name="substitute_id" readonly="state != 'draft'"/>
+                            <field name="time_type" readonly="1" invisible="not holiday_allocation_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="start_day" readonly="state != 'draft'"/>
+                            <field name="end_day" readonly="state != 'draft'"/>
+                            <field name="holiday_note" readonly="1"/>
+                            <!-- <field name="holiday_type_name" invisible="1"/> -->
+                            <!-- <field name="holiday_allocation_id_comp" invisible="holiday_type_name != '補休假'" 
+                                readonly="state != 'draft'"/> -->
+                        </group>
+                        <group>
+                            <label for="hour_from_m" invisible="time_type == 'day'"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="hour_from_m" widget="selection" invisible="time_type == 'day'"
+                                       required="time_type != 'day'" readonly="state != 'draft'"/>
+                                <label for="hour_from_m" string=" : " invisible="time_type == 'day'"/>
+                                <field name="min_from_m" widget="selection" invisible="time_type == 'day'"
+                                       readonly="state != 'draft'" required="time_type != 'day'"/>
+                            </div>
+                            <label for="hour_to_m" invisible="time_type == 'day'"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="hour_to_m" widget="selection" invisible="time_type == 'day'"
+                                       required="time_type != 'day'" readonly="state != 'draft'"/>
+                                <label for="hour_to_m" string=" : " invisible="time_type == 'day'"/>
+                                <field name="min_to_m" widget="selection" invisible="time_type == 'day'"
+                                       required="time_type != 'day'" readonly="state != 'draft'"/>
+                            </div>
+                            <field name="apply_from" readonly="1" force_save="1"/>
+                            <field name="apply_to" readonly="1" force_save="1"/>
+                            <field name="holiday_time_total" readonly="1" force_save="1"/>
+                        </group>
+                    </group>
+                    <field name="time_type" invisible="1"/>
+                    <group>
+                        <field name="report_note" widget="text" readonly="state != 'draft'"/>
+                    </group>
+<!--                    <group class="oe_subtotal_footer oe_right">-->
+<!--                        -->
+<!--                    </group>-->
+                    <group>
+                        <field name="attachment_ids" widget="many2many_binary"
+                              readonly="state not in ['draft']" />
+                    </group>
+                </sheet>
+<!--                <div class="oe_chatter">-->
+<!--                    <field name="message_follower_ids"-->
+<!--                           widget="mail_followers"/>-->
+<!--                    <field name="message_ids" widget="mail_thread"/>-->
+<!--                </div>-->
+            </form>
+        </field>
+    </record>
+
+    <record id="starrylord_holiday_apply_action" model="ir.actions.act_window">
+        <field name="name">我的假單</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">starrylord.holiday.apply</field>
+        <field name="view_mode">tree,calendar,form</field>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="view_ids"
+                   eval="[(5, 0, 0),
+                          (0, 0, {'view_mode': 'tree', 'view_id': ref('starrylord_holiday_apply_tree_view')}),
+                          (0, 0, {'view_mode': 'calendar', 'view_id': ref('starrylord_holiday_apply_calendar_view')}),
+                          (0, 0, {'view_mode': 'form', 'view_id': ref('starrylord_holiday_apply_form_view')})]"/>
+    </record>
+
+    <record id="starrylord_holiday_apply_manager_form_view" model="ir.ui.view">
+        <field name="name">starrylord.holiday.apply.form</field>
+        <field name="model">starrylord.holiday.apply</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,f_approve,agree,refused"/>
+                    <button name="to_f_approve" string="送出簽核"
+                            type="object" class="btn-primary"
+                            invisible="state not in ['draft']"/>
+                    <button name="manager_agree" string="批准" type="object"
+                                class="btn-primary" invisible="state not in ['draft']"/>
+                    <button string="重置為草稿" name="to_draft" type="object"
+                            invisible="state not in ['agree','refused']"/>
+<!--                    <button name="to_refused" string="拒絕" type="object"-->
+<!--                            class="btn-primary" invisible="state not in ['draft','f_approve'] or state not in ['approved','f_approve']"/>-->
+<!--                    <button name="to_f_approve" string="取消批准" type="object"-->
+<!--                            invisible="state not in ['approved','agree']"/>-->
+                </header>
+                <sheet>
+                    <h1>
+                        <field name="name" readonly="1"/>
+                    </h1>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="create_date" string="填單時間" readonly="1"
+                                   invisible="not create_date"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="holiday_allocation_id" widget="selection" options="{'no_create': True}" class="w-100" readonly="state != 'draft'"/>
+                            <field name="holiday_type_leave_time_total"/>
+                            <field name="last_time"/>
+                        </group>
+                        <group>
+                            <field name="substitute_id" readonly="state != 'draft'"/>
+                            <field name="time_type" readonly="1" invisible="not holiday_allocation_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="start_day" readonly="state != 'draft'"/>
+                            <field name="end_day" readonly="state != 'draft'"/>
+                            <field name="holiday_note" readonly="1"/>
+                            <!-- <field name="holiday_type_name" invisible="1"/> -->
+                            <!-- <field name="holiday_allocation_id_comp" invisible="holiday_type_name != '補休假'" 
+                                readonly="state != 'draft'"/> -->
+                        </group>
+                        <group>
+                            <label for="hour_from_m" invisible="time_type == 'day'"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="hour_from_m" widget="selection" invisible="time_type == 'day'"
+                                       required="time_type != 'day'" readonly="state != 'draft'"/>
+                                <label for="hour_from_m" string=" : " invisible="time_type == 'day'"/>
+                                <field name="min_from_m" widget="selection" invisible="time_type == 'day'"
+                                       readonly="state != 'draft'" required="time_type != 'day'"/>
+                            </div>
+                            <label for="hour_to_m" invisible="time_type == 'day'"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="hour_to_m" widget="selection" invisible="time_type == 'day'"
+                                       required="time_type != 'day'" readonly="state != 'draft'"/>
+                                <label for="hour_to_m" string=" : " invisible="time_type == 'day'"/>
+                                <field name="min_to_m" widget="selection" invisible="time_type == 'day'"
+                                       required="time_type != 'day'" readonly="state != 'draft'"/>
+                            </div>
+                            <field name="apply_from" readonly="1" force_save="1"/>
+                            <field name="apply_to" readonly="1" force_save="1"/>
+                            <field name="holiday_time_total" readonly="state != 'draft'" force_save="1"/>
+
+                        </group>
+                    </group>
+                    <field name="time_type" invisible="1"/>
+                    <group>
+                        <field name="report_note" widget="text" readonly="state != 'draft'"/>
+                    </group>
+<!--                    <group class="oe_subtotal_footer oe_right">-->
+<!--                        -->
+<!--                    </group>-->
+                    <group>
+                        <field name="attachment_ids" widget="many2many_binary"
+                              readonly="state not in ['draft']" />
+                    </group>
+                </sheet>
+<!--                <div class="oe_chatter">-->
+<!--                    <field name="message_follower_ids"-->
+<!--                           widget="mail_followers"/>-->
+<!--                    <field name="message_ids" widget="mail_thread"/>-->
+<!--                </div>-->
+            </form>
+        </field>
+    </record>
+
+    <record id="starrylord_holiday_apply_manager_action" model="ir.actions.act_window">
+        <field name="name">休假管理</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">starrylord.holiday.apply</field>
+        <field name="view_mode">calendar,tree,form</field>
+        <field name="view_ids"
+                   eval="[(5, 0, 0),
+                          (0, 0, {'view_mode': 'calendar', 'view_id': ref('starrylord_holiday_apply_calendar_view')}),
+                          (0, 0, {'view_mode': 'tree', 'view_id': ref('starrylord_holiday_apply_tree_view')}),
+                          (0, 0, {'view_mode': 'form', 'view_id': ref('starrylord_holiday_apply_manager_form_view')})]"/>
+        <field name="context">{'calendar_event_edit': False}</field>
+    </record>
+
+    <record id="starrylord_holiday_apply_manager_search" model="ir.ui.view">
+        <field name="name">starrylord.holiday.apply.manager.search</field>
+        <field name="model">starrylord.holiday.apply</field>
+        <field name="arch" type="xml">
+            <search string="休假管理搜尋">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="start_day"/>
+                <field name="holiday_allocation_id"/>
+                <filter string="依員工分組" name="employee_id_group" domain="[]" context="{'group_by': 'employee_id'}" />
+                <filter string="依日期分組" name="start_day_group" domain="[]" context="{'group_by': 'start_day'}" />
+<!--                <searchpanel>-->
+<!--                    <field name="state" icon="fa-address-book-o" enable_counters="1"/>-->
+<!--                </searchpanel>-->
+            </search>
+        </field>
+    </record>
+
+    <record id="view_holiday_apply_portal_todo" model="ir.ui.view">
+        <field name="name">starrylord.holiday.apply.portal.tree</field>
+        <field name="model">starrylord.holiday.apply</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="state" column_invisible="1"/>
+                <field name="next_review" optional="show" string="審核階段"/>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="start_day"/>
+                <field name="end_day"/>
+                <field name="holiday_allocation_id"/>
+                <field name="holiday_time_total"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_holiday_apply_portal_todo" model="ir.actions.act_window">
+        <field name="name">請假單審核</field>
+        <field name="res_model">starrylord.holiday.apply</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('can_review','=',True)]</field>
+        <field name="context">{'edit': 1,'create': 0}</field>
+        <field name="view_id" ref="view_holiday_apply_portal_todo"/>
+    </record>
+</odoo>

@@ -1,0 +1,115 @@
+<odoo>
+
+  <record id="sl_overtime_exchange_consent_paper_format" model="report.paperformat">
+    <field name="name">例休調移同意書 A4</field>
+    <field name="default" eval="False" />
+    <field name="format">A4</field>
+    <field name="page_height">0</field>
+    <field name="page_width">0</field>
+    <field name="orientation">Portrait</field>
+    <field name="margin_top">10</field>
+    <field name="margin_bottom">20</field>
+    <field name="margin_left">7</field>
+    <field name="margin_right">7</field>
+    <field name="header_line" eval="False" />
+    <field name="header_spacing">15</field>
+    <field name="dpi">90</field>
+  </record>
+
+  <record id="action_overtime_exchange_consent_report" model="ir.actions.report">
+    <field name="name">例休調移同意書</field>
+    <field name="model">starrylord.overtime.exchange.consent</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">sl_hrm_overtime.overtime_exchange_consent_document</field>
+    <field name="report_file">sl_hrm_overtime.overtime_exchange_consent_document</field>
+    <field name="print_report_name">'例休調移同意書 - %s' % (object.overtime_id.name or object.name)</field>
+    <field name="binding_model_id" ref="model_starrylord_overtime_exchange_consent" />
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="sl_hrm_overtime.sl_overtime_exchange_consent_paper_format" />
+  </record>
+
+  <template id="overtime_exchange_consent_document">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="sl_hrm_overtime.sl_overtime_external_layout_boxed_no_header">
+          <style>
+            .page {
+            width: 210mm;
+            margin: 0 auto;
+            color: black;
+            }
+            .container {
+            line-height: 1.8;
+            }
+          </style>
+
+          <div class="page container">
+            <center>
+              <h2 style="margin-bottom: 30px;">例假日與休息日調移同意書</h2>
+            </center>
+
+            <div style="font-size: 14px; line-height: 1.8;">
+              <p style="margin-bottom: 20px;"> 本人同意公司將原排定之【<t t-esc="doc.regular_holiday_date" />
+                （週六）】休假日調整為【<t t-esc="doc.moved_regular_holiday_date" />（週日）】，</p>
+              <p> 並將【<t
+                  t-esc="doc.day_off_date" />（週六）】改為【<t t-esc="doc.moved_day_off_date" />】例假日 </p>
+
+              <p style="margin-bottom: 30px;">
+                上述調整已於事前與本人充分溝通並經同意，並不影響本人每七日內享有一日例假之權利。
+              </p>
+
+              <p style="margin-bottom: 40px;"> 同意人：<t t-esc="doc.employee_id.name" /></p>
+              <p>
+                簽名：___________________________ 日期：_____________
+              </p>
+
+              <p>員工：<t t-esc="doc.employee_id.name" /></p>
+              <p>公司：<t t-esc="doc.company_id.name" /></p>
+
+              <div t-if="doc.note" style="margin-top: 30px;">
+                <p>
+                  <strong>備註：</strong>
+                  <t t-esc="doc.note" />
+                </p>
+              </div>
+            </div>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+
+  <!-- 自定義外部佈局模板，參考薪資單的佈局 -->
+  <template id="sl_overtime_external_layout_boxed_no_header">
+    <t t-if="not o" t-set="o" t-value="doc" />
+    <t t-if="not company">
+      <t t-if="company_id">
+        <t t-set="company" t-value="company_id" />
+      </t>
+      <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+        <t t-set="company" t-value="o.company_id.sudo()" />
+      </t>
+      <t t-else="else">
+        <t t-set="company" t-value="res_company" />
+      </t>
+    </t>
+
+    <div
+      t-attf-class="article o_report_layout_boxed o_company_#{company.id}_layout {{  'o_report_layout_background' if company.layout_background in ['Geometric', 'Custom']  else  '' }}"
+      t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"
+      t-att-data-oe-lang="o and o.env.context.get('lang')">
+      <t t-out="0" />
+    </div>
+
+    <div t-attf-class="footer o_boxed_footer o_company_#{company.id}_layout">
+      <div class="text-center">
+        <div t-if="report_type == 'pdf'"> Page: <span class="page" /> / <span class="topage" />
+        </div>
+        <div t-if="report_type == 'pdf' and display_name_in_footer" class="text-muted">
+          <span t-out="o.name">(document name)</span>
+        </div>
+      </div>
+    </div>
+  </template>
+
+</odoo>

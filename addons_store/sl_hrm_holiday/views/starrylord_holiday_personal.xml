@@ -1,0 +1,50 @@
+<odoo>
+    <record id="starrylord_holiday_personal_tree_view" model="ir.ui.view">
+        <field name="name">starrylord.holiday.personal.tree</field>
+        <field name="model">starrylord.holiday.personal</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="starrylord_holiday_personal_form_view" model="ir.ui.view">
+        <field name="name">starrylord.holiday.personal.form</field>
+        <field name="model">starrylord.holiday.personal</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <h1>
+                        <field name="name"/>
+                    </h1>
+                    <group>
+                        <field name="is_public_holiday"/>
+                    </group>
+
+                </group>
+
+                <notebook>
+                    <page string="休假時間">
+                        <field name="holiday_ids">
+                            <tree string="休假時間" editable="bottom">
+                                <field name="name"/>
+                                <field name="holiday_type"/>
+                                <field name="dayofweek"/>
+                                <field name="holiday_start" widget="float_time"/>
+                                <field name="holiday_end" widget="float_time"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+            </form>
+        </field>
+    </record>
+
+    <record id="starrylord_holiday_personal_action" model="ir.actions.act_window">
+        <field name="name">休假表</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">starrylord.holiday.personal</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

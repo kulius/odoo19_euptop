@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_schedule,access_hr_schedule,model_hr_schedule,base.group_user,1,1,1,1
+access_hr_schedule_worktime,access_hr_schedule_worktime,model_hr_schedule_worktime,base.group_user,1,1,1,1
+access_hr_schedule_time_type,access_hr_schedule_time_type,model_hr_schedule_time_type,base.group_user,1,1,1,1
+access_hr_personal_calendar,access_hr_personal_calendar,model_hr_personal_calendar,base.group_user,1,1,1,1
