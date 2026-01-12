@@ -125,7 +125,8 @@ class TierReview(models.Model):
 
     @api.model
     def _get_reviewer_fields(self):
-        return ["reviewer_id", "reviewer_group_id", "reviewer_group_id.users"]
+        # Note: Odoo 19 removed res.groups.users field
+        return ["reviewer_id", "reviewer_group_id"]
 
     @api.depends(lambda self: self._get_reviewer_fields())
     def _compute_reviewer_ids(self):
@@ -148,14 +149,24 @@ class TierReview(models.Model):
             rec.todo_by = todo_by
 
     def _get_reviewers(self):
-        if self.reviewer_id or self.reviewer_group_id.users:
-            return self.reviewer_id + self.reviewer_group_id.users
+        # Odoo 19: res.groups no longer has 'users' field
+        # Use search to find users in the group
+        group_users = self.env["res.users"]
+        if self.reviewer_group_id:
+            group_users = self.env["res.users"].search([
+                ("groups_id", "in", self.reviewer_group_id.id)
+            ])
+        if self.reviewer_id or group_users:
+            return self.reviewer_id + group_users
         if self.reviewer_field_id:
             resource = self.env[self.model].browse(self.res_id)
             reviewer_field = getattr(resource, self.reviewer_field_id.name, False)
             if reviewer_field:
                 if reviewer_field._name == "res.groups":
-                    return reviewer_field.users
+                    # Odoo 19: search users with group
+                    return self.env["res.users"].search([
+                        ("groups_id", "in", reviewer_field.ids)
+                    ])
                 elif reviewer_field._name == "res.users":
                     return reviewer_field
                 else:

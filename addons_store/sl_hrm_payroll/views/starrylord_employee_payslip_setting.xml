@@ -1,17 +1,17 @@
 <odoo>
-    <record id="starrylord_employee_payslip_setting_tree_view" model="ir.ui.view">
-        <field name="name">starrylord.employee.payslip.setting.tree</field>
+    <record id="starrylord_employee_payslip_setting_list_view" model="ir.ui.view">
+        <field name="name">starrylord.employee.payslip.setting.list</field>
         <field name="model">starrylord.employee.payslip.setting</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="start_date"/>
                 <field name="change_date"/>
                 <field name="employee_id"/>
-                <field name="salary_rule_id" 
+                <field name="salary_rule_id"
                     domain="[('id', 'in', available_rule_ids)]"/>
                 <field name="available_rule_ids" column_invisible="1"/>
                 <field name="salary_amount"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -40,6 +40,6 @@
         <field name="name">薪資設定</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">starrylord.employee.payslip.setting</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 </odoo>

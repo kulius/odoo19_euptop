@@ -3,7 +3,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from pytz import timezone
 from odoo import fields, models, api
-from odoo.addons.resource.models.utils import Intervals
+from odoo.tools.intervals import Intervals
 
 
 class StarryLordHrAttendance(models.Model):

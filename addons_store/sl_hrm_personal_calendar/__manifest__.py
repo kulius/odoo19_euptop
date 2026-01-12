@@ -10,6 +10,7 @@
     'data': [
         'security/hr_personal_calendar_security.xml',
         'security/ir.model.access.csv',
+        'views/starrylord_time_list.xml',
         'views/hr_schedule.xml',
         'views/hr_schedule_time_type.xml',
         'views/hr_personal_calendar.xml',

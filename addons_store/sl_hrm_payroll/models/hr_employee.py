@@ -2,8 +2,8 @@ from odoo import models, fields, api
 from odoo.exceptions import ValidationError, UserError
 
 
-class HrEmployeeInheritancePayroll(models.AbstractModel):
-    _inherit = "hr.employee.base"
+class HrEmployeeInheritancePayroll(models.Model):
+    _inherit = "hr.employee"
 
     payroll_structure_id = fields.Many2one('hr.payroll.structure', string='薪資結構')
 

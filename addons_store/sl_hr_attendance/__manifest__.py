@@ -6,14 +6,14 @@
     'website': "https://www.starrylord.com.tw",
     'category': 'HRM',
     'version': '19.0.0.1',
-    'depends': ['base', 'hr', 'sl_hrm_personal_calendar', 'hr_attendance'],
+    'depends': ['base', 'hr', 'sl_hrm_personal_calendar', 'hr_attendance', 'base_tier_validation', 'sl_hrm_holiday', 'sl_hrm_overtime'],
     'external_dependencies': {
         'python': ['pandas', 'openpyxl'],
     },
     'data': [
         'security/ir.model.access.csv',
         'data/email_template_attendance_anomaly.xml',
-        'data/cron_attendance_anomaly.xml',
+        # 'data/cron_attendance_anomaly.xml',  # TODO: Fix cron model reference for Odoo 19
         'wizard/wizard_hr_attendance_check.xml',
         'views/sl_attendance_repair.xml',
         'views/sl_attendance_import_view.xml',

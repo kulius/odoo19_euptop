@@ -1,16 +1,16 @@
 <odoo>
     <record id="view_tree_sl_hr_payslip_sheet" model="ir.ui.view">
-        <field name="name">sl.hr.payslip.sheet.tree</field>
+        <field name="name">sl.hr.payslip.sheet.list</field>
         <field name="model">sl.hr.payslip.sheet</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name" />
                 <field name="pay_date" />
                 <field name="company_id" />
                 <!-- <field name="over_tax_amount" /> -->
                 <field name="actual_total_amount" />
                 <field name="state" />
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -73,10 +73,10 @@
                         <field name="employee_ids" widget="many2many_tags"
                             options="{'no_create': True}" readonly="state == 'confirm'"
                             string="選擇員工">
-                            <tree>
+                            <list>
                                 <field name="employee_number" />
                                 <field name="name" />
-                            </tree>
+                            </list>
                         </field>
                         <!--                        <field name="included_employee_ids" invisible="1"/>-->
                     </group>
@@ -84,7 +84,7 @@
                         invisible="state != 'draft'" />
 
                     <field name="payslip_ids" readonly="1" context="{'form_view_ref': 'sl_hrm_payroll.hr_payslip_form_view'}">
-                        <tree default_order="employee_number">
+                        <list default_order="employee_number">
                             <field name="employee_number" />
                             <field name="employee_id" />
                             <field name="basic_wage" sum="Total" />
@@ -108,7 +108,7 @@
                             <button string="寄送E-mail" type="object" class="btn-primary"
                                 name="send_mail_report" />
                             <field name="payroll_report_attachment_ids" widget="many2many_binary" />
-                        </tree>
+                        </list>
 
                     </field>
                 </sheet>
@@ -117,12 +117,12 @@
     </record>
 
 
-    <record id="hr_payslip_tree" model="ir.ui.view">
-        <field name="name">hr.payslip.tree</field>
+    <record id="hr_payslip_list" model="ir.ui.view">
+        <field name="name">hr.payslip.list</field>
         <field name="model">hr.payslip</field>
         <field eval="20" name="priority" />
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name" />
                 <field name="employee_id" />
                 <field name="basic_wage" />
@@ -134,7 +134,7 @@
                 <field name="computed_year_taxable_non_recurring_salary" string="當年度獎金累計" />
                 <field name="payroll_structure_id" column_invisible="1" />
                 <field name="state" />
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -224,7 +224,7 @@
                             <field name="payslip_line_ids"
                                 colspan="4"
                                 force_save="1">
-                                <tree string="薪資規則" create="false" editable="bottom">
+                                <list string="薪資規則" create="false" editable="bottom">
                                     <field name="sequence" readonly="1" options="{'no_open': True}" />
                                     <field name="name" options="{'no_open': True}" />
                                     <field name="salary_rule_id" string="薪資規則" readonly="1"
@@ -246,7 +246,7 @@
                                         class="btn-primary"
                                         icon="fa-edit" />
                                     <field name="manual" />
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page name="computation_custom" string="其他薪資">
@@ -254,7 +254,7 @@
                                 colspan="4"
                                 force_save="1"
                                 readonly="state == 'confirm'">
-                                <tree string="其他薪資" editable="bottom">
+                                <list string="其他薪資" editable="bottom">
                                     <field name="name" />
                                     <field name="company_id" column_invisible="1" />
                                     <field name="salary_rule_id" string="薪資規則"
@@ -266,7 +266,7 @@
                                     <field name="source" width="10%" />
                                     <field name="amount" />
                                     <field name="note" width="10%" />
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="勞健保明細暨稅費基準資訊">
@@ -288,59 +288,55 @@
                             groups="sl_hrm_payroll.group_sl_hrm_payroll_manager">
                             <separator name="other" string="本薪變化" />
                             <field name="employee_payslip_salary_setting_ids" readonly="1">
-                                <tree editable="top">
+                                <list editable="top">
                                     <field name="start_date" />
                                     <field name="end_date" />
                                     <field name="amount" />
                                     <field name="hour_amount" />
-                                </tree>
+                                </list>
                             </field>
                             <separator name="other" string="請假明細" />
                             <field name="holiday_ids" colspan="5" nolabel="1"
                                 readonly="1">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="start_day" />
                                     <field name="holiday_total_time" />
                                     <field name="holiday_type_id" />
                                     <field name="holiday_apply_id" />
-                                </tree>
+                                </list>
                             </field>
                             <!--                            <separator name="other" string="加班明細"/>-->
                             <field name="overtime_ids" colspan="4" nolabel="1" invisible="1"
                                 readonly="1">
-                                <tree>
+                                <list>
                                     <field name="overtime_type_id" />
                                     <field name="date_from" />
                                     <field name="days_no_tmp" />
                                     <field name="type" />
                                     <field name="overtime_apply_id" />
-                                </tree>
+                                </list>
                             </field>
 
                             <separator name="overtime_holiday" string="加班折薪明細" />
                             <field name="overtime_holiday_ids" colspan="4" nolabel="1"
                                 readonly="1">
-                                <tree>
+                                <list>
                                     <field name="overtime_type_id" />
                                     <field name="date_from" />
                                     <field name="days_no_tmp" />
                                     <field name="rate" />
-                                </tree>
+                                </list>
                             </field>
                         </page>
                     </notebook>
 
                     <group class="oe_subtotal_footer oe_right">
-                        <field name="taxable_add_subtotal" readonly="[('state', '=', 'confirm')]" />
-                        <field name="taxfree_add_subtotal" readonly="[('state', '=', 'confirm')]" />
-                        <field name="taxable_decrease_subtotal"
-                            readonly="[('state', '=', 'confirm')]" />
-                        <field name="taxfree_decrease_subtotal"
-                            readonly="[('state', '=', 'confirm')]" />
-                        <field name="all_subtotal"
-                            readonly="[('state', '=', 'confirm')]" />
-                        <field name="company_cost"
-                            readonly="[('state', '=', 'confirm')]" />
+                        <field name="taxable_add_subtotal" readonly="state == 'confirm'" />
+                        <field name="taxfree_add_subtotal" readonly="state == 'confirm'" />
+                        <field name="taxable_decrease_subtotal" readonly="state == 'confirm'" />
+                        <field name="taxfree_decrease_subtotal" readonly="state == 'confirm'" />
+                        <field name="all_subtotal" readonly="state == 'confirm'" />
+                        <field name="company_cost" readonly="state == 'confirm'" />
                     </group>
                 </sheet>
 
@@ -437,10 +433,10 @@
     <record id="action_sl_hr_payslip_sheet_manager" model="ir.actions.act_window">
         <field name="name">薪資管理</field>
         <field name="res_model">sl.hr.payslip.sheet</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="domain">[('is_salary_sheet', '=', True)]</field>
         <field name="view_ids" eval="[(5, 0, 0),
-            (0, 0, {'view_mode': 'tree', 'view_id': ref('view_tree_sl_hr_payslip_sheet')}),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_tree_sl_hr_payslip_sheet')}),
             (0, 0, {'view_mode': 'form', 'view_id': ref('view_form_sl_hr_payslip_sheet')})]"/>
     </record>
 
@@ -448,7 +444,7 @@
         <field name="name">我的薪資單</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">hr.payslip</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="domain">[('user_id','=',uid), ('state', '=', 'confirm')]</field>
     </record>
 
@@ -456,8 +452,8 @@
         <field name="name">員工薪資單管理</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">hr.payslip</field>
-        <field name="view_mode">tree,form,pivot</field>
-        <field name="view_id" ref="hr_payslip_tree" />
+        <field name="view_mode">list,form,pivot</field>
+        <field name="view_id" ref="hr_payslip_list" />
         <field name="context">{'edit': 1,'create': 0, 'search_default_order': 'employee_number asc',
             'group_by' : 'sl_hr_payslip_sheet_id'}</field>
     </record>

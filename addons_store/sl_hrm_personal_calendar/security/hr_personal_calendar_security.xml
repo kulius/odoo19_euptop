@@ -8,19 +8,14 @@
 
     <record id="group_starrylord_personal_calendar" model="res.groups">
         <field name="name">一般員工班表及行事曆</field>
-        <field name="category_id" ref="sl_hrm_personal_calendar.module_category_starrylord_personal_calendar"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         <field name="comment">可以看到行事曆，但看不到設定與排班</field>
     </record>
 
     <record id="group_starrylord_personal_calendar_manager" model="res.groups">
         <field name="name">班表及行事曆管理</field>
-        <field name="category_id" ref="sl_hrm_personal_calendar.module_category_starrylord_personal_calendar"/>
         <field name="implied_ids" eval="[(4, ref('sl_hrm_personal_calendar.group_starrylord_personal_calendar'))]"/>
-        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
-    </record>
-
-    <record id="base.default_user" model="res.users">
-        <field name="groups_id" eval="[(4,ref('sl_hrm_personal_calendar.group_starrylord_personal_calendar'))]"/>
+        <field name="comment">班表及行事曆管理</field>
     </record>
 
 </odoo>

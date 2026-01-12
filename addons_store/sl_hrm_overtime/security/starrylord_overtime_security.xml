@@ -8,29 +8,26 @@
 
     <record id="group_starrylord_overtime" model="res.groups">
         <field name="name">加班單申請人員</field>
-        <field name="category_id" ref="sl_hrm_overtime.module_category_starrylord_overtime"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         <field name="comment">一般加班申請人員</field>
-        <field name="users" eval="[(4, ref('base.user_root'))]"/>
     </record>
 
     <record id="group_starrylord_overtime_director" model="res.groups">
         <field name="name">加班單簽核人員</field>
-        <field name="category_id" ref="sl_hrm_overtime.module_category_starrylord_overtime"/>
+        <field name="implied_ids" eval="[(4, ref('group_starrylord_overtime'))]"/>
         <field name="comment">加班單簽核人員</field>
     </record>
 
     <record id="group_starrylord_overtime_manager" model="res.groups">
         <field name="name">加班單管理人員</field>
-        <field name="category_id" ref="sl_hrm_overtime.module_category_starrylord_overtime"/>
+        <field name="implied_ids" eval="[(4, ref('group_starrylord_overtime_director'))]"/>
         <field name="comment">加班單管理人員</field>
-        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
     </record>
 
     <record id="group_starrylord_overtime_developer" model="res.groups">
         <field name="name">加班參數設定</field>
-        <field name="category_id" ref="sl_hrm_overtime.module_category_starrylord_overtime"/>
+        <field name="implied_ids" eval="[(4, ref('group_starrylord_overtime_manager'))]"/>
         <field name="comment">相關參數設定</field>
-        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
     </record>
 
 </odoo>

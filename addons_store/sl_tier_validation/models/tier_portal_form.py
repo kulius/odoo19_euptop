@@ -37,7 +37,7 @@ class TierPortalForm(models.Model):
                 'name': '未送簽表單',
                 'type': 'ir.actions.act_window',
                 'res_model': self.model_id.model,
-                'view_mode': 'tree,form',
+                'view_mode': 'list,form',
                 'domain': [('state', 'in', ['draft']), ('user_id', '=', self.env.user.employee_id.id)],
             }
         else:
@@ -45,7 +45,7 @@ class TierPortalForm(models.Model):
                 'name': '未送簽表單',
                 'type': 'ir.actions.act_window',
                 'res_model': self.model_id.model,
-                'view_mode': 'tree,form',
+                'view_mode': 'list,form',
                 'domain': [('state', 'in', ['draft']),('employee_id', '=', self.env.user.employee_id.id)],
             }
 
@@ -56,7 +56,7 @@ class TierPortalForm(models.Model):
                 'name': '簽核中表單',
                 'type': 'ir.actions.act_window',
                 'res_model': self.model_id.model,
-                'view_mode': 'tree,form',
+                'view_mode': 'list,form',
                 'domain': [('state', 'in', ['f_approve']), ('employee_id', '=', self.env.user.employee_id.id)],
             }
         else:
@@ -64,7 +64,7 @@ class TierPortalForm(models.Model):
                 'name': '簽核中表單',
                 'type': 'ir.actions.act_window',
                 'res_model': self.model_id.model,
-                'view_mode': 'tree,form',
+                'view_mode': 'list,form',
                 'domain': [('state', 'in', ['f_approve']), ('employee_id', '=', self.env.user.employee_id.id)],
             }
 

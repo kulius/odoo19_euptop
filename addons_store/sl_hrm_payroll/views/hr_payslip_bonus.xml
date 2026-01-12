@@ -1,15 +1,15 @@
 <odoo>
     <record id="view_tree_sl_hr_payslip_bonus_sheet" model="ir.ui.view">
-        <field name="name">sl.hr.payslip.bonus.sheet.tree</field>
+        <field name="name">sl.hr.payslip.bonus.sheet.list</field>
         <field name="model">sl.hr.payslip.sheet</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name" />
                 <field name="pay_date" />
                 <field name="actual_total_amount" />
                 <field name="state" />
                 <field name="company_id" column_invisible="1"/>
-            </tree>
+            </list>
         </field>
     </record>
     
@@ -60,7 +60,7 @@
                         invisible="state != 'draft'" />
 
                     <field name="payslip_ids" readonly="1" context="{'form_view_ref': 'sl_hrm_payroll.hr_payslip_bonus_form_view'}">
-                        <tree default_order="employee_number">
+                        <list default_order="employee_number">
                             <field name="employee_number" />
                             <field name="employee_id" />
                             <field name="payable_add_subtotal" sum="Total" string="獎金金額"/>
@@ -78,7 +78,7 @@
                             <button string="寄送E-mail" type="object" class="btn-primary"
                                 name="send_mail_report" />
                             <field name="payroll_report_attachment_ids" widget="many2many_binary" />
-                        </tree>
+                        </list>
 
                     </field>
                 </sheet>
@@ -143,7 +143,7 @@
                             <field name="payslip_line_ids"
                                 colspan="4"
                                 force_save="1">
-                                <tree string="獎金規則" create="false" editable="bottom">
+                                <list string="獎金規則" create="false" editable="bottom">
                                     <field name="sequence" readonly="1" options="{'no_open': True}" />
                                     <field name="name" options="{'no_open': True}" />
                                     <field name="salary_rule_id" string="獎金規則" readonly="1"
@@ -160,7 +160,7 @@
                                         class="btn-primary"
                                         icon="fa-edit" />
                                     <field name="manual" />
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="健保明細暨稅費基準資訊">
@@ -176,13 +176,10 @@
                     </notebook>
 
                     <group class="oe_subtotal_footer oe_right">
-                        <field name="taxable_add_subtotal" readonly="[('state', '=', 'confirm')]" />
-                        <field name="taxable_decrease_subtotal"
-                            readonly="[('state', '=', 'confirm')]" />
-                        <field name="taxfree_decrease_subtotal"
-                            readonly="[('state', '=', 'confirm')]" />
-                        <field name="all_subtotal"
-                            readonly="[('state', '=', 'confirm')]" />
+                        <field name="taxable_add_subtotal" readonly="state == 'confirm'" />
+                        <field name="taxable_decrease_subtotal" readonly="state == 'confirm'" />
+                        <field name="taxfree_decrease_subtotal" readonly="state == 'confirm'" />
+                        <field name="all_subtotal" readonly="state == 'confirm'" />
                     </group>
                 </sheet>
             </form>
@@ -192,11 +189,11 @@
     <record id="action_sl_hr_bonus_payslip_sheet_manager" model="ir.actions.act_window">
         <field name="name">獎金管理</field>
         <field name="res_model">sl.hr.payslip.sheet</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="domain">[('is_salary_sheet', '=', False)]</field>
         <field name="context">{'default_is_salary_sheet': False}</field>
         <field name="view_ids" eval="[(5, 0, 0),
-            (0, 0, {'view_mode': 'tree', 'view_id': ref('view_tree_sl_hr_payslip_bonus_sheet')}),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_tree_sl_hr_payslip_bonus_sheet')}),
             (0, 0, {'view_mode': 'form', 'view_id': ref('view_form_sl_hr_payslip_bonus_sheet')})]"/>
     </record>
 

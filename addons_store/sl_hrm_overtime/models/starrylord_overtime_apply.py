@@ -106,7 +106,7 @@ class StarryLordOvertimeApply(models.Model):
     @api.depends('employee_id')
     def _compute_employee_info(self):
         for rec in self:
-            rec.employee_info = f"{rec.department_name}\{rec.employee_id.employee_number}\{rec.employee_id.name}"
+            rec.employee_info = f"{rec.department_name}\\{rec.employee_id.employee_number}\\{rec.employee_id.name}"
             
     @api.depends('start_day')
     def _compute_start_day_str(self):

@@ -16,15 +16,15 @@
         </field>
     </record>
 
-    <record id="hr_salary_rule_category_tree" model="ir.ui.view">
-        <field name="name">hr.salary.rule.category.tree</field>
+    <record id="hr_salary_rule_category_list" model="ir.ui.view">
+        <field name="name">hr.salary.rule.category.list</field>
         <field name="model">hr.salary.rule.category</field>
         <field name="arch" type="xml">
-            <tree string="Salary Rule Categories">
+            <list string="Salary Rule Categories">
                 <field name="name"/>
                 <field name="code"/>
                 <field name="parent_id" invisible="1"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -43,7 +43,7 @@
         <field name="name">薪資規則類別</field>
         <field name="res_model">hr.salary.rule.category</field>
         <field name="binding_view_types">form</field>
-        <field name="view_id" ref="hr_salary_rule_category_tree"/>
+        <field name="view_id" ref="hr_salary_rule_category_list"/>
         <field name="search_view_id" ref="view_hr_salary_rule_category_filter"/>
     </record>
 </odoo>

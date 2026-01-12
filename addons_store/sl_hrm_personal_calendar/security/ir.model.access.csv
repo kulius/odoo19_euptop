@@ -3,3 +3,5 @@ access_hr_schedule,access_hr_schedule,model_hr_schedule,base.group_user,1,1,1,1
 access_hr_schedule_worktime,access_hr_schedule_worktime,model_hr_schedule_worktime,base.group_user,1,1,1,1
 access_hr_schedule_time_type,access_hr_schedule_time_type,model_hr_schedule_time_type,base.group_user,1,1,1,1
 access_hr_personal_calendar,access_hr_personal_calendar,model_hr_personal_calendar,base.group_user,1,1,1,1
+access_starrylord_holiday_hour_list,access_starrylord_holiday_hour_list,model_starrylord_holiday_hour_list,base.group_user,1,1,1,1
+access_starrylord_holiday_min_list,access_starrylord_holiday_min_list,model_starrylord_holiday_min_list,base.group_user,1,1,1,1

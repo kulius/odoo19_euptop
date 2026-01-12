@@ -8,16 +8,14 @@
 
     <record id="group_sl_hrm_payroll" model="res.groups">
         <field name="name">一般員工薪資單</field>
-        <field name="category_id" ref="sl_hrm_payroll.module_category_sl_hrm_payroll"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         <field name="comment">可以看到薪資單,看不到薪資設定</field>
     </record>
 
     <record id="group_sl_hrm_payroll_manager" model="res.groups">
         <field name="name">薪資單管理</field>
-        <field name="category_id" ref="sl_hrm_payroll.module_category_sl_hrm_payroll"/>
         <field name="implied_ids" eval="[(4, ref('sl_hrm_payroll.group_sl_hrm_payroll'))]"/>
         <field name="comment">薪資單管理人員</field>
-        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
     </record>
 
 </odoo>

@@ -28,15 +28,15 @@
                         </group>
                         <seperator/>
                         <field name="payslip_setting_ids" nolabel="1">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="start_date"/>
                                     <field name="change_date"/>
                                     <field name="change_reason"/>
-                                    <field name="salary_rule_id" 
+                                    <field name="salary_rule_id"
                                         domain="[('id', 'in', available_rule_ids)]"/>
                                     <field name="available_rule_ids" column_invisible="1"/>
                                     <field name="salary_amount"/>
-                                </tree>
+                                </list>
                         </field>
                     </page>
 

@@ -20,8 +20,9 @@ class StarryLordOvertimeType(models.Model):
 
 class StarryLordOvertimeTypeRule(models.Model):
     _name = 'starrylord.overtime.type.rule'
+    _description = '加班費率規則'
 
-    rule_id = fields.Many2one('starrylord.overtime.type')
+    rule_id = fields.Many2one('starrylord.overtime.type', string='加班類型')
     name = fields.Char(string='名稱')
     time = fields.Integer(string='時數')
     rate = fields.Float(string='費率')

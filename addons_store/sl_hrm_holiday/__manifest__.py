@@ -12,7 +12,7 @@
         'security/ir.model.access.csv',
         'security/sl_hrm_holiday_security.xml',
         'data/starrylord_holiday_apply_data.xml',
-        'data/holiday_cron.xml',
+        # 'data/holiday_cron.xml',  # TODO: Fix cron model reference for Odoo 19
         'data/starrylord_holiday_apply_setting_data.xml',
         'views/starrylord_holiday_apply.xml',
         'views/starrylord_holiday_settings.xml',
