@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="wizard_payslip_salary_rule_add" model="ir.ui.view">
+    <field name="name">wizard.payslip.salary.rule.add.form</field>
+    <field name="model">wizard.payslip.salary.rule.add</field>
+    <field name="arch" type="xml">
+      <form string="新增薪資規則">
+        <group>
+          <field name="salary_rule_id" required="1"
+            domain="[('company_id', '=', context.get('company_id'))]" />
+          <field name="change_reason" />
+          <field name="amount" required="1" />
+        </group>
+        <group>
+          <field name="start_date" required="1" invisible="1" />
+          <field name="change_date" required="1" invisible="1" />
+        </group>
+        <footer>
+          <button string="確定" type="object" name="apply_salary_rule" class="btn-primary" />
+          <button string="取消" class="btn-secondary" special="cancel" />
+        </footer>
+      </form>
+    </field>
+  </record>
+
+</odoo>

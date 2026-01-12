@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_hr_payslip_batch_processing" model="ir.ui.view">
+        <field name="name">hr_payslip_batch_processing</field>
+        <field name="model">hr.payslip.batch.processing</field>
+        <field name="arch" type="xml">
+            <form string="依員工生成薪資單">
+                <group>
+                    <span colspan="4" nolabel="1">
+                        將根據此薪資單批次處理中指定的日期和退款備註為所有選定的員工生成薪資單。
+                    </span>
+                </group>
+                <group colspan="4">
+                    <separator string="員工" colspan="4"/>
+                    <newline/>
+                    <field name="employee_ids" nolabel="1"/>
+                </group>
+                <footer>
+                    <button
+                            icon="fa-cogs"
+                            string="生成"
+                            name="compute_sheet"
+                            type="object"
+                            class="oe_highlight"
+                    />
+                    <button string="取消" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_hr_payslip_batch_processing" model="ir.actions.act_window">
+        <field name="name">依員工生成薪資單</field>
+        <field name="res_model">hr.payslip.batch.processing</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_hr_payslip_batch_processing"/>
+        <field name="target">new</field>
+    </record>
+
+    <record id="view_hr_payslip_batch_processing2" model="ir.ui.view">
+        <field name="name">hr_payslip_batch_processing2</field>
+        <field name="model">hr.payslip.batch.processing</field>
+        <field name="arch" type="xml">
+            <form string="依薪資結構生成薪資單">
+                <group colspan="4">
+                    <span colspan="4" nolabel="1">
+                        將根據此薪資單批次處理中指定的日期和退款備註為所有為該薪資結構的員工生成薪資單。
+                    </span>
+                </group>
+                <group colspan="4">
+                    <separator string="薪資結構" colspan="4"/>
+                    <newline/>
+                    <field name="hr_payroll_structure_id"/>
+                </group>
+                <footer>
+                    <button
+                            icon="fa-cogs"
+                            string="生成"
+                            name="get_payroll_structure_employee"
+                            type="object"
+                            class="oe_highlight"
+                    />
+                    <button string="取消" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_hr_payslip_batch_processing2" model="ir.actions.act_window">
+        <field name="name">依薪資結構生成薪資單</field>
+        <field name="res_model">hr.payslip.batch.processing</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_hr_payslip_batch_processing2"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

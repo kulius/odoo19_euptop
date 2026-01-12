@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding='UTF-8'?>
+<odoo>
+    # 薪資規則類別
+    <data noupdate="1">
+        <record id="Taxable_Add" model="hr.salary.rule.category">
+            <field name="name">應稅加項</field>
+            <field name="code">Taxable_Add</field>
+        </record>
+
+        <record id="Taxable_Decrease" model="hr.salary.rule.category">
+            <field name="name">應稅減項</field>
+            <field name="code">Taxable_Decrease</field>
+        </record>
+
+        <record id="Taxfree_Add" model="hr.salary.rule.category">
+            <field name="name">免稅加項</field>
+            <field name="code">Taxfree_Add</field>
+        </record>
+
+        <record id="Taxfree_Decrease" model="hr.salary.rule.category">
+            <field name="name">免稅減項</field>
+            <field name="code">Taxfree_Decrease</field>
+        </record>
+
+        <record id="Amount" model="hr.salary.rule.category">
+            <field name="name">合計類別</field>
+            <field name="code">Amount</field>
+        </record>
+
+        <record id="Company" model="hr.salary.rule.category">
+            <field name="name">公司繳納</field>
+            <field name="code">COMP</field>
+        </record>
+
+    </data>
+
+    # 繳納登記冊
+    <!--
+    <data noupdate="1">
+        <record id="contribution_register_labor" model="hr.contribution.register">
+            <field name="name">勞保費</field>
+        </record>
+
+        <record id="contribution_register_health" model="hr.contribution.register">
+            <field name="name">健保費</field>
+        </record>
+
+        <record id="contribution_register_bonus" model="hr.contribution.register">
+            <field name="name">獎金</field>
+        </record>
+
+        <record id="contribution_register_labor_pension" model="hr.contribution.register">
+            <field name="name">勞工退休金</field>
+        </record>
+
+        <record id="contribution_register_wage_payment_fund" model="hr.contribution.register">
+            <field name="name">工資墊償基金</field>
+        </record>
+
+        <record id="contribution_register_occupational_accident_insurance" model="hr.contribution.register">
+            <field name="name">職業災害保險</field>
+        </record>
+
+        <record id="contribution_register_net_amount" model="hr.contribution.register">
+            <field name="name">實發金額</field>
+        </record>
+
+    </data>-->
+
+    # 薪資規則
+    <data noupdate="0">
+        # 應稅加項
+        <record id="hr_rule_basic_wage" model="hr.salary.rule">
+            <field name="name">基本底薪</field>
+            <field name="sequence" eval="1"/>
+            <field name="code">BASIC_Wage</field>
+            <field name="category_id" ref="Taxable_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_basic">True</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+        <record id="hr_rule_leader_allowance_01" model="hr.salary.rule">
+            <field name="name">經理兼主任津貼</field>
+            <field name="sequence" eval="10"/>
+            <field name="code">leader_allowance_01</field>
+            <field name="category_id" ref="Taxfree_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_basic">True</field>
+            <field name="is_non_recurring">False</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+        <record id="hr_rule_leader_allowance_02" model="hr.salary.rule">
+            <field name="name">副理兼主任津貼</field>
+            <field name="sequence" eval="11"/>
+            <field name="code">leader_allowance_02</field>
+            <field name="category_id" ref="Taxfree_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_basic">True</field>
+            <field name="is_non_recurring">False</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+        <record id="hr_rule_leader_allowance_03" model="hr.salary.rule">
+            <field name="name">課長兼主任津貼</field>
+            <field name="sequence" eval="12"/>
+            <field name="code">leader_allowance_03</field>
+            <field name="category_id" ref="Taxfree_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_basic">True</field>
+            <field name="is_non_recurring">False</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+        <record id="hr_rule_leader_allowance_04" model="hr.salary.rule">
+            <field name="name">組長兼主任津貼</field>
+            <field name="sequence" eval="13"/>
+            <field name="code">leader_allowance_04</field>
+            <field name="category_id" ref="Taxfree_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_basic">True</field>
+            <field name="is_non_recurring">False</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+        <record id="hr_rule_leader_allowance_05" model="hr.salary.rule">
+            <field name="name">工地主任津貼</field>
+            <field name="sequence" eval="14"/>
+            <field name="code">leader_allowance_05</field>
+            <field name="category_id" ref="Taxfree_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_basic">True</field>
+            <field name="is_non_recurring">False</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+
+        <record id="hr_rule_leader_allowance_06" model="hr.salary.rule">
+            <field name="name">工地副主任津貼</field>
+            <field name="sequence" eval="15"/>
+            <field name="code">leader_allowance_06</field>
+            <field name="category_id" ref="Taxfree_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_basic">True</field>
+            <field name="is_non_recurring">False</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+
+        <record id="hr_rule_leader_allowance_07" model="hr.salary.rule">
+            <field name="name">領班津貼</field>
+            <field name="sequence" eval="16"/>
+            <field name="code">leader_allowance_07</field>
+            <field name="category_id" ref="Taxfree_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_basic">True</field>
+            <field name="is_non_recurring">False</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+
+        <record id="hr_rule_food_allowance" model="hr.salary.rule">
+            <field name="name">伙食津貼</field>
+            <field name="sequence" eval="17"/>
+            <field name="code">food_allowance</field>
+            <field name="category_id" ref="Taxable_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_basic">True</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+
+        <record id="hr_salary_rule_traffic" model="hr.salary.rule">
+            <field name="name">交通津貼</field>
+            <field name="code">traffic</field>
+            <field name="sequence" eval="18"/>
+            <field name="category_id" ref="Taxfree_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+        <record id="hr_rule_allowance_10" model="hr.salary.rule">
+            <field name="name">工地津貼</field>
+            <field name="sequence" eval="19"/>
+            <field name="code">allowance_10</field>
+            <field name="category_id" ref="Taxfree_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_basic">True</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+        <record id="hr_rule_allowance_11" model="hr.salary.rule">
+            <field name="name">工地安衛津貼</field>
+            <field name="sequence" eval="20"/>
+            <field name="code">allowance_11</field>
+            <field name="category_id" ref="Taxfree_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_basic">True</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+        <record id="hr_rule_allowance_12" model="hr.salary.rule">
+            <field name="name">內業津貼</field>
+            <field name="sequence" eval="21"/>
+            <field name="code">allowance_12</field>
+            <field name="category_id" ref="Taxfree_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_basic">True</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+        <record id="hr_rule_allowance_13" model="hr.salary.rule">
+            <field name="name">外派津貼</field>
+            <field name="sequence" eval="22"/>
+            <field name="code">allowance_13</field>
+            <field name="category_id" ref="Taxfree_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_basic">True</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+        <record id="hr_salary_rule_other_allowance" model="hr.salary.rule">
+            <field name="name">其他津貼</field>
+            <field name="code">other_allowance</field>
+            <field name="sequence" eval="25"/>
+            <field name="category_id" ref="Taxfree_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+        <record id="hr_salary_rule_overtime" model="hr.salary.rule">
+            <field name="name">加班費</field>
+            <field name="code">overtime</field>
+            <field name="sequence" eval="30"/>
+            <field name="category_id" ref="Taxable_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="is_inherit_setting">True</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].overtime(employee.id, payslip.dict.overtime_ids, payslip.dict.overtime_holiday_ids, payslip.dict.employee_payslip_salary_setting_ids)</field>
+        </record>
+
+
+        <record id="hr_rule_attendance_bonus" model="hr.salary.rule">
+            <field name="name">全勤獎金</field>
+            <field name="sequence" eval="40"/>
+            <field name="code">attendance_bonus</field>
+            <field name="category_id" ref="Taxable_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_basic">True</field>
+            <field name="is_non_recurring">True</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].attendance_bonus(employee.id, payslip.date_from, payslip.date_to)</field>
+        </record>
+
+        <record id="hr_salary_rule_performance_bonus" model="hr.salary.rule">
+            <field name="name">績效獎金</field>
+            <field name="code">performance_bonus</field>
+            <field name="sequence" eval="41"/>
+            <field name="category_id" ref="Taxable_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_non_recurring">True</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].performance_bonus(employee.id, payslip.date_from, payslip.date_to)</field>
+        </record>
+
+        <record id="hr_salary_rule_dividend_bonus" model="hr.salary.rule">
+            <field name="name">分紅獎金</field>
+            <field name="code">dividend_bonus</field>
+            <field name="sequence" eval="42"/>
+            <field name="category_id" ref="Taxable_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_non_recurring">True</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].dividend_bonus(employee.id, payslip.date_from, payslip.date_to)</field>
+        </record>
+
+        <record id="hr_salary_rule_festival_bonus" model="hr.salary.rule">
+            <field name="name">三節獎金</field>
+            <field name="code">festival_bonus</field>
+            <field name="sequence" eval="43"/>
+            <field name="category_id" ref="Taxable_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_non_recurring">True</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].festival_bonus(employee.id, payslip.date_from, payslip.date_to)</field>
+        </record>
+        <record id="hr_salary_rule_other_bonus" model="hr.salary.rule">
+            <field name="name">其他獎金</field>
+            <field name="code">other_bonus</field>
+            <field name="sequence" eval="44"/>
+            <field name="category_id" ref="Taxable_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="is_non_recurring">True</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].other_bonus(employee.id, payslip.date_from, payslip.date_to)</field>
+        </record>
+
+        # 免稅加項
+
+        <record id="hr_salary_rule_other_Add" model="hr.salary.rule">
+            <field name="name">其他加項</field>
+            <field name="code">other_add</field>
+            <field name="sequence" eval="47"/>
+            <field name="category_id" ref="Taxfree_Add"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+
+        # 應稅扣項
+        <record id="hr_salary_rule_holiday" model="hr.salary.rule">
+            <field name="name">請假扣款</field>
+            <field name="code">holiday</field>
+            <field name="sequence" eval="51"/>
+            <field name="category_id" ref="Taxable_Decrease"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="is_inherit_setting">True</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].holiday(employee.id, payslip.dict.holiday_ids, payslip.dict.employee_payslip_salary_setting_ids)</field>
+        </record>
+        <record id="hr_salary_rule_other_minus" model="hr.salary.rule">
+            <field name="name">其他款項</field>
+            <field name="code">other_minus</field>
+            <field name="sequence" eval="55"/>
+            <field name="category_id" ref="Taxfree_Decrease"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+        <record id="hr_salary_rule_personal_tax" model="hr.salary.rule">
+            <field name="name">扣繳5%</field>
+            <field name="code">personal_tax</field>
+            <field name="sequence" eval="61"/>
+            <field name="category_id" ref="Taxfree_Decrease"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].withhold_income_tax(payslip, categories)</field>
+        </record>
+        <record id="hr_salary_rule_supplementary_premium" model="hr.salary.rule">
+            <field name="name">補充保費</field>
+            <field name="code">Supplementary</field>
+            <field name="sequence" eval="62"/>
+            <field name="category_id" ref="Taxfree_Decrease"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+        <record id="hr_salary_rule_labor" model="hr.salary.rule">
+            <field name="name">勞保-個人負擔</field>
+            <field name="code">Labor</field>
+            <field name="sequence" eval="63"/>
+            <field name="category_id" ref="Taxfree_Decrease"/>
+            <field name="baseline">labor</field>
+            <field name="condition_select">none</field>
+            <field name="is_inherit_setting">True</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].labor(employee.id, payslip.hour_pay, payslip.hour, payslip.date_from, payslip.date_to, 'Labor', 10)</field>
+        </record>
+        <record id="hr_salary_rule_healthy" model="hr.salary.rule">
+            <field name="name">健保-個人負擔</field>
+            <field name="code">Healthy</field>
+            <field name="sequence" eval="64"/>
+            <field name="category_id" ref="Taxfree_Decrease"/>
+            <field name="baseline">healthy</field>
+            <field name="condition_select">none</field>
+            <field name="is_inherit_setting">True</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].healthy(employee.id, payslip.date_from, payslip.date_to)</field>
+        </record>
+
+        # 免稅扣項
+        <record id="hr_salary_rule_retire" model="hr.salary.rule">
+            <field name="name">勞退-個人提撥</field>
+            <field name="code">Retire</field>
+            <field name="sequence" eval="65"/>
+            <field name="category_id" ref="Taxfree_Decrease"/>
+            <field name="baseline">labor</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].labor_pension(employee.id, payslip.date_from, payslip.date_to, 'Retire', 21)</field>
+        </record>
+        <record id="hr_salary_rule_company_labor_pension" model="hr.salary.rule">
+            <field name="name">勞退提撥(雇主負擔)</field>
+            <field name="code">COMP_Labor_Pension</field>
+            <field name="sequence" eval="66"/>
+            <field name="category_id" ref="Company"/>
+            <field name="baseline">days</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].labor_pension(employee.id, payslip.date_from, payslip.date_to, 'COMP_Labor_Pension', 20)</field>
+            <field name="appears_on_payslip">False</field>
+        </record>
+
+
+
+        <record id="hr_salary_rule_retire_payless" model="hr.salary.rule">
+            <field name="name">勞退自提-補納</field>
+            <field name="code">Retire_payless</field>
+            <field name="sequence" eval="152"/>
+            <field name="category_id" ref="Taxfree_Decrease"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+
+        <record id="hr_salary_rule_retire_overpay" model="hr.salary.rule">
+            <field name="name">勞退自提-溢退</field>
+            <field name="code">Retire_overpay</field>
+            <field name="sequence" eval="153"/>
+            <field name="category_id" ref="Taxfree_Decrease"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+
+
+
+        <record id="hr_salary_rule_labor_payless" model="hr.salary.rule">
+            <field name="name">勞保費-補納</field>
+            <field name="code">Labor_payless</field>
+            <field name="sequence" eval="157"/>
+            <field name="category_id" ref="Taxfree_Decrease"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+
+        <record id="hr_salary_rule_labor_overpay" model="hr.salary.rule">
+            <field name="name">勞保費-溢退</field>
+            <field name="code">Labor_overpay</field>
+            <field name="sequence" eval="158"/>
+            <field name="category_id" ref="Taxfree_Decrease"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+
+        <record id="hr_salary_rule_healthy_insurance2" model="hr.salary.rule">
+            <field name="name">二代健保代扣</field>
+            <field name="code">health_insurance2.0_cost</field>
+            <field name="sequence" eval="161"/>
+            <field name="category_id" ref="Taxfree_Decrease"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].healthy_insurance2(payslip, categories)</field>
+        </record>
+
+        <record id="hr_salary_rule_healthy_payless" model="hr.salary.rule">
+            <field name="name">健保費-補納</field>
+            <field name="code">Healthy_payless</field>
+            <field name="sequence" eval="162"/>
+            <field name="category_id" ref="Taxfree_Decrease"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+
+        <record id="hr_salary_rule_healthy_overpay" model="hr.salary.rule">
+            <field name="name">健保費-溢退</field>
+            <field name="code">Healthy_overpay</field>
+            <field name="sequence" eval="163"/>
+            <field name="category_id" ref="Taxfree_Decrease"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">fix</field>
+            <field name="amount_fix">0</field>
+        </record>
+
+        <record id="hr_salary_rule_withhold_income_tax" model="hr.salary.rule">
+            <field name="name">代扣所得稅</field>
+            <field name="code">WITHHOLDincome</field>
+            <field name="sequence" eval="167"/>
+            <field name="category_id" ref="Taxfree_Decrease"/>
+            <field name="baseline">no_days</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].withhold_income_tax(payslip, categories)</field>
+        </record>
+
+        # 公司繳納
+        <record id="hr_salary_rule_company_labor" model="hr.salary.rule">
+            <field name="name">勞保費(雇主負擔)</field>
+            <field name="code">COMP_Labor</field>
+            <field name="sequence" eval="301"/>
+            <field name="category_id" ref="Company"/>
+            <field name="baseline">labor</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].labor(employee.id, payslip.hour_pay, payslip.hour, payslip.date_from, payslip.date_to, 'COMP_Labor', 11)</field>
+<!--            <field name="register_id" ref="contribution_register_labor"/>-->
+            <field name="appears_on_payslip">False</field>
+        </record>
+
+        <record id="hr_salary_rule_company_health" model="hr.salary.rule">
+            <field name="name">健保費(雇主負擔)</field>
+            <field name="code">COMP_Health</field>
+            <field name="sequence" eval="302"/>
+            <field name="category_id" ref="Company"/>
+            <field name="baseline">healthy</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].healthy(employee.id, payslip.date_from, payslip.date_to, 'COMP_Health', True)</field>
+            <field name="appears_on_payslip">False</field>
+        </record>
+
+
+
+        <record id="hr_salary_rule_company_wage_payment_fund" model="hr.salary.rule">
+            <field name="name">工資墊償金額(雇主負擔)</field>
+            <field name="code">COMP_Wage_Payment_Fund</field>
+            <field name="sequence" eval="304"/>
+            <field name="category_id" ref="Company"/>
+            <field name="baseline">labor</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].labor(employee.id, payslip.hour_pay, payslip.hour, payslip.date_from, payslip.date_to, 'COMP_Wage_Payment_Fund', 12)</field>
+<!--            <field name="register_id" ref="contribution_register_wage_payment_fund"/>-->
+            <field name="appears_on_payslip">False</field>
+        </record>
+
+        <record id="hr_salary_rule_company_occupational_accident_insurance" model="hr.salary.rule">
+            <field name="name">職災保險金額(雇主負擔)</field>
+            <field name="code">COMP_Occupational_Accident_Insurance</field>
+            <field name="sequence" eval="305"/>
+            <field name="category_id" ref="Company"/>
+            <field name="baseline">labor</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = employee.env['hr.payslip'].labor_harm_insurance(payslip, categories)</field>
+<!--            <field name="register_id" ref="contribution_register_occupational_accident_insurance"/>-->
+            <field name="appears_on_payslip">True</field>
+        </record>
+
+    </data>
+
+<!--    <data noupdate="1">-->
+<!--        <record id="goyoung_basic_salary" model="hr.payroll.structure">-->
+<!--            <field name="code">goyoung_basic</field>-->
+<!--            <field name="name">琦瑋基本薪資結構</field>-->
+<!--            <field eval="[(6, 0, [ref('hr_rule_basic_wage'),ref('hr_rule_skill_wage'), ref('hr_rule_position_wage'),-->
+<!--								  ref('hr_salary_rule_performance'),ref('hr_salary_rule_other_Add'),-->
+<!--								  ref('hr_salary_rule_other_allowance'),ref('hr_salary_rule_traffic'),-->
+<!--								  ref('hr_salary_rule_overtime'),ref('hr_salary_rule_holiday'),-->
+<!--								  ref('hr_salary_rule_other_bonus'),ref('hr_salary_rule_other_minus'),-->
+<!--						  		  ref('hr_salary_rule_labor'),ref('hr_salary_rule_healthy')])]"-->
+<!--                                  name="rule_ids"/>-->
+<!--        </record>-->
+<!--    </data>-->
+
+</odoo>

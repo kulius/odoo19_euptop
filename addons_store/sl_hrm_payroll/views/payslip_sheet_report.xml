@@ -1,0 +1,39 @@
+<odoo>
+
+  <record id="action_payslip_sheet_report_wizard" model="ir.actions.act_window">
+    <field name="name">薪資單報表查詢</field>
+    <field name="res_model">payslip.sheet.report.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+    <field name="view_id" ref="view_payslip_sheet_report_wizard" />
+    <field name="binding_model_id" ref="model_hr_payslip" />
+  </record>
+
+  <record id="action_payslip_sheet_report" model="ir.actions.report">
+    <field name="name">薪資單報表</field>
+    <field name="model">payslip.sheet.report.wizard</field>
+    <field name="report_type">qweb-html</field>
+    <field name="report_name">sl_hrm_payroll.payslip_sheet_report_template</field>
+    <field name="report_file">sl_hrm_payroll.payslip_sheet_report_template</field>
+    <field name="print_report_name">'薪資單報表 - %s' % (object.sheet_id.name or '')</field>
+  </record>
+
+  <record id="action_payslip_bonus_sheet_report_wizard" model="ir.actions.act_window">
+    <field name="name">獎金發放報表查詢</field>
+    <field name="res_model">payslip.sheet.report.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+    <field name="view_id" ref="view_payslip_bonus_sheet_report_wizard" />
+    <field name="binding_model_id" ref="model_hr_payslip" />
+  </record>
+
+  <record id="action_payslip_bonus_sheet_report" model="ir.actions.report">
+    <field name="name">獎金發放報表</field>
+    <field name="model">payslip.sheet.report.wizard</field>
+    <field name="report_type">qweb-html</field>
+    <field name="report_name">sl_hrm_payroll.payslip_bonus_sheet_report_template</field>
+    <field name="report_file">sl_hrm_payroll.payslip_bonus_sheet_report_template</field>
+    <field name="print_report_name">'獎金發放報表 - %s' % (object.sheet_id.name or '')</field>
+  </record>
+
+</odoo>

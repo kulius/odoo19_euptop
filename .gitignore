@@ -5,7 +5,8 @@
 .vscode
 .venv
 備份
-
+backup
+odoo-19.0
 
 __pycache__/
 *.py[codz]
@@ -213,3 +214,10 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Claude Code
+.claude/
+tmpclaude-*
+
+# Mac files
+.DS_Store
