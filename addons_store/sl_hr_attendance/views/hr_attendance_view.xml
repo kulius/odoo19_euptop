@@ -7,8 +7,8 @@
         <field name="inherit_id" ref="hr_attendance.view_attendance_tree" />
         <field name="priority">600</field>
         <field name="arch" type="xml">
-            <xpath expr="//tree" position="replace">
-                <tree string="Employee attendances" decoration-success="color == 10"
+            <xpath expr="//list" position="replace">
+                <list string="Employee attendances" decoration-success="color == 10"
                     decoration-danger="color == 1" sample="1">
                     <field name="employee_id" widget="many2one_avatar_user" />
                     <field name="employee_number" />
@@ -17,7 +17,7 @@
                     <field name="check_out" options="{}" />
                     <!--                    <field name="worked_hours" string="Work Hours" widget="float_time"/>-->
                     <field name="color" column_invisible="1" />
-                </tree>
+                </list>
             </xpath>
         </field>
     </record>
@@ -38,7 +38,7 @@
         <field name="name">starrylord.hr.attendance.check.manager.tree</field>
         <field name="model">hr.attendance.check</field>
         <field name="arch" type="xml">
-            <tree string="刷卡紀錄管理"
+            <list string="刷卡紀錄管理"
                 decoration-danger="warning_id == '1'">
                 <field name="warning_id" column_invisible="1" />
                 <field name="employee_number" />
@@ -51,7 +51,7 @@
                 <!-- <field name="time_diff" /> -->
                 <field name="work_memo" />
                 <field name="holiday_memo" />
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -59,7 +59,7 @@
         <field name="name">starrylord.my.hr.attendance.check.tree</field>
         <field name="model">hr.attendance.check</field>
         <field name="arch" type="xml">
-            <tree string="我的刷卡紀錄"
+            <list string="我的刷卡紀錄"
                 decoration-danger="warning_id == '1'">
                 <field name="warning_id" column_invisible="1" />
                 <field name="date" />
@@ -70,7 +70,7 @@
                 <field name="warning_id" column_invisible="1" />
                 <button name="action_create_attendance_repair"
                     string="補卡說明" type="object" invisible="warning_id == '0'" class="btn-primary" />
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -122,7 +122,7 @@
     <record id="hr_attendance_check_action" model="ir.actions.act_window">
         <field name="name">我的出勤紀錄</field>
         <field name="res_model">hr.attendance.check</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
         <field name="domain">[('user_id', '=', uid)]</field>
         <field name="view_id" ref="starrylord_my_hr_attendance_check_view_tree" />
         <field name="context">{'edit': 0,'create': 0}</field>
@@ -135,7 +135,7 @@
     <record id="hr_attendance_check_manager_action" model="ir.actions.act_window">
         <field name="name">出勤紀錄管理</field>
         <field name="res_model">hr.attendance.check</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
         <field name="view_id" ref="starrylord_hr_attendance_check_manager_view_tree" />
         <field name="context">{'edit': 0,'create': 0}</field>
         <!--        <field name="view_ids"-->

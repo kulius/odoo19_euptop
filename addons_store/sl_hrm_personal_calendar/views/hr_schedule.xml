@@ -3,9 +3,9 @@
         <field name="name">hr.schedule.tree</field>
         <field name="model">hr.schedule</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -26,7 +26,7 @@
                     <notebook>
                         <page string="工作時間">
                             <field name="worktime_ids">
-                                <tree string="工作時間" editable="bottom" limit="100">
+                                <list string="工作時間" editable="bottom" limit="100">
                                     <field name="sequence" widget="handle"/>
                                     <field name="name"/>
                                     <field name="date_type"/>
@@ -38,7 +38,7 @@
                                     <field name="pm_start" widget="float_time"/>
                                     <field name="pm_end" widget="float_time"/>
                                     <button name="copy_day" type="object" string="複製"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                     </notebook>
@@ -51,7 +51,7 @@
         <field name="name">班別定義</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">hr.schedule</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
 </odoo>

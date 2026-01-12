@@ -3,13 +3,13 @@
         <field name="name">hr.public.holiday.tree</field>
         <field name="model">hr.public.holiday</field>
         <field name="arch" type="xml">
-            <tree editable="bottom">
+            <list editable="bottom">
                 <field name="name"/>
                 <field name="holiday_type"/>
                 <field name="date"/>
                 <field name="start_date" column_invisible="1" readonly="1"/>
                 <field name="end_date" column_invisible="1" readonly="1"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -30,6 +30,6 @@
         <field name="name">公眾假日</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">hr.public.holiday</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 </odoo>

@@ -3,9 +3,9 @@
         <field name="name">starrylord.holiday.personal.tree</field>
         <field name="model">starrylord.holiday.personal</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -27,13 +27,13 @@
                 <notebook>
                     <page string="休假時間">
                         <field name="holiday_ids">
-                            <tree string="休假時間" editable="bottom">
+                            <list string="休假時間" editable="bottom">
                                 <field name="name"/>
                                 <field name="holiday_type"/>
                                 <field name="dayofweek"/>
                                 <field name="holiday_start" widget="float_time"/>
                                 <field name="holiday_end" widget="float_time"/>
-                            </tree>
+                            </list>
                         </field>
                     </page>
                 </notebook>
@@ -45,6 +45,6 @@
         <field name="name">休假表</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">starrylord.holiday.personal</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 </odoo>

@@ -3,7 +3,7 @@
         <field name="name">starrylord.holiday.apply.tree</field>
         <field name="model">starrylord.holiday.apply</field>
         <field name="arch" type="xml">
-            <tree decoration-info="state == 'f_approve'"
+            <list decoration-info="state == 'f_approve'"
                   decoration-success="state == 'agree'" decoration-danger="state == 'refused'" js_class="sl_hrm_holiday_dashboard_list">
                 <field name="state"/>
                 <field name="name"/>
@@ -14,7 +14,7 @@
                 <field name="holiday_allocation_id"/>
                 <field name="holiday_time_total"/>
                 <field name="next_review" optional="show" string="審核階段"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -139,11 +139,11 @@
         <field name="name">我的假單</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">starrylord.holiday.apply</field>
-        <field name="view_mode">tree,calendar,form</field>
+        <field name="view_mode">list,calendar,form</field>
         <field name="domain">[('user_id', '=', uid)]</field>
         <field name="view_ids"
                    eval="[(5, 0, 0),
-                          (0, 0, {'view_mode': 'tree', 'view_id': ref('starrylord_holiday_apply_tree_view')}),
+                          (0, 0, {'view_mode': 'list', 'view_id': ref('starrylord_holiday_apply_tree_view')}),
                           (0, 0, {'view_mode': 'calendar', 'view_id': ref('starrylord_holiday_apply_calendar_view')}),
                           (0, 0, {'view_mode': 'form', 'view_id': ref('starrylord_holiday_apply_form_view')})]"/>
     </record>
@@ -249,11 +249,11 @@
         <field name="name">休假管理</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">starrylord.holiday.apply</field>
-        <field name="view_mode">calendar,tree,form</field>
+        <field name="view_mode">calendar,list,form</field>
         <field name="view_ids"
                    eval="[(5, 0, 0),
                           (0, 0, {'view_mode': 'calendar', 'view_id': ref('starrylord_holiday_apply_calendar_view')}),
-                          (0, 0, {'view_mode': 'tree', 'view_id': ref('starrylord_holiday_apply_tree_view')}),
+                          (0, 0, {'view_mode': 'list', 'view_id': ref('starrylord_holiday_apply_tree_view')}),
                           (0, 0, {'view_mode': 'form', 'view_id': ref('starrylord_holiday_apply_manager_form_view')})]"/>
         <field name="context">{'calendar_event_edit': False}</field>
     </record>
@@ -280,7 +280,7 @@
         <field name="name">starrylord.holiday.apply.portal.tree</field>
         <field name="model">starrylord.holiday.apply</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="state" column_invisible="1"/>
                 <field name="next_review" optional="show" string="審核階段"/>
                 <field name="name"/>
@@ -289,14 +289,14 @@
                 <field name="end_day"/>
                 <field name="holiday_allocation_id"/>
                 <field name="holiday_time_total"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="action_holiday_apply_portal_todo" model="ir.actions.act_window">
         <field name="name">請假單審核</field>
         <field name="res_model">starrylord.holiday.apply</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="domain">[('can_review','=',True)]</field>
         <field name="context">{'edit': 1,'create': 0}</field>
         <field name="view_id" ref="view_holiday_apply_portal_todo"/>

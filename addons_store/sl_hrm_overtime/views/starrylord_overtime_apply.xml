@@ -3,7 +3,7 @@
         <field name="name">starrylord.overtime.apply.tree</field>
         <field name="model">starrylord.overtime.apply</field>
         <field name="arch" type="xml">
-            <tree decoration-info="state == 'f_approve'" decoration-success="state == 'agree'"
+            <list decoration-info="state == 'f_approve'" decoration-success="state == 'agree'"
                   decoration-danger="state == 'refused'">
                 <field name="state"/>
                 <field name="hr_confirm_state" groups="sl_hrm_overtime.group_starrylord_overtime_manager"/>
@@ -16,7 +16,7 @@
                 <field name="duration_time"/>
                 <field name="type"/>
                 <field name="next_review" optional="show" string="審核階段"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -181,11 +181,11 @@
         <field name="name">我的加班單</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">starrylord.overtime.apply</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="domain">[('user_id', '=', uid)]</field>
         <field name="view_ids"
                eval="[(5, 0, 0),
-                          (0, 0, {'view_mode': 'tree', 'view_id': ref('starrylord_overtime_apply_tree_view')}),
+                          (0, 0, {'view_mode': 'list', 'view_id': ref('starrylord_overtime_apply_tree_view')}),
                           (0, 0, {'view_mode': 'form', 'view_id': ref('starrylord_overtime_apply_form_view')})]"/>
     </record>
 
@@ -193,7 +193,7 @@
         <field name="name">starrylord.overtime.apply.tree</field>
         <field name="model">starrylord.overtime.apply</field>
         <field name="arch" type="xml">
-            <tree decoration-info="state == 'f_approve'" decoration-success="state == 'agree'"
+            <list decoration-info="state == 'f_approve'" decoration-success="state == 'agree'"
                   decoration-danger="state == 'refused'">
                 <field name="state" column_invisible="1"/>
                 <field name="next_review" optional="show" string="審核階段"/>
@@ -202,7 +202,7 @@
                 <field name="start_day"/>
                 <field name="overtime_type_id"/>
                 <field name="duration_time"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -316,11 +316,11 @@
         <field name="name">加班管理</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">starrylord.overtime.apply</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="starrylord_overtime_apply_manager_search"/>
         <field name="view_ids"
                eval="[(5, 0, 0),
-                          (0, 0, {'view_mode': 'tree', 'view_id': ref('starrylord_overtime_apply_tree_view')}),
+                          (0, 0, {'view_mode': 'list', 'view_id': ref('starrylord_overtime_apply_tree_view')}),
                           (0, 0, {'view_mode': 'form', 'view_id': ref('starrylord_overtime_apply_manager_form_view')})]"/>
         <field name="context"></field>
     </record>
@@ -348,10 +348,10 @@
     </record>
 
     <record id="view_overtime_apply_portal_todo" model="ir.ui.view">
-        <field name="name">starrylord.overtime.apply.portal.tree</field>
+        <field name="name">starrylord.overtime.apply.portal.list</field>
         <field name="model">starrylord.overtime.apply</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="state"/>
                 <field name="company_id"/>
                 <field name="name"/>
@@ -361,19 +361,19 @@
                 <field name="apply_to"/>
                 <field name="overtime_type_id"/>
                 <field name="duration_time"/>
-            </tree>
+            </list>
         </field>
     </record>
 
     <record id="action_overtime_apply_portal_todo" model="ir.actions.act_window">
         <field name="name">加班單審核</field>
         <field name="res_model">starrylord.overtime.apply</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="domain">[('can_review','=',True)]</field>
         <field name="context">{'edit': 1,'create': 0}</field>
         <field name="view_ids"
                eval="[(5, 0, 0),
-                          (0, 0, {'view_mode': 'tree', 'view_id': ref('view_overtime_apply_portal_todo')}),
+                          (0, 0, {'view_mode': 'list', 'view_id': ref('view_overtime_apply_portal_todo')}),
                           (0, 0, {'view_mode': 'form', 'view_id': ref('starrylord_overtime_apply_review_form_view')})]"/>
 <!--        <field name="view_id" ref="view_overtime_apply_portal_todo"/>-->
     </record>

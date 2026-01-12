@@ -3,7 +3,7 @@
         <field name="name">hr.schedule.time.type.tree</field>
         <field name="model">hr.schedule.time.type</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="note"/>
                 <field name="date_type"/>
@@ -13,7 +13,7 @@
                 <field name="am_end" widget="float_time"/>
                 <field name="pm_start" widget="float_time"/>
                 <field name="pm_end" widget="float_time"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -41,7 +41,7 @@
         <field name="name">班別時間代號定義</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">hr.schedule.time.type</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
 </odoo>

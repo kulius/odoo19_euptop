@@ -3,11 +3,11 @@
         <field name="name">starrylord.annual.leave.setting.tree</field>
         <field name="model">starrylord.annual.leave.setting</field>
         <field name="arch" type="xml">
-            <tree editable="bottom">
+            <list editable="bottom">
                 <field name="seniority"/>
                 <field name="days"/>
                 <field name="annual_period"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -15,6 +15,6 @@
         <field name="name">年資特休天數</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">starrylord.annual.leave.setting</field>
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
     </record>
 </odoo>

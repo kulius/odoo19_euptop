@@ -26,14 +26,14 @@
             <field name="model">starrylord.holiday.used.record</field>
             <field name="priority">20</field>
             <field name="arch" type="xml">
-                <tree>
+                <list>
                     <field name="employee_id" readonly="1"/>
                     <field name="holiday_allocation_id" readonly="1"/>
                     <field name="holiday_day" readonly="1"/>
                     <field name="hours" readonly="1"/>
                     <field name="note" readonly="1"/>
                     <field name="holiday_apply_id" readonly="1"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -42,21 +42,21 @@
             <field name="name">starrylord.holiday.used.record.user.tree</field>
             <field name="model">starrylord.holiday.used.record</field>
             <field name="arch" type="xml">
-                <tree>
+                <list>
                     <field name="employee_id" readonly="1"/>
                     <field name="holiday_allocation_id" readonly="1"/>
                     <field name="holiday_day" readonly="1"/>
                     <field name="hours" readonly="1" sum="總時數"/>
                     <field name="note" readonly="1"/>
                     <field name="holiday_apply_id" readonly="1"/>
-                </tree>
+                </list>
             </field>
         </record>
 
         <record model="ir.actions.act_window" id="starrylord_holiday_used_record_manager_action">
             <field name="name">休假使用對應表</field>
             <field name="res_model">starrylord.holiday.used.record</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="context">{}</field>
         </record>
 
@@ -64,7 +64,7 @@
         <record model="ir.actions.act_window" id="starrylord_holiday_used_record_user_action">
             <field name="name">我的休假使用紀錄</field>
             <field name="res_model">starrylord.holiday.used.record</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="view_id" ref="starrylord_holiday_used_record_user_tree_view"/>
             <field name="domain">[('employee_id.user_id', '=', uid)]</field>
             <field name="context">{}</field>

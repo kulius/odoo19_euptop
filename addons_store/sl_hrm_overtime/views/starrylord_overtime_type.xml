@@ -1,15 +1,15 @@
 <odoo>
     <record id="starrylord_overtime_type_tree_view" model="ir.ui.view">
-        <field name="name">starrylord.overtime.type.tree</field>
+        <field name="name">starrylord.overtime.type.list</field>
         <field name="model">starrylord.overtime.type</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="time_type"/>
                 <field name="date_type"/>
                 <field name="eight_hours"/>
                 <field name="rule_ids"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -29,11 +29,11 @@
                     <notebook>
                         <page string="費率規則">
                             <field name="rule_ids">
-                                <tree string="加班費規則" editable="bottom">
+                                <list string="加班費規則" editable="bottom">
                                 <field name="name"/>
                                 <field name="time"/>
                                 <field name="rate"/>
-                            </tree>
+                            </list>
                             </field>
                     </page>
                     </notebook>
@@ -47,6 +47,6 @@
         <field name="name">加班類型</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">starrylord.overtime.type</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 </odoo>

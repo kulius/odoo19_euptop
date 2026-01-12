@@ -67,7 +67,7 @@
         <field name="name">未打卡說明單列表</field>
         <field name="model">sl.attendance.repair</field>
         <field name="arch" type="xml">
-            <tree decoration-info="state == 'f_approve'"
+            <list decoration-info="state == 'f_approve'"
                 decoration-success="state == 'confirmed'" decoration-danger="state == 'refused'"
                 decoration-warning="state == 'cancel'">
                 <field name="state" />
@@ -77,7 +77,7 @@
                 <field name="notes" optional="hide" />
                 <field name="user_id" optional="hide" />
                 <field name="department_id" optional="hide" />
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -86,7 +86,7 @@
         <field name="name">出勤異常說明單管理列表</field>
         <field name="model">sl.attendance.repair</field>
         <field name="arch" type="xml">
-            <tree decoration-info="state == 'f_approve'"
+            <list decoration-info="state == 'f_approve'"
                 decoration-success="state == 'confirmed'" decoration-danger="state == 'refused'"
                 decoration-warning="state == 'cancel'">
                 <field name="state" />
@@ -100,7 +100,7 @@
                 <field name="notes" />
                 <field name="user_id" />
                 <field name="sl_attendance_check_id" />
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -141,10 +141,10 @@
         <field name="name">我的出勤異常說明單</field>
         <field name="res_model">sl.attendance.repair</field>
         <field name="domain">[('employee_id.user_id', '=', uid)]</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="view_ids"
             eval="[(5, 0, 0),
-                   (0, 0, {'view_mode': 'tree', 'view_id': ref('view_tree_sl_attendance_repair')}),
+                   (0, 0, {'view_mode': 'list', 'view_id': ref('view_tree_sl_attendance_repair')}),
                    (0, 0, {'view_mode': 'form', 'view_id': ref('view_form_sl_attendance_repair')})]" />
     </record>
 
@@ -214,10 +214,10 @@
     <record id='action_sl_attendance_repair_manager' model='ir.actions.act_window'>
         <field name="name">出勤異常說明單管理</field>
         <field name="res_model">sl.attendance.repair</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="view_ids"
             eval="[(5, 0, 0),
-                   (0, 0, {'view_mode': 'tree', 'view_id': ref('view_tree_sl_attendance_repair')}),
+                   (0, 0, {'view_mode': 'list', 'view_id': ref('view_tree_sl_attendance_repair')}),
                    (0, 0, {'view_mode': 'form', 'view_id': ref('view_form_sl_attendance_repair_manager')})]" />
     </record>
 

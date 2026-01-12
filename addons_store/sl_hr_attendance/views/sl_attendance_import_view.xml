@@ -5,7 +5,7 @@
         <field name="name">sl.attendance.import.tree</field>
         <field name="model">sl.attendance.import</field>
         <field name="arch" type="xml">
-            <tree string="打卡資料匯入">
+            <list string="打卡資料匯入">
                 <field name="csv_filename"/>
                 <field name="start_date"/>
                 <field name="end_date"/>
@@ -14,7 +14,7 @@
                 <field name="filtered_count"/>
                 <field name="error_count"/>
                 <field name="import_datetime"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -130,7 +130,7 @@
     <record id="sl_attendance_import_action" model="ir.actions.act_window">
         <field name="name">打卡資料匯入</field>
         <field name="res_model">sl.attendance.import</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 建立新的打卡資料匯入
