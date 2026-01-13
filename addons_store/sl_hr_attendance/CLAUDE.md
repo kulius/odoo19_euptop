@@ -127,6 +127,28 @@ def _check_validity(self):
 - Uses direct view attributes (no deprecated `attrs`)
 - Proper license field in manifest
 
+### Odoo 19 升級修正 (2026-01-13)
+
+1. **`menu_inherit.xml`**:
+   - `groups_id` 改為 `group_ids` (ir.ui.menu 正確欄位名稱)
+   - 移除不存在的選單 ID 引用 (`menu_hr_attendance_kiosk_no_user_mode`, `menu_hr_attendance_kiosk_no_pin_mode`)
+
+2. **`hr_attendance_raw_view.xml`**:
+   - 移除有問題的 search view (Odoo 19 驗證更嚴格)
+
+3. **`wizard_hr_attendance_check.py`**:
+   - 新增 `_description = '出勤紀錄精靈'`
+
+4. **`__manifest__.py`**:
+   - 註解掉 `assets` 區塊 (OWL 元件需升級)
+   - 註解掉 `cron_attendance_anomaly.xml` (模型引用需修正)
+
+### 待處理項目 (TODO)
+- [ ] 修正 OWL attendance_menu 元件相容性
+- [ ] 修正 `/sl_hr_attendance/attendance_user_data` controller endpoint
+- [ ] 重新啟用 search view
+- [ ] 重新啟用 cron job
+
 ## Integration Points
 - Uses `hr.personal.calendar` for schedule reference
 - Extends standard `hr.attendance` model

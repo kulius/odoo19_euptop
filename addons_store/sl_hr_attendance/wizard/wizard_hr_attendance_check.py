@@ -5,6 +5,7 @@ from odoo import models, api, fields
 
 class WizardHrAttendanceCheck(models.TransientModel):
     _name = 'wizard.hr.attendance.check'
+    _description = '出勤紀錄精靈'
     # 預設值為本月第ㄧ天
     start_day = fields.Date(string='開始日期', required=True,
                             default=lambda self: fields.Date.from_string(fields.Date.today()).replace(day=1))

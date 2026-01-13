@@ -40,33 +40,6 @@
         </field>
     </record>
 
-    <!-- Search View -->
-    <record id="hr_attendance_raw_view_filter" model="ir.ui.view">
-        <field name="name">hr.attendance.raw.search</field>
-        <field name="model">hr.attendance.raw</field>
-        <field name="arch" type="xml">
-            <search string="原始打卡記錄搜尋">
-                <field name="employee_id"/>
-                <field name="employee_number"/>
-                <field name="department_id"/>
-
-                <filter string="手動匯入" name="manual" domain="[('source', '=', 'manual')]"/>
-                <filter string="打卡機" name="device" domain="[('source', '=', 'device')]"/>
-                <filter string="系統建立" name="system" domain="[('source', '=', 'system')]"/>
-
-                <separator/>
-                <filter string="打卡時間" name="filter_check_time" date="check_time"/>
-
-                <group expand="0" string="分組">
-                    <filter string="員工" name="group_employee" context="{'group_by': 'employee_id'}"/>
-                    <filter string="部門" name="group_department" context="{'group_by': 'department_id'}"/>
-                    <filter string="來源" name="group_source" context="{'group_by': 'source'}"/>
-                    <filter string="打卡日期" name="group_check_date" context="{'group_by': 'check_time:day'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
-
     <!-- Action -->
     <record id="hr_attendance_raw_action" model="ir.actions.act_window">
         <field name="name">原始打卡記錄</field>
