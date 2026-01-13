@@ -15,6 +15,34 @@ odoo19_euptop/
 - **Python**: 3.12+
 - **資料庫**: PostgreSQL
 
+### 資料庫連線資訊
+
+| 項目 | 值 |
+|------|-----|
+| Host | 127.0.0.1 |
+| Port | 5432 |
+| User | odoo |
+| Password | odoo |
+| Database | odoo19_sanoc |
+
+### Python 連線範例
+
+```python
+import psycopg2
+conn = psycopg2.connect(
+    host='127.0.0.1',
+    port=5432,
+    user='odoo',
+    password='odoo',
+    database='odoo19_sanoc'
+)
+conn.autocommit = True
+cur = conn.cursor()
+cur.execute('YOUR SQL HERE')
+cur.close()
+conn.close()
+```
+
 ---
 
 # Odoo 19 升級注意事項
