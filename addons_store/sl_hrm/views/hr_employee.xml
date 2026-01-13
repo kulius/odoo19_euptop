@@ -1,0 +1,588 @@
+<odoo>
+    <data>
+        <!-- Emergency Contact List View -->
+        <record id="view_starrylord_hr_emergency_contact_tree" model="ir.ui.view">
+            <field name="name">starrylord.hr.emergency.contact.list</field>
+            <field name="model">starrylord.hr.emergency.contact</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="name" string="姓名"/>
+                    <field name="relationship" string="關係"/>
+                    <field name="phone" string="聯絡電話"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="hr_employee_form_inherit" model="ir.ui.view">
+            <field name="name">hr.employee.form</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form" />
+            <field name="priority">600</field>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="replace">
+                    <header>
+                        <!--                        <button string="到職" name = "action_registration" type="object"
+                        invisible='1'/>-->
+                        <!--                        <button string="離職" name = "action_resignation" type="object"
+                        invisible='1'/>-->
+                        <!--                        <button string="返回" name = "action_back" type="object"
+                        invisible='1'/>-->
+                        <field name="state" widget="statusbar" />
+                        <field name="is_onboard" invisible="1" />
+                    </header>
+                </xpath>
+                <!--                <xpath expr="//form[@name='Employee']/sheet" position="after">-->
+                <!--                    <widget name="web_ribbon" title="訂單"-->
+                <!--                            invisible="not is_transfer_to_order or state not in ['order'] or not active
+                "/>-->
+                <!--                </xpath>-->
+                <xpath expr="//field[@name='job_title']" position="before">
+                    <field name="name_eng" placeholder="英文姓名" />
+                </xpath>
+
+                <xpath expr="//sheet//group" position="replace">
+                    <group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company" />
+                            <field name="employee_number" />
+                            <field name="registration_date" />
+                            <field name="registration_remark" />
+                            <field name="job_tenure" />
+                            <field name="state" readonly="1" />
+                            <field name="resignation_date" invisible="state not in ['resign']" />
+                            <field name="resignation_reason" invisible="state not in ['resign']" />
+                            <field name="mobile_phone" widget="phone" />
+                            <field name="work_phone" widget="phone" />
+                            <field name="work_email" widget="email" />
+                            <field name="mvpn" />
+                            <field name="office_phone" />
+                            <field name="company_country_id" invisible="1" />
+                            <field name="company_country_code" invisible="1" />
+                        </group>
+                        <group>
+                            <field name="department_id" />
+                            <field name="job_id" />
+                            <field name="parent_id" widget="many2one_avatar_user" string="主管" />
+                            <field name="coach_id" widget="many2one_avatar_user" />
+                            <field name="employee_comment" placeholder="備註" />
+                            <field name="is_no_need_check_in" />
+                            <field name="is_foreign" invisible="is_foreign == False" readonly="1" />
+                        </group>
+                    </group>
+                </xpath>
+
+                <xpath expr="//page[@name='personal_information']" position="replace">
+                    <page name="personal_information" string="個人資訊">
+                        <group>
+                            <group string="通訊地址" colspan="4">
+                                <label for="private_country_id" string="地址" />
+                                <div class="o_address_format">
+                                    <field name="private_country_id" placeholder="Country"
+                                        class="o_address_country"
+                                        options='{"no_open": True, "no_create": True}' />
+                                    <field name="private_zip" placeholder="郵遞區號"
+                                        class="o_address_zip" />
+                                    <field name="private_state_id" class="o_address_state"
+                                        placeholder="縣市"
+                                        options="{'no_open': True, 'no_quick_create': True}"
+                                        context="{'default_country_id': private_country_id}" />
+
+                                    <field name="private_city" placeholder="鄉鎮市區"
+                                        class="o_address_city" />
+                                    <field name="private_street" placeholder="地址..."
+                                        class="o_address_street" />
+                                    <field name="private_street2" placeholder="地址 2..."
+                                        class="o_address_street" />
+
+
+                                </div>
+                                <field name="private_email" string="Email" />
+                                <field name="private_phone" string="Phone" />
+                            </group>
+                            <group string="戶籍地" colspan="4">
+                                <field name="is_same_as_private_address" />
+                                <label for="register_country_id" string="地址" />
+                                <div class="o_address_format">
+                                    <field name="register_country_id" placeholder="國家"
+                                        options='{"no_open": True, "no_create": True}' />
+                                    <field name="register_zip" placeholder="郵遞區號"
+                                        class="o_address_zip" />
+                                    <field name="register_state_id" class="o_address_state"
+                                        placeholder="縣市"
+                                        options="{'no_open': True, 'no_quick_create': True}"
+                                        context="{'default_country_id': register_country_id}" />
+
+                                    <field name="register_city" placeholder="鄉鎮市區"
+                                        class="o_address_city" />
+                                    <field name="register_street" placeholder="地址..."
+                                        class="o_address_street" />
+                                    <field name="register_street2" placeholder="地址 2..."
+                                        class="o_address_street" />
+
+
+                                </div>
+                            </group>
+                            <group string="家庭狀況">
+                                <field name="marital" />
+                                <!--                                <field name="spouse_complete_name"-->
+                                <!--                                       invisible="marital not in ['married', 'cohabitant']"/>-->
+                                <!--                                <field name="spouse_birthdate" invisible="marital not in
+                                ['married', 'cohabitant']"/>-->
+                                <field name="children" string="子女數" />
+                                <field name="dependents" />
+                            </group>
+                            <group string="緊急連絡人" name="emergency">
+                                <field name="emergency_contact_ids" nolabel="1" colspan="2" />
+                                <!--                                <group string="緊急聯絡人">-->
+                                <!--                                    <field name="emergency_contact"/>-->
+                                <!--                                    <field name="emergency_phone" class="o_force_ltr"/>-->
+                                <!--                                </group>-->
+                                <!--                                <group string="緊急聯絡人2">-->
+                                <!--                                    <field name="emergency_contact2"/>-->
+                                <!--                                    <field name="emergency_phone2" class="o_force_ltr"/>-->
+                                <!--                                </group>-->
+                            </group>
+                            <group string="教育程度">
+                                <field name="certificate" string='最高學歷' />
+                                <field name="study_field" string='專業科目' />
+                                <field name="study_school" />
+                            </group>
+                            <group string="國籍資料">
+                                <group colspan="4">
+                                    <field name="country_id"
+                                        options='{"no_open": True, "no_create": True}' />
+                                    <field name="identification_id" />
+                                    <field name="passport_id" />
+                                    <field name="is_foreign" />
+                                </group>
+                                <group>
+                                    <field name="gender" />
+                                </group>
+                                <group>
+                                    <field name="blood_type" />
+                                </group>
+                                <group colspan="4">
+                                    <field name="birthday" />
+                                    <field name="place_of_birth" groups="hr.group_hr_user"
+                                        invisible="1" />
+                                    <field name="country_of_birth" groups="hr.group_hr_user" />
+                                    <field name="month_of_birthday" invisible="1" />
+                                </group>
+                            </group>
+                            <group>
+                                <field name="id_card_ids" widget="many2many_binary" />
+                            </group>
+                            <group>
+                                <field name="driving_license_ids" widget="many2many_binary"
+                                    string="駕照" />
+                            </group>
+                            <group colspan="4">
+                                <field name="bank_account_ids"
+                                    context="{'default_partner_id': work_contact_id}"
+                                    options="{'no_quick_create': True}" readonly="not id">
+                                    <list>
+                                        <field name="acc_number" string="帳號" />
+                                        <field name="bank_id" string="銀行" />
+                                        <field name="sub_bank_name" string="分行" />
+                                        <field name="partner_id" string="戶名" />
+                                        <field name="book_cover" string="附件"
+                                            widget="many2many_binary" />
+                                    </list>
+                                </field>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+                <xpath expr="//page[@name='hr_settings']" position="after">
+                    <page name="hr_working_history" string="在離職異動歷程">
+                        <h2 class="class_employee_working">在離職異動歷程</h2>
+                        <field name="hr_employee_working_ids">
+                            <list string="在離職異動歷程" editable="bottom" default_order='start_date'>
+                                <field name="start_date" width="25%" />
+                                <field name="change_reason_selection" />
+                                <field name="comment" width="20%" />
+                                <button name="add_insurance_history" width="20%" string="退保" class="btn btn-primary" 
+                                    type="object" invisible="change_reason_selection != 'resign'" />
+                            </list>
+                        </field>
+                    </page>
+                </xpath>
+                <xpath expr="//page[@name='hr_settings']" position="after">
+                    <page string="體檢報告">
+                        <field name="health_report_line_ids" nolabel="1">
+                            <list options="{'no_quick_create': True}">
+                                <field name="name" />
+                                <field name="health_report_upload" widget="many2many_binary" />
+                                <field name="effective_date_start" />
+                                <field name="effective_date_end" />
+                            </list>
+                        </field>
+                    </page>
+                    <page string="相關證照">
+                        <field name="license_line_ids" nolabel="1">
+                            <list options="{'no_quick_create': True}">
+                                <field name="license_check_setting_id" options="{'no_create': True}" />
+                                <field name="license_type" />
+                                <field name="license_upload" widget="many2many_binary" />
+                                <field name="effective_date_start" />
+                                <field name="effective_date_end" />
+                                <field name="comment" />
+                            </list>
+                        </field>
+                    </page>
+                    <page string="勞保" groups="sl_hrm.group_sl_hrm_manager">
+                        <!--                        <span style="display:inline-block;margin-right:10px;">-->
+                        <!--                            <button name="%(action_labor_insurance_change)d" type="action"
+                        string="勞保異動"/>-->
+                        <!--                        </span>-->
+                        <group>
+                            <group name="labor_insurance_setting" string="勞工保險">
+                                <field name="hr_labor_insurance_gap_id" widget="many2one"
+                                    string="勞保級距"
+                                    readonly="1" options="{'no_create': True, 'no_open': True}" />
+                            </group>
+                        </group>
+                        <h2>勞保異動歷程</h2>
+                        <field name="labor_insurance_history_ids">
+                            <list string="勞保異動歷程" editable="bottom">
+                                <field name="start_date" />
+                                <field name="change_date" />
+                                <field name="change_reason_selection" />
+                                <field name="labor_rate" />
+                                <field name="labor_identity" />
+                                <field name="labor_insurance_gap_id" widget="many2one"
+                                    options="{'no_create': True}" />
+                                <field name="labor_insurance_gap" column_invisible="1" />
+                                <field name="attachment_ids" widget="many2many_binary" />
+                            </list>
+
+                        </field>
+                    </page>
+                    <page string="健保" groups="sl_hrm.group_sl_hrm_manager">
+                        <!--                        <span style="display:inline-block;margin-right:10px;">-->
+                        <!--                            <button name="%(action_health_insurance_change)d" type="action"
+                        string="健保異動"/>-->
+                        <!--                        </span>-->
+                        <group>
+                            <group name="health_insurance_setting" string="健康保險">
+                                <field name="hr_health_insurance_gap_id" widget="many2one"
+                                    string="健保級距"
+                                    readonly="1" options="{'no_create': True, 'no_open': True}" />
+                                <field name="health_insurance_family_number" string="健保眷屬加保人數" />
+                            </group>
+                        </group>
+                        <h3>健保異動歷程</h3>
+                        <field name="health_insurance_history_ids">
+                            <list string="健保異動歷程" editable="bottom">
+                                <field name="start_date" />
+                                <field name="change_date" />
+                                <field name="change_reason_selection" />
+                                <field name="health_rate" />
+                                <field name="heath_rate_type" />
+                                <field name="health_insurance_gap_id" widget="many2one"
+                                    options="{'no_create': True}" />
+                                <field name="health_insurance_gap" column_invisible="1" />
+                                <field name="attachment_ids" widget="many2many_binary" />
+                            </list>
+
+                        </field>
+                        <seperator />
+                        <h3>眷保明細</h3>
+                        <button name="%(action_dependents_add)d" type="action" string="新增眷保明細" />
+                        <field name="dependents_ids" nolabel="1">
+                            <list string="眷保明細" editable="bottom" create="false">
+                                <field name="name" />
+                                <field name="relation" />
+                                <field name="health_rate" />
+                                <field name="identification_card" />
+                                <field name="date_of_birth" />
+                                <field name="add_insurance_time" />
+                                <field name="cancel_insurance_time" />
+                                <field name="note" />
+                            </list>
+                        </field>
+                    </page>
+                    <page string="勞退" groups="sl_hrm.group_sl_hrm_manager">
+                        <!--                        <span style="display:inline-block;margin-right:10px;">-->
+                        <!--                            <button name="%(action_labor_pension_change)d" type="action"
+                        string="勞退異動"/>-->
+                        <!--                        </span>-->
+                        <group>
+                            <group name="labor_pension_setting" string="勞退設定">
+                                <field name="labor_pension_gap_id" widget="many2one" string="薪資級距"
+                                    readonly="1" options="{'no_create': True, 'no_open': True}" />
+                            </group>
+                        </group>
+                        <h3>勞退異動歷程</h3>
+                        <field name="labor_pension_history_ids">
+                            <list string="勞退異動歷程" editable="bottom">
+                                <field name="start_date" />
+                                <field name="change_date" />
+                                <field name="change_reason_selection" />
+                                <field name="self_reimbursement_of_labor_pension" />
+                                <field name="comp_reimbursement_of_labor_pension" />
+                                <field name="labor_pension_gap_id" widget="selection"
+                                    options="{'no_create': True}" />
+                                <field name="labor_pension_salary" column_invisible="1" />
+                                <field name="attachment_ids" widget="many2many_binary" />
+                            </list>
+
+                        </field>
+                    </page>
+                    <page string="勞工職業災害保險" groups="sl_hrm.group_sl_hrm_manager">
+                        <!--                        <span style="display:inline-block;margin-right:10px;">-->
+                        <!--                            <button name="%(action_labor_harm_insurance_change)d" type="action"-->
+                        <!--                                    string="勞工職業災害保險異動"/>-->
+                        <!--                        </span>-->
+                        <group>
+                            <group name="labor_harm_insurance_setting" string="勞工職業災害保險設定">
+                                <field name="labor_harm_insurance_gap_id" widget="many2one"
+                                    string="投保薪資級距"
+                                    readonly="1" options="{'no_create': True, 'no_open': True}" />
+                            </group>
+                        </group>
+                        <h3>勞工職業災害保險異動歷程</h3>
+                        <field name="labor_harm_insurance_history_ids">
+                            <list string="勞工職業災害保險異動歷程" editable="bottom">
+                                <field name="start_date" />
+                                <field name="change_date" />
+                                <field name="change_reason_selection" />
+                                <field name="insurance_gap_id" widget="selection" />
+                                <field name="insurance_salary" column_invisible="1" />
+                                <field name="attachment_ids" widget="many2many_binary" />
+                            </list>
+
+                        </field>
+                    </page>
+                    <page string="人資資料" groups="sl_hrm.group_sl_hrm_manager">
+                        <field name="insurance_doc_line_ids">
+                            <list editable="bottom">
+                                <field name="name" width="30%" />
+                                <field name="file_type" />
+                                <field name="file_upload" widget="many2many_binary" width="40%" />
+                            </list>
+
+                        </field>
+                    </page>
+                </xpath>
+                <xpath expr="//field[@name='address_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!--                <xpath expr="//field[@name='work_location_id']" position="attributes">-->
+                <!--                    <attribute name="string">工務所</attribute>-->
+                <!--                </xpath>-->
+
+                <xpath expr="//group[@name='managers']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+
+        <!-- 隱藏 hr_skills 的 Resume/Skills 頁籤 -->
+        <!-- Odoo 19: skills_resume 已改名為 resume，如需隱藏請使用下方寫法 -->
+        <!--
+        <record id="hr_employee_view_form_hide_skills_resume" model="ir.ui.view">
+            <field name="name">hr.employee.form.hide.skills.resume</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr_skills.hr_employee_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='resume']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+        -->
+
+
+        <!-- Employee View -->
+        <!--<record
+        id="payroll_hr_employee_view_form" model="ir.ui.view">
+            <field name="name">payroll.hr.employee.view.form</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+
+            </field>
+        </record>-->
+
+        <record id="view_employee_filter_inherit" model="ir.ui.view">
+            <field name="name">hr.employee.search</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_filter" />
+            <field name="arch" type="xml">
+                <xpath expr="//search//field[3]" position="before">
+                    <field name="employee_number" />
+                    <field name="gender" />
+                </xpath>
+                <xpath expr="//searchpanel//field[@name='company_id']" position="after">
+                    <field name="state" enable_counters="1" />
+                </xpath>
+                <xpath expr="//filter[@name='newly_hired']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//filter[@name='my_department']" position="after">
+                    <filter name="on_board" string="在職" domain="[('state', '=', 'working')]" />
+                    <filter name="resignation" string="離職" domain="[('state', '=', 'resign')]"
+                        context="{'active_test': False}" />
+                    <filter name="draft" string="草稿" domain="[('state', '=', 'draft')]" />
+                </xpath>
+
+                <!-- Odoo 19: group_start 需要 hr.group_hr_manager 權限才可見 -->
+                <!-- <xpath expr="//filter[@name='group_start']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath> -->
+                <!-- Odoo 19: group_by_skill_ids 已移除 -->
+                <!-- <xpath expr="//filter[@name='group_by_skill_ids']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath> -->
+            </field>
+        </record>
+
+        <record id="hr_employee_tree_inherit" model="ir.ui.view">
+            <field name="name">hr.employee.tree.inherit</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_tree" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="before">
+                    <field name="employee_number" optional="show" />
+                </xpath>
+                <xpath expr="//field[@name='work_phone']" position="after">
+                    <field name="mvpn" optional="show" />
+                </xpath>
+                <xpath expr="//field[@name='parent_id']" position="after">
+                    <field name="registration_date" optional="show" />
+                    <field name="resignation_date" optional="show" />
+                    <field name="state" optional="show" />
+                    <field name="is_onboard" column_invisible="1" />
+                </xpath>
+                <xpath expr="//field[@name='activity_ids']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                    <attribute name="column_invisible">True</attribute>
+                </xpath>
+                <xpath expr="//field[@name='activity_date_deadline']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                    <attribute name="column_invisible">True</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='activity_user_id']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                    <attribute name="column_invisible">True</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='work_location_id']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>
+            </field>
+        </record>
+
+
+        <!--        <record id="sl_hr_employee_contract_tree_inherit" model="ir.ui.view">-->
+        <!--            <field name="name">hr.employee.contract.tree.inherit</field>-->
+        <!--            <field name="model">hr.employee</field>-->
+        <!--            <field name="inherit_id" ref="hr_contract.view_employee_tree"/>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                <xpath expr="//field[@name='first_contract_date']" position="attributes">-->
+        <!--                    <attribute name="optional">hide</attribute>-->
+        <!--                    <attribute name="column_invisible">True</attribute>-->
+        <!--                </xpath>-->
+        <!--            </field>-->
+        <!--        </record>-->
+
+        <!--        <record id="sl_hr_employee_leave_tree_inherit" model="ir.ui.view">-->
+        <!--            <field name="name">hr.employee.leave.tree.inherit</field>-->
+        <!--            <field name="model">hr.employee</field>-->
+        <!--            <field name="inherit_id" ref="hr_attendance.view_employee_tree_inherit_leave"/>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                <xpath expr="//field[@name='attendance_manager_id']" position="attributes">-->
+        <!--                    <attribute name="optional">hide</attribute>-->
+        <!--                    <attribute name="column_invisible">True</attribute>-->
+        <!--                </xpath>-->
+        <!--            </field>-->
+        <!--        </record>-->
+
+        <!--        <record id="hr_employee_public_form_inherit" model="ir.ui.view">-->
+        <!--            <field name="name">hr.employee.public.form</field>-->
+        <!--            <field name="model">hr.employee.public</field>-->
+        <!--            <field name="inherit_id" ref="hr.hr_employee_public_view_form"/>-->
+        <!--            <field name="arch" type="xml">-->
+        <!--                <xpath expr="//field[@name='mobile_phone']" position="before">-->
+        <!--                    <field name="employee_number"/>-->
+        <!--                </xpath>-->
+        <!--                <xpath expr="//field[@name='parent_id']" position="after">-->
+        <!--                    <field name="substitute_id"/>-->
+        <!--                </xpath>-->
+        <!--            </field>-->
+        <!--        </record>-->
+
+        <record id="sl_hr_health_report_form" model="ir.ui.view">
+            <field name="name">sl.health.report.line.form</field>
+            <field name="model">sl.health.report.line</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="1" />
+                            <field name="name" />
+                        </group>
+                        <group>
+                            <field name="effective_date_start" />
+                            <field name="effective_date_end" />
+                        </group>
+                    </group>
+                    <group>
+                        <field name="health_report_upload" widget="many2many_binary" />
+                    </group>
+                </form>
+            </field>
+
+        </record>
+
+        <record id="sl_hr_license_line_form" model="ir.ui.view">
+            <field name="name">sl.hr.license.line.form</field>
+            <field name="model">sl.hr.license.line</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="1" />
+                            <field name="license_check_setting_id" widget="selection" />
+                            <field name="license_type" widget="radio" options="{'horizontal': true}" />
+                        </group>
+                        <group>
+
+                            <field name="effective_date_start" />
+                            <field name="effective_date_end" />
+
+                        </group>
+                    </group>
+                    <group>
+                        <field name="license_upload" widget="many2many_binary" />
+                    </group>
+                </form>
+            </field>
+
+        </record>
+
+        <record id="hr.open_view_employee_list_my" model="ir.actions.act_window">
+            <field name="name">Employees(StarryLord)</field>
+            <field name="res_model">hr.employee</field>
+            <field name="view_mode">list,kanban,form</field>
+            <field name="domain">[]</field>
+            <field name="context">{'chat_icon': True}</field>
+            <field name="view_id" eval="False" />
+            <field name="search_view_id" ref="hr.view_employee_filter" />
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Add a new employee
+                </p>
+                <p>
+                    With just a quick glance on the Odoo employee screen, you
+                    can easily find all the information you need for each person;
+                    contact data, job position, availability, etc.
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

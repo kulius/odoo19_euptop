@@ -1,0 +1,38 @@
+<odoo>
+
+
+    <!-- Action to open the view -->
+    <record model="ir.actions.act_window" id="action_hr_labor_insurance_gap">
+        <field name="name">勞保級距設定</field>
+        <field name="res_model">hr.labor.insurance.gap</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <!-- Tree view -->
+    <record model="ir.ui.view" id="view_hr_labor_insurance_gap_tree">
+        <field name="name">hr.labor.insurance.gap.tree</field>
+        <field name="model">hr.labor.insurance.gap</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" default_order="year desc, insurance_level asc">   
+                <field name="year"/>
+                <field name="insurance_level"/>
+                <field name="insurance_salary"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record model="ir.ui.view" id="view_hr_labor_insurance_gap_form">
+        <field name="name">hr.labor.insurance.gap.form</field>
+        <field name="model">hr.labor.insurance.gap</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="year"/>
+                    <field name="insurance_level"/>
+                    <field name="insurance_salary"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+</odoo>

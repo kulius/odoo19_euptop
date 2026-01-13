@@ -1,0 +1,30 @@
+<odoo>
+    <record id="wizard_dependents_add" model="ir.ui.view">
+        <field name="name">wizard.dependents.add.form</field>
+        <field name="model">wizard.dependents.add</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="name" required="True"/>
+                    <field name="relation" required="True"/>
+                    <field name="health_rate" required="True"/>
+                    <field name="identification_card"/>
+                    <field name="date_of_birth"/>
+                    <field name="add_insurance_time"/>
+                    <field name="cancel_insurance_time"/>
+                    <field name="note"/>
+                </group>
+                <footer>
+                    <button name="add" string="新增" type="object" default_focus="1" class="oe_highlight"/>
+                    <button string="取消" class="oe_link" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_dependents_add" model="ir.actions.act_window">
+        <field name="name">眷保新增</field>
+        <field name="res_model">wizard.dependents.add</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

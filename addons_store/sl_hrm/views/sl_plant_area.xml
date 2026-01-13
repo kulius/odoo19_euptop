@@ -1,0 +1,19 @@
+<odoo>
+    <!-- Action to open the view -->
+    <record model="ir.actions.act_window" id="action_sl_plant_area">
+        <field name="name">廠區設定</field>
+        <field name="res_model">sl.plant.area</field>
+        <field name="view_mode">list</field>
+    </record>
+    <!-- Tree view -->
+    <record model="ir.ui.view" id="view_tree_sl_plant_area">
+        <field name="name">sl.plant.area.tree</field>
+        <field name="model">sl.plant.area</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="code"/>
+            </list>
+        </field>
+    </record>
+</odoo>

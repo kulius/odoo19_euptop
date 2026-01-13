@@ -1,0 +1,24 @@
+<odoo>
+
+
+    <!-- Action to open the view -->
+    <record model="ir.actions.act_window" id="action_sl_health_report_check_setting">
+        <field name="name">體檢報告有效年限設定</field>
+        <field name="res_model">sl.health.report.check.setting</field>
+        <field name="view_mode">list</field>
+    </record>
+    <!-- Tree view -->
+    <record model="ir.ui.view" id="view_tree_sl_hr_health_report_check_setting">
+        <field name="name">sl.health.report.check.setting.tree</field>
+        <field name="model">sl.health.report.check.setting</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="age_start"/>
+                <field name="age_end"/>
+                <field name="effective_year_interval"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>

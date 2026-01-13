@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+<!--        <record id="view_res_users_form_inherit" model="ir.ui.view">-->
+<!--            <field name="name">res.users.form.inherit</field>-->
+<!--            <field name="model">res.users</field>-->
+<!--            <field name="inherit_id" ref="hr.res_users_view_form_profile"/>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <xpath expr="//group" position="inside">-->
+<!--                    <group>-->
+<!--                        <field name="employee_number"/>-->
+<!--                        <field name="substitute_id"/>-->
+<!--                    </group>-->
+<!--                </xpath>-->
+<!--                <xpath expr="//page[@name='personal_information']" position="replace">-->
+<!--                    <page name="personal_information" string="個人隱私資訊" groups="hr.group_hr_user">-->
+<!--                        <group>-->
+<!--                            <group string="私人聯絡方式">-->
+<!--                                <label for="street" string="地址"/>-->
+<!--                                <div>-->
+<!--                                    <div class="o_address_format" name="div_address">-->
+<!--                                        <field name="country_id" placeholder="國家" class="o_address_country"-->
+<!--                                               options='{"no_open": True, "no_create": True}'/>-->
+<!--                                        <field name="city" placeholder="City" class="o_address_city" invisible='1'/>-->
+<!--                                        <field name="state_id" class="o_address_state" placeholder="縣市"-->
+<!--                                               options='{"no_open": True}'-->
+<!--                                               context="{'country_id': country_id, 'zip': zip}"/>-->
+<!--                                        <field name="city_id" placeholder="鄉鎮市區" class="o_address_city"-->
+<!--                                               options="{'no_open': True, 'no_quick_create': True}"-->
+<!--                                               context="{'country_id': country_id, 'default_country_id': country_id, 'state_id': state_id}"/>-->
+<!--                                        <field name="zip" placeholder="郵遞區號" class="o_address_zip"/>-->
+<!--                                        <field name="street" placeholder="街道" class="o_address_street"/>-->
+<!--                                        <field name="street2" placeholder="街道2" class="o_address_street"/>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+
+<!--                                <field name="email" string="電子郵件"/>-->
+<!--                                <field name="telephone"/>-->
+<!--                                <field name="cellphone"/>-->
+
+<!--                            </group>-->
+<!--                            <group string="個人資料">-->
+<!--                                <field name="country_id" placeholder="國家"-->
+<!--                                       options='{"no_open": True, "no_create": True}'/>-->
+<!--                                <field name="identification_id" groups="hr.group_hr_user"/>-->
+<!--                                <field name="passport_id" groups="hr.group_hr_user"/>-->
+<!--                                <field name="gender"/>-->
+<!--                                <field name="birthday"/>-->
+<!--                                <field name="place_of_birth" groups="hr.group_hr_user"/>-->
+<!--                                <field name="country_of_birth" groups="hr.group_hr_user"/>-->
+<!--                            </group>-->
+<!--                            <group string="婚姻狀況">-->
+<!--                                <field name="marital"/>-->
+<!--                                <field name="spouse_complete_name"-->
+<!--                                       groups="hr.group_hr_user"/>-->
+<!--                                <field name="spouse_birthdate"-->
+<!--                                       groups="hr.group_hr_user"/>-->
+<!--                            </group>-->
+<!--                            <group string="撫養親屬">-->
+<!--                                <field name="children"/>-->
+<!--                            </group>-->
+<!--                            <group string="緊急">-->
+<!--                                <field name="emergency_contact"/>-->
+<!--                                <field name="emergency_phone" class="o_force_ltr"/>-->
+<!--                            </group>-->
+<!--                            <group string="工作許可證" name="work_permit">-->
+<!--                                <field name="visa_no"/>-->
+<!--                                <field name="permit_no"/>-->
+<!--                                <field name="visa_expire"/>-->
+<!--                            </group>-->
+<!--                            <group string="教育">-->
+<!--                                <field name="certificate" string='最高學歷'/>-->
+<!--                                <field name="study_field" string='專業科目'/>-->
+<!--                                <field name="study_school"/>-->
+<!--                            </group>-->
+<!--                        </group>-->
+<!--                    </page>-->
+<!--                </xpath>-->
+<!--            </field>-->
+<!--        </record>-->
+
+        <record id="starrylord_view_res_partner_bank_tree_inherit" model="ir.ui.view">
+            <field name="name">starrylord.res.users.tree.inherit</field>
+            <field name="model">res.partner.bank</field>
+            <field name="inherit_id" ref="base.view_partner_bank_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='bank_name']" position="after">
+                    <field name="sub_bank_name" string="分行"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="starrylord_view_res_partner_bank_form_inherit" model="ir.ui.view">
+            <field name="name">starrylord.res.users.form.inherit</field>
+            <field name="model">res.partner.bank</field>
+            <field name="inherit_id" ref="base.view_partner_bank_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='bank_id']" position="after">
+                    <field name="sub_bank_name" string="分行"/>
+                </xpath>
+                <xpath expr="//form[@name='bank_account_form']/sheet/group" position="after">
+                    <field name="book_cover" widget="many2many_binary"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
