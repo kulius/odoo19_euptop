@@ -44,7 +44,7 @@ class StarryLordPayrollAdjustment(models.Model):
 
     # 關聯薪資單 - 薪資計算時才會填入
     payslip_id = fields.Many2one('hr.payslip', string='關聯薪資單', readonly=True, help='此調整項目套用到的薪資單')
-    payslip_sheet_id = fields.Many2one('hr.payslip.sheet', string='關聯薪資總表', readonly=True, help='此調整項目套用到的薪資總表')
+    payslip_sheet_id = fields.Many2one('sl.hr.payslip.sheet', string='關聯薪資總表', readonly=True, help='此調整項目套用到的薪資總表')
 
     @api.model
     def copy_data(self, default=None):

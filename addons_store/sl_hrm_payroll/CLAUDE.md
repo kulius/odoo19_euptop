@@ -386,3 +386,13 @@ sl_hrm_payroll/
 | wizard 未 import | `wizard/__init__.py` | 加入 `wizard_payslip_batch_process`, `wizard_payslip_sheet_select_employee` |
 | wizard 權限缺失 | `security/ir.model.access.csv` | 加入 `hr.payslip.batch.processing`, `wizard.payslip.select.employee` 權限 |
 | wizard XML 未聲明 | `__manifest__.py` | 加入 `wizard/hr_payslip_batch_processing.xml` |
+
+### 本模組修復記錄 (2026-01-13)
+
+| 問題 | 檔案 | 修復內容 |
+|------|------|----------|
+| comodel_name 錯誤 | `models/sl_payroll_adjustment.py` | `hr.payslip.sheet` → `sl.hr.payslip.sheet` |
+| Many2many 關聯表衝突 | `wizard/wizard_payslip_sheet_select_employee.py` | 使用 `wizard_payslip_select_employee_rel` |
+| Many2many 關聯表衝突 | `wizard/wizard_payslip_batch_process.py` | 使用 `hr_payslip_batch_processing_employee_rel` |
+| 報表缺少 _description | `report/report_hr_payslip.py` | 新增 `_description = '薪資單報表'` |
+| Search View 無效屬性 | `views/hr_salary_rule.xml` | 移除 `group` 元素的 `col`, `colspan`, `expand`, `string` 屬性 |

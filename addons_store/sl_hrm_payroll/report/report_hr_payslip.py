@@ -10,6 +10,7 @@ from odoo.exceptions import UserError, ValidationError
 
 class ReportHrPayslip(models.AbstractModel):
     _name = 'report.sl_hrm_payroll.report_hr_payslip'
+    _description = '薪資單報表'
 
     @api.model
     def _get_report_values(self, docids, data=None):

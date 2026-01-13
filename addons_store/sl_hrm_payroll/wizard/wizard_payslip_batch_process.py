@@ -7,7 +7,7 @@ class HrPayslipBatchProcessing(models.TransientModel):
     _description = "批次生成薪資單"
 
     employee_ids = fields.Many2many(
-        "hr.employee", "hr_employee_payslip_batch_processing", "payslip_id", "employee_id", "Employees"
+        "hr.employee", "hr_payslip_batch_processing_employee_rel", "batch_id", "employee_id", "Employees"
     )
 
     hr_payroll_structure_id = fields.Many2one('hr.payroll.structure', string='薪資結構')

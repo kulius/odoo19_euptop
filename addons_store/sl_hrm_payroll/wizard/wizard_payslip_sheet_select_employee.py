@@ -7,5 +7,5 @@ class WizardPayslipSelectEmployee(models.TransientModel):
     _description = "選擇員工"
 
     employee_ids = fields.Many2many(
-        "hr.employee", "hr_employee_payslip_batch_processing", "payslip_sheet_id", "employee_id", "Employees"
+        "hr.employee", "wizard_payslip_select_employee_rel", "wizard_id", "employee_id", "Employees"
     )

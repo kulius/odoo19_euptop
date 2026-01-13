@@ -149,9 +149,8 @@
                        filter_domain="['|',('name','ilike',self),('code','ilike',self)]"/>
                 <field name="category_id"/>
                 <field name="condition_range_min"/>
-                <group col="8" colspan="4" expand="0" string="Group By">
-                    <filter string="Category" name="head" context="{'group_by':'category_id'}"/>
-                </group>
+                <separator/>
+                <filter string="Category" name="head" context="{'group_by':'category_id'}"/>
             </search>
         </field>
     </record>

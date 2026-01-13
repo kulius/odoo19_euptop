@@ -167,6 +167,10 @@ class MyModel(models.Model):
 | 2026-01-13 | sl_hr_attendance | 移除有問題的 search view |
 | 2026-01-13 | sl_hr_attendance | wizard 缺少 _description |
 | 2026-01-13 | sl_hr_attendance | OWL 元件需升級 (暫時停用 assets) |
+| 2026-01-13 | sl_hrm_payroll | comodel_name 錯誤 (hr.payslip.sheet → sl.hr.payslip.sheet) |
+| 2026-01-13 | sl_hrm_payroll | Many2many 關聯表名稱衝突 |
+| 2026-01-13 | sl_hrm_payroll | 報表模型缺少 _description |
+| 2026-01-13 | sl_hrm_payroll | Search View group 元素屬性變更 |
 
 ---
 
@@ -408,6 +412,36 @@ python odoo-bin --config=xxx.conf --database=xxx --init=模組名稱 --stop-afte
 
 **建議**: 升級模組後使用 `--init` 進行完整測試，可發現更多問題
 
+### EupTop 專案測試指令
+
+```bash
+# 更新模組
+.venv\Scripts\python.exe D:\odoo\odoo_19\odoo-bin --config=D:\odoo\odoo_conf\odoo19-euptop.conf --database=odoo19_sanoc --http-port=8070 --update=模組名稱 --stop-after-init
+
+# 安裝模組
+.venv\Scripts\python.exe D:\odoo\odoo_19\odoo-bin --config=D:\odoo\odoo_conf\odoo19-euptop.conf --database=odoo19_sanoc --http-port=8070 --init=模組名稱 --stop-after-init
+```
+
+### VS Code 偵錯設定範例
+
+```json
+{
+    "name": "Odoo 19 EupTop",
+    "type": "debugpy",
+    "request": "launch",
+    "stopOnEntry": false,
+    "python": ".venv\\Scripts\\python.exe",
+    "console": "integratedTerminal",
+    "program": "D:\\odoo\\odoo_19\\odoo-bin",
+    "args": [
+        "--config=D:\\odoo\\odoo_conf\\odoo19-euptop.conf",
+        "--database=odoo19_sanoc",
+        "--http-port=8070",
+        "--update=模組名稱",
+    ],
+    "cwd": "${workspaceRoot}",
+}
+
 ---
 
 ## 13. 常見升級問題快速檢查
@@ -528,3 +562,62 @@ Odoo 19 中 `hr_attendance` 模組的選單結構有變更：
 | `hr_attendance.menu_hr_attendance_kiosk_no_pin_mode` |
 
 **修復**: 移除對這些選單的引用
+
+---
+
+## 19. Search View group 元素變更
+
+**錯誤訊息**:
+```
+Invalid attribute expand for element group
+Invalid attribute string for element group
+```
+
+**原因**: Odoo 19 中 search view 的 `group` 元素不再支援 `col`, `colspan`, `expand`, `string` 屬性
+
+**修復**:
+```xml
+<!-- Odoo 17 (舊) -->
+<search>
+    <field name="name"/>
+    <group col="8" colspan="4" expand="0" string="Group By">
+        <filter string="Category" name="category" context="{'group_by':'category_id'}"/>
+    </group>
+</search>
+
+<!-- Odoo 19 (新) -->
+<search>
+    <field name="name"/>
+    <separator/>
+    <filter string="Category" name="category" context="{'group_by':'category_id'}"/>
+</search>
+```
+
+---
+
+## 20. Many2many 關聯表名稱衝突
+
+**錯誤訊息**:
+```
+TypeError: Many2many fields xxx.employee_ids and yyy.employee_ids use the same table and columns
+```
+
+**原因**: 多個模型的 Many2many 欄位使用相同的關聯表名稱
+
+**修復**: 為每個 Many2many 欄位指定唯一的 `relation` 名稱
+
+```python
+# 錯誤寫法 - 多個模型使用相同 relation
+class Model1(models.Model):
+    employee_ids = fields.Many2many("hr.employee", "shared_table", "model_id", "employee_id")
+
+class Model2(models.Model):
+    employee_ids = fields.Many2many("hr.employee", "shared_table", "model_id", "employee_id")
+
+# 正確寫法 - 每個模型使用唯一 relation
+class Model1(models.Model):
+    employee_ids = fields.Many2many("hr.employee", "model1_employee_rel", "model1_id", "employee_id")
+
+class Model2(models.Model):
+    employee_ids = fields.Many2many("hr.employee", "model2_employee_rel", "model2_id", "employee_id")
+```
