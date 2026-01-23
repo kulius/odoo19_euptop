@@ -67,6 +67,74 @@ odoo19_euptop/
 
 ---
 
+## sl_hrm_line (LINE 打卡系統)
+
+> **詳細文件**: 請參考 `addons_store/sl_hrm_line/CLAUDE.md`
+
+### 基本資訊
+
+| 項目 | 值 |
+|------|-----|
+| 模組名稱 | LINE 打卡系統 |
+| 技術名稱 | sl_hrm_line |
+| 版本 | 19.0.1.0.0 |
+| 類別 | Human Resources/Attendance |
+| 路徑 | addons_store/sl_hrm_line |
+
+### 依賴模組
+
+- `base`
+- `hr`
+- `hr_attendance`
+- `sl_hrm`
+
+### 功能概述
+
+LINE LIFF 員工綁定與 GPS 打卡系統：
+
+| 功能 | 說明 |
+|------|------|
+| LINE 員工綁定 | 透過員工姓名綁定 LINE 帳號 |
+| GPS 打卡 | 上下班打卡記錄 GPS 座標 |
+| 出勤歷史查詢 | 查詢員工出勤記錄 |
+
+### API 端點
+
+| 端點 | 方法 | 說明 |
+|------|------|------|
+| `/api/line/check-binding` | POST | 檢查綁定狀態 |
+| `/api/line/bind` | POST | 員工綁定 |
+| `/api/line/user` | GET | 取得用戶資料 |
+| `/api/line/attendance/today` | GET | 今日打卡狀態 |
+| `/api/line/attendance/clock` | POST | 打卡 |
+| `/api/line/attendance/history` | GET | 出勤歷史 |
+
+**認證方式**: Header `X-Line-User-Id`
+
+### hr.employee 擴展欄位
+
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| `line_user_id` | Char | LINE User ID (indexed, unique) |
+| `line_display_name` | Char | LINE 顯示名稱 |
+| `line_picture_url` | Char | LINE 頭像 URL |
+| `line_binding_date` | Datetime | 綁定時間 |
+| `is_line_bound` | Boolean | 已綁定 LINE (computed) |
+
+### 對應前端
+
+| 項目 | 值 |
+|------|-----|
+| 路徑 | line/line_hrm |
+| 技術棧 | Svelte 5 + Vite + Tailwind CSS + DaisyUI |
+| 文件 | line/line_hrm/CLAUDE.md |
+
+### 建立日期
+
+2026-01-23 (從 Odoo 17 移植升級)
+
+---
+
 ## ep_thenone (諾內客製化)
 
 ### 基本資訊
@@ -369,6 +437,10 @@ class MyModel(models.Model):
 | 2026-01-23 | sl_hrm | 合併 sl_hrm_holiday, sl_hrm_overtime, sl_hrm_personal_calendar, sl_hr_attendance |
 | 2026-01-23 | sl_hrm | OWL Dashboard 升級至 Odoo 19 |
 | 2026-01-23 | base_tier_validation | groups_id 改為 group_ids (res.users) |
+| 2026-01-23 | sl_hrm_line | 新建模組 - 從 Odoo 17 移植 LINE 打卡系統 |
+| 2026-01-23 | sl_hrm | 測試修復 - Selection field 值必須使用正確 key |
+| 2026-01-23 | sl_hrm | 測試修復 - @api.model_create_multi 替代 @api.model |
+| 2026-01-23 | sl_hrm | hr.employee.public VIEW 需要 current_version_id |
 
 ---
 
@@ -818,4 +890,179 @@ class Model1(models.Model):
 
 class Model2(models.Model):
     employee_ids = fields.Many2many("hr.employee", "model2_employee_rel", "model2_id", "employee_id")
+```
+
+---
+
+## 21. hr.employee.public VIEW 與 current_version_id
+
+**錯誤訊息**:
+```
+缺失記錄 Record does not exist or has been deleted. (Record: hr.employee.public(2,), User: 2)
+```
+
+**原因**: Odoo 19 的 `hr.employee.public` 是一個 SQL VIEW，使用 INNER JOIN 連接 `hr_employee` 和 `hr_version` 表。如果員工沒有 `current_version_id`，該員工不會出現在 VIEW 中。
+
+**檢查 SQL**:
+```sql
+-- 檢查沒有 current_version_id 的員工
+SELECT id, name FROM hr_employee WHERE current_version_id IS NULL;
+
+-- 檢查 hr_employee_public VIEW 結構
+SELECT * FROM pg_views WHERE viewname = 'hr_employee_public';
+```
+
+**修復**: 為缺少 `hr_version` 記錄的員工建立版本記錄
+
+```python
+# scripts/check_employees.py
+import psycopg2
+from datetime import datetime
+
+conn = psycopg2.connect(
+    host='127.0.0.1', port=5432,
+    user='odoo', password='odoo',
+    database='odoo19_sanoc'
+)
+conn.autocommit = True
+cur = conn.cursor()
+
+# 找出沒有 current_version_id 的員工
+cur.execute('''
+    SELECT id, name, company_id
+    FROM hr_employee
+    WHERE current_version_id IS NULL
+''')
+employees_to_fix = cur.fetchall()
+
+now = datetime.now()
+
+for emp_id, name, company_id in employees_to_fix:
+    # 插入 hr_version 記錄 (需滿足所有 NOT NULL 欄位)
+    cur.execute('''
+        INSERT INTO hr_version (
+            employee_id, company_id, active,
+            last_modified_uid, hr_responsible_id,
+            distance_home_work_unit, marital, employee_type,
+            date_version, last_modified_date,
+            create_date, write_date, create_uid, write_uid
+        ) VALUES (
+            %s, %s, true,
+            1, 1,
+            'km', 'single', 'employee',
+            %s, %s,
+            %s, %s, 1, 1
+        )
+        RETURNING id
+    ''', (emp_id, company_id, now.date(), now, now, now))
+
+    version_id = cur.fetchone()[0]
+
+    # 更新員工的 current_version_id
+    cur.execute('''
+        UPDATE hr_employee SET current_version_id = %s WHERE id = %s
+    ''', (version_id, emp_id))
+
+cur.close()
+conn.close()
+```
+
+**hr_version 必要欄位**:
+
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| `employee_id` | Integer | 員工 ID |
+| `company_id` | Integer | 公司 ID |
+| `active` | Boolean | 是否啟用 |
+| `last_modified_uid` | Integer | 最後修改者 |
+| `hr_responsible_id` | Integer | HR 負責人 |
+| `distance_home_work_unit` | Char | 距離單位 ('km') |
+| `marital` | Char | 婚姻狀態 ('single') |
+| `employee_type` | Char | 員工類型 ('employee') |
+| `date_version` | Date | 版本日期 |
+| `last_modified_date` | Datetime | 最後修改時間 |
+
+---
+
+## 22. @api.model_create_multi (Odoo 19)
+
+**錯誤訊息**:
+```
+TypeError: 'list' object has no attribute 'get'
+```
+
+**原因**: Odoo 19 的 create 方法預設接收 `vals_list` (列表)，而非單一 `vals` (字典)
+
+**修復**:
+```python
+# Odoo 17 (舊)
+@api.model
+def create(self, vals):
+    # vals 是字典
+    date_val = vals.get('date')
+    return super().create(vals)
+
+# Odoo 19 (新)
+@api.model_create_multi
+def create(self, vals_list):
+    for vals in vals_list:
+        # 迭代處理每個 vals 字典
+        date_val = vals.get('date')
+    return super().create(vals_list)
+```
+
+---
+
+## 23. Selection 欄位值驗證
+
+**錯誤訊息**:
+```
+ValueError: Wrong value for hr.schedule.worktime.date_type: 'work'
+```
+
+**原因**: Odoo 19 對 Selection 欄位值驗證更嚴格，必須使用定義中的正確 key
+
+**檢查方式**:
+```python
+# 查看 Selection 欄位定義
+model = self.env['hr.schedule.worktime']
+field = model._fields['date_type']
+print(field.selection)  # [('schedule', '排班'), ('leave', '請假'), ...]
+```
+
+**常見錯誤對照**:
+
+| 模型 | 欄位 | 錯誤值 | 正確值 |
+|------|------|--------|--------|
+| `hr.schedule.worktime` | `date_type` | 'work' | 'schedule' |
+| `starrylord.overtime.type` | `time_type` | 'normal' | 'half' |
+| `starrylord.overtime.type` | `date_type` | 'normal' | 'schedule' |
+
+---
+
+## 24. 測試中比較 employee 記錄
+
+**問題**: Odoo 19 的 `employee_id` 可能回傳 `hr.employee.public` 而非 `hr.employee`
+
+**修復**:
+```python
+# 錯誤寫法 - 可能因記錄類型不同而失敗
+self.assertEqual(record.employee_id, self.employee)
+
+# 正確寫法 - 比較 ID
+self.assertEqual(record.employee_id.id, self.employee.id)
+```
+
+---
+
+## 25. 測試中檢查模型是否存在
+
+**修復**:
+```python
+# 錯誤寫法 - 會回傳空 recordset，布林值為 False
+self.assertTrue(self.env['my.model'])
+
+# 正確寫法
+model_exists = 'my.model' in self.env
+self.assertTrue(model_exists)
 ```

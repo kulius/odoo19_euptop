@@ -96,6 +96,20 @@ sl_hrm/
 | `group_starrylord_overtime_manager` | 加班管理員 |
 | `group_starrylord_overtime_director` | 加班主管 |
 
+### 考勤群組
+
+| 群組 ID | 說明 |
+|---------|------|
+| `group_sl_attendance_user` | SL 考勤使用者 |
+| `group_sl_attendance_manager` | SL 考勤管理員 |
+
+### 班表群組
+
+| 群組 ID | 說明 |
+|---------|------|
+| `group_starrylord_personal_calendar` | 一般員工班表及行事曆 |
+| `group_starrylord_personal_calendar_manager` | 班表及行事曆管理 |
+
 ---
 
 ## 外部依賴
@@ -126,12 +140,24 @@ Starry Lord HRM
 │   ├── 補休換取
 │   └── 設定
 ├── 考勤
-│   ├── 打卡記錄
-│   ├── 考勤核對
-│   ├── 補打卡申請
-│   └── 匯入
+│   ├── 我的出勤記錄
+│   ├── 出勤紀錄管理
+│   ├── 我的出勤異常說明單
+│   ├── 出勤異常說明單管理
+│   └── 系統管理
+│       ├── 手動產生出勤紀錄
+│       ├── 原始打卡記錄
+│       └── 打卡資料匯入
 ├── 個人行事曆
 └── 設定
+    └── 勞健保
+        ├── 健保級距設定
+        ├── 勞保級距設定
+        ├── 勞退級距設定
+        ├── 勞工職業災害保險級距設定
+        └── 薪資扣繳稅額級距設定
+    └── 體檢報告有效期限設定
+    └── 教育訓練和在職回訓有效期限設定
 ```
 
 ---
@@ -152,6 +178,39 @@ Starry Lord HRM
 | 2026-01-13 | groups_id 改為 group_ids | 更新 base_tier_validation |
 | 2026-01-23 | 模組合併解決循環相依 | 整合 5 個模組 |
 | 2026-01-23 | OWL Dashboard 升級 | 升級至 Odoo 19 OWL |
+| 2026-01-23 | 勞健保設定選單遺失 | 更新 views/menu.xml 新增保險相關選單 |
+| 2026-01-23 | 員工表單頁籤遺失 | 更新 views/hr_employee.xml 新增勞保/健保/勞退等頁籤 |
+| 2026-01-23 | 考勤選單結構更新 | 更新 views/menu.xml 新增考勤相關選單 |
+
+---
+
+## 員工表單頁籤結構
+
+員工表單 (`hr_employee.xml`) 包含以下頁籤：
+
+| 頁籤 | 說明 | 權限群組 |
+|------|------|----------|
+| 個人資料 | 基本個人資訊、戶籍/通訊地址 | - |
+| 體檢報告 | 員工體檢記錄 | sl_hrm.group_sl_hrm_manager |
+| 相關證照 | 員工證照記錄 | sl_hrm.group_sl_hrm_manager |
+| 勞保 | 勞工保險級距、異動歷程 | sl_hrm.group_sl_hrm_manager |
+| 健保 | 健康保險級距、異動歷程、眷屬資訊 | sl_hrm.group_sl_hrm_manager |
+| 勞退 | 勞工退休金級距、異動歷程 | sl_hrm.group_sl_hrm_manager |
+| 勞工職業災害保險 | 職災保險級距 | sl_hrm.group_sl_hrm_manager |
+| 人資資料 | 附件、資歷資訊 | sl_hrm.group_sl_hrm_manager |
+| 在離職異動歷程 | 員工異動記錄 | sl_hrm.group_sl_hrm_manager |
+
+### 關聯欄位
+
+| 欄位 | 模型 | 說明 |
+|------|------|------|
+| `health_examination_ids` | sl.health.examination.employee | 體檢報告 |
+| `license_ids` | sl.license.employee | 相關證照 |
+| `labor_insurance_history_ids` | sl.hr.labor.insurance.history | 勞保異動歷程 |
+| `health_insurance_history_ids` | sl.hr.health.insurance.history | 健保異動歷程 |
+| `dependents_ids` | hr.dependents.information | 眷屬資訊 |
+| `labor_pension_history_ids` | sl.hr.labor.pension.history | 勞退異動歷程 |
+| `change_history_ids` | sl.hr.employee.change.history | 在離職異動歷程 |
 
 ---
 
@@ -166,6 +225,8 @@ Starry Lord HRM
 4. **OWL 元件**: 前端元件位於 `static/src/views/`，使用 Odoo 19 OWL 3 語法
 
 5. **系統參數**: 請休假/加班功能依賴 `ir.config_parameter` 設定
+
+6. **Odoo 19 視圖語法**: 使用 `<list>` 取代 `<tree>`，使用 `invisible="condition"` 取代 `attrs`
 
 ---
 

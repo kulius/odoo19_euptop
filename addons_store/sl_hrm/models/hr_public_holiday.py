@@ -16,23 +16,31 @@ class HrPublicHoliday(models.Model):
     # 原本只有start、end 兩個時間設定，但是用datetime的方式來處哩，會導致其他地方的判斷難度大增，
     # 如果把公眾假日限制日為單位，比較好做事，
     # 如果遇到公司自己彈性放假等，那就用休假的方式處裡那段時間，所以有人資批次休假的功能
-    @api.model
-    def create(self, vals):
-        # 自動將end_date設定為23:59:59
-        time_vals = datetime.datetime.strptime(vals.get('date'), '%Y-%m-%d')
-        vals['start_date'] = time_vals.strftime('%Y-%m-%d 00:00:00')
-        time_vals = time_vals.replace(hour=23, minute=59, second=59)
-        vals['end_date'] = time_vals.strftime('%Y-%m-%d %H:%M:%S')
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            # 自動將end_date設定為23:59:59
+            date_val = vals.get('date')
+            # Handle both string and date object
+            if isinstance(date_val, str):
+                time_vals = datetime.datetime.strptime(date_val, '%Y-%m-%d')
+            else:
+                # date object
+                time_vals = datetime.datetime.combine(date_val, datetime.time.min)
 
-        if vals['name'] == '補行上班':
-            vals['holiday_type'] = 'make_up_day'
-        elif vals['name'] == '例假日' and time_vals.weekday() == 5:
-            vals['holiday_type'] = 'day_off'
-        elif vals['name'] == '例假日' and time_vals.weekday() == 6:
-            vals['holiday_type'] = 'regular_holiday'
-        else:
-            vals['holiday_type'] = 'holiday'
-        return super(HrPublicHoliday, self).create(vals)
+            vals['start_date'] = time_vals.strftime('%Y-%m-%d 00:00:00')
+            time_vals = time_vals.replace(hour=23, minute=59, second=59)
+            vals['end_date'] = time_vals.strftime('%Y-%m-%d %H:%M:%S')
+
+            if vals.get('name') == '補行上班':
+                vals['holiday_type'] = 'make_up_day'
+            elif vals.get('name') == '例假日' and time_vals.weekday() == 5:
+                vals['holiday_type'] = 'day_off'
+            elif vals.get('name') == '例假日' and time_vals.weekday() == 6:
+                vals['holiday_type'] = 'regular_holiday'
+            else:
+                vals['holiday_type'] = vals.get('holiday_type', 'holiday')
+        return super(HrPublicHoliday, self).create(vals_list)
 
     def is_duraction_has_holiday(self, start_date, end_date):
         has_holiday = self.search([
