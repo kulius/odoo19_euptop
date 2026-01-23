@@ -1,0 +1,21 @@
+<odoo>
+    <record id="starrylord_holiday_min_list_tree_view" model="ir.ui.view">
+        <field name="name">starrylord.holiday.min.list.tree</field>
+        <field name="model">starrylord.holiday.min.list</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" string="休假-分鐘表">
+                <field name="name"/>
+                <field name="minute"/>
+                <field name="is_select"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="starrylord_holiday_min_list_action" model="ir.actions.act_window">
+        <field name="name">休假-分鐘表</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">starrylord.holiday.min.list</field>
+        <field name="view_mode">list</field>
+        <field name="views" eval="[(ref('starrylord_holiday_min_list_tree_view'), 'list')]"/>
+    </record>
+</odoo>

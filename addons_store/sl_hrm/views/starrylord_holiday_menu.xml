@@ -1,0 +1,118 @@
+<odoo>
+    <!-- ========== 請休假選單 (從 sl_hrm_holiday 合併) ========== -->
+    <menuitem id="starrylord_holiday_menu" name="請休假"
+              groups="base.group_user"
+              sequence="210"
+    />
+
+    <menuitem id="starrylord_holiday_apply" name="我的假單"
+              parent="starrylord_holiday_menu"
+              action="starrylord_holiday_apply_action"
+              groups="base.group_user"
+              sequence="9"
+    />
+
+    <menuitem id="starrylord_holiday_used_record_user" name="我的休假使用紀錄"
+              parent="starrylord_holiday_menu"
+              action="starrylord_holiday_used_record_user_action"
+              groups="base.group_user"
+              sequence="10"
+    />
+
+    <menuitem id="starrylord_holiday_allocation_user" name="我的休假分配"
+              parent="starrylord_holiday_menu"
+              action="starrylord_holiday_allocation_user_action"
+              groups="base.group_user"
+              sequence="11"
+    />
+
+    <menuitem id="menu_starrylord_holiday_cancel_employee" name="我的銷假單"
+              parent="starrylord_holiday_menu"
+              action="action_starrylord_holiday_cancel_employee"
+              groups="base.group_user" sequence="12"
+    />
+
+    <menuitem id="starrylord_holiday_apply_portal_todo" name="請假單審核"
+              parent="starrylord_holiday_menu"
+              action="action_holiday_apply_portal_todo"
+              groups="sl_hrm.group_starrylord_holiday_director"
+              sequence="13"
+    />
+
+    <menuitem id="starrylord_holiday_apply_manager" name="請假單管理"
+              parent="starrylord_holiday_menu"
+              action="starrylord_holiday_apply_manager_action"
+              groups="sl_hrm.group_starrylord_holiday_manager"
+              sequence="16"
+    />
+
+    <menuitem id="menu_starrylord_holiday_cancel" name="銷假單管理"
+              parent="starrylord_holiday_menu"
+              action="action_starrylord_holiday_cancel"
+              groups="sl_hrm.group_starrylord_holiday_manager"
+              sequence="17"
+    />
+
+    <menuitem id="starrylord_holiday_used_record_report" name="休假報表"
+              parent="starrylord_holiday_menu"
+              action="action_holiday_used_record_wizard"
+              groups="sl_hrm.group_starrylord_holiday_manager"
+              sequence="18"
+    />
+
+    <menuitem id="starrylord_holiday_used_record_manager" name="休假使用記錄管理"
+              parent="starrylord_holiday_menu"
+              action="starrylord_holiday_used_record_manager_action"
+              groups="sl_hrm.group_starrylord_holiday_developer"
+              sequence="20"
+    />
+
+    <menuitem id="starrylord_holiday_setting" name="休假設定"
+              parent="starrylord_holiday_menu"
+              groups="sl_hrm.group_starrylord_holiday_developer"
+              sequence="22"
+    />
+
+    <menuitem id="starrylord_holiday_allocation" name="休假分配"
+              parent="starrylord_holiday_setting"
+              action="starrylord_holiday_allocation_action"
+              groups="sl_hrm.group_starrylord_holiday_developer"
+              sequence="10"
+    />
+
+    <menuitem id="starrylord_holiday_batch_allocation" name="批次休假分配"
+              parent="starrylord_holiday_setting"
+              action="wizard_holiday_batch_allocation_action"
+              groups="sl_hrm.group_starrylord_holiday_developer"
+              sequence="12"
+    />
+
+    <menuitem id="starrylord_holiday_type" name="休假類型"
+              parent="starrylord_holiday_setting"
+              action="starrylord_holiday_type_action"
+              groups="sl_hrm.group_starrylord_holiday_developer"
+              sequence="30"
+    />
+
+    <menuitem id="hr_public_holiday" name="公眾假日"
+              parent="starrylord_holiday_setting"
+              action="hr_public_holiday_action"
+              groups="sl_hrm.group_starrylord_holiday_developer"
+              sequence="31"
+    />
+
+    <menuitem id="starrylord_annual_leave_setting" name="年資特休天數設定"
+              parent="starrylord_holiday_setting"
+              action="starrylord_annual_leave_setting_tree_view_action"
+              groups="sl_hrm.group_starrylord_holiday_developer"
+              sequence="32"
+    />
+
+    <menuitem
+        id="menu_tier_definition_holiday"
+        name="簽核流程定義"
+        parent="starrylord_holiday_setting"
+        action="base_tier_validation.tier_definition_action"
+        sequence="35" groups="sl_tier_validation.group_sl_tier_review_manager"/>
+
+</odoo>

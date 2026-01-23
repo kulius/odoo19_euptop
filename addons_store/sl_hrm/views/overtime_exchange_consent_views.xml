@@ -1,0 +1,110 @@
+<odoo>
+    <record id="view_overtime_exchange_consent_form" model="ir.ui.view">
+        <field name="name">starrylord.overtime.exchange.consent.form</field>
+        <field name="model">starrylord.overtime.exchange.consent</field>
+        <field name="arch" type="xml">
+            <form string="例假日與休息日調移同意書">
+                <sheet>
+                    <h1>
+                        <field name="name" readonly="1" />
+                    </h1>
+                    <group>
+                        <div
+                            style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #007bff;">
+                            <h4 style="margin-bottom: 15px; color: #495057;">例假日與休息日調移同意聲明</h4>
+
+                            <div style="font-size: 14px; line-height: 1.6; margin-bottom: 15px;">
+                                <p style="margin-bottom: 10px;"> 本人同意公司將原排定之【 <strong
+                                        style="color: #dc3545;">
+                                        <field name="regular_holiday_date" readonly="1" nolabel="1"
+                                            style="display: inline;" widget="date" />
+                                    </strong>
+                                    （例假日）】調整為【 <strong style="color: #28a745;">
+                                        <field name="moved_regular_holiday_date" readonly="1"
+                                            nolabel="1" style="display: inline;" widget="date" />
+                                    </strong>
+                                    】，並將【 <strong style="color: #dc3545;">
+                                        <field name="day_off_date" readonly="1" nolabel="1"
+                                            style="display: inline;" widget="date" />
+                                    </strong>
+                                    （休息日）】改為【 <strong style="color: #28a745;">
+                                        <field name="moved_day_off_date" readonly="1" nolabel="1"
+                                            style="display: inline;" widget="date" />
+                                    </strong>
+                                    （例假日）】。 </p>
+                            </div>
+
+                            <div
+                                style="font-size: 14px; line-height: 1.6; border-top: 1px solid #dee2e6; padding-top: 15px;">
+                                <p style="margin-bottom: 0; font-weight: 500;">
+                                    上述調整已於事前與本人充分溝通並經同意，並不影響本人每七日內享有一日例假之權利。
+                                </p>
+                            </div>
+                        </div>
+                        <group>
+                            <field name="overtime_id" options="{'no_create': True}" readonly="1" />
+                            <field name="employee_id" readonly="1" />
+                            <field name="company_id" readonly="1" />
+                            <field name="regular_holiday_date" />
+                            <field name="day_off_date" />
+                            <field name="moved_day_off_date" />
+                            <field name="moved_regular_holiday_date" />
+                        </group>
+
+                    </group>
+                    <group>
+                        <field name="note" />
+                    </group>
+                    <button name="action_generate_exchange_consent_pdf" string="生成PDF" type="object"
+                        class="btn-secondary" confirm="確定要重新產生PDF檔案?" />
+                    <group string="PDF檔案">
+                        <field name="exchange_consent_attachment_ids" widget="many2many_binary" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_overtime_apply_extend" model="ir.ui.view">
+        <field name="name">starrylord.overtime.apply.extend.form</field>
+        <field name="model">starrylord.overtime.apply</field>
+        <field name="inherit_id" ref="sl_hrm.starrylord_overtime_apply_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//group[.//field[@name='overtime_type_id']]" position="after">
+                <field name="regular_holiday_exchange_required" readonly="1" invisible="1" />
+                <label for="regular_holiday_exchange_agree" class="o_form_label" invisible="not regular_holiday_exchange_required">本人同意例休調移 </label>
+                <field name="regular_holiday_exchange_agree" string="本人同意例休調移"
+                    invisible="not regular_holiday_exchange_required" />
+                <button name="action_generate_exchange_consent" string="建立例休調移同意書" type="object"
+                    class="btn-secondary"
+                    invisible="not regular_holiday_exchange_required or not regular_holiday_exchange_agree or exchange_consent_id" />
+                <field name="exchange_consent_id"
+                    invisible="not regular_holiday_exchange_required"
+                    readonly="1"
+                    options="{'no_create': True, 'no_open': False}" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_overtime_apply_extend_manager" model="ir.ui.view">
+        <field name="name">starrylord.overtime.apply.extend.manager.form</field>
+        <field name="model">starrylord.overtime.apply</field>
+        <field name="inherit_id" ref="sl_hrm.starrylord_overtime_apply_manager_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//group[.//field[@name='overtime_type_id']]" position="after">
+                <field name="regular_holiday_exchange_required" readonly="1" invisible="1" />
+                <label for="regular_holiday_exchange_agree" class="o_form_label" invisible="not regular_holiday_exchange_required">本人同意例休調移 </label>
+                <field name="regular_holiday_exchange_agree" string="本人同意例休調移"
+                    invisible="not regular_holiday_exchange_required" />
+                <button name="action_generate_exchange_consent" string="建立例休調移同意書" type="object"
+                    class="btn-secondary"
+                    invisible="not regular_holiday_exchange_required or not regular_holiday_exchange_agree or exchange_consent_id" />
+                <field name="exchange_consent_id"
+                    invisible="not regular_holiday_exchange_required"
+                    readonly="1"
+                    options="{'no_create': True, 'no_open': False}" />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

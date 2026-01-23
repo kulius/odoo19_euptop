@@ -1,52 +1,68 @@
 <odoo>
-    <menuitem id="menu_sl_human_resources" name="人事考勤"
-        sequence="265" web_icon="sl_hrm,static/description/hr.png"
+<!--             
+    <menuitem id="root_hr_attendance_check_action" name="出勤紀錄"
+        parent="hr_attendance.menu_hr_attendance_root"
+        groups="hr_attendance.group_hr_attendance_manager"
+        sequence="22"
+    /> -->
+
+    <menuitem id="sl_hr_attendance_setting_manager" name="系統管理"
+        parent="hr_attendance.menu_hr_attendance_root"
+        groups="hr_attendance.group_hr_attendance_manager"
+        sequence="50"
     />
 
-    <menuitem
-            id="menu_config_insurance"
-            name="勞健保"
-            parent="hr.menu_human_resources_configuration"
-            sequence="10"/>
+    <menuitem id="hr_my_attendance_check_action" name="我的出勤記錄"
+        parent="hr_attendance.menu_hr_attendance_root"
+        action="hr_attendance_check_action"
+        groups="base.group_user"
+        sequence="9"
+    />
 
-    <menuitem id="menu_hr_health_insurance_gap_list"
-              name="健保級距設定"
-              parent="menu_config_insurance"
-              sequence="1"
-              action="action_hr_health_insurance_gap"/>
-    <menuitem id="menu_hr_labor_insurance_gap_list"
-              name="勞保級距設定"
-              parent="menu_config_insurance"
-              sequence="2"
-              action="action_hr_labor_insurance_gap"/>
 
-    <menuitem id="menu_hr_labor_pension_gap_list"
-              name="勞退級距設定"
-              parent="menu_config_insurance"
-              sequence="2"
-              action="action_hr_labor_pension_gap"/>
+    <!-- <menuitem id="hr_attendance_check_action_manager" name="出勤紀錄管理"
+        parent="root_hr_attendance_check_action"
+        action="hr_attendance_check_manager_action"
+        groups="hr_attendance.group_hr_attendance_manager"
+        sequence="10"
+    /> -->
 
-    <menuitem id="menu_hr_labor_harm_insurance_gap_list"
-              name="勞工職業災害保險級距設定"
-              parent="menu_config_insurance"
-              sequence="3"
-              action="action_hr_labor_harm_insurance_gap"/>
+    <menuitem id="wizard_hr_attendance_check_action_manager" name="手動產生出勤紀錄"
+        parent="sl_hr_attendance_setting_manager"
+        action="wizard_hr_attendance_check_action"
+        groups="hr_attendance.group_hr_attendance_manager"
+        sequence="15"
+    />
 
-    <menuitem id="menu_hr_salary_tax_gap_list"
-              name="薪資扣繳稅額級距設定"
-              parent="menu_config_insurance"
-              sequence="3"
-              action="action_hr_salary_tax_gap"/>
+    <menuitem id="starrylord_hr_attendance_check" name="出勤紀錄管理"
+        parent="hr_attendance.menu_hr_attendance_root"
+        action="hr_attendance_check_manager_action"
+        groups="hr_attendance.group_hr_attendance_manager"
+        sequence="22"
+    />
+    <menuitem id="sl_hr_attendance_repair" name="我的出勤異常說明單"
+        parent="hr_attendance.menu_hr_attendance_root"
+        action="action_sl_attendance_repair"
+        sequence="23"
+    />
+    <menuitem id="sl_hr_attendance_repair_manager" name="出勤異常說明單管理"
+        parent="hr_attendance.menu_hr_attendance_root"
+        action="action_sl_attendance_repair_manager"
+        groups="hr_attendance.group_hr_attendance_manager"
+        sequence="24"
+    />
 
-    <menuitem id="menu_hr_health_report_check_setting"
-              name="體檢報告有效期限設定"
-              parent="hr.menu_human_resources_configuration"
-              sequence="11"
-              action="action_sl_health_report_check_setting"/>
+    <!-- Menu -->
+    <menuitem id="menu_hr_attendance_raw"
+        name="原始打卡記錄"
+        parent="sl_hr_attendance_setting_manager"
+        action="hr_attendance_raw_action"
+        groups="hr_attendance.group_hr_attendance_manager"
+        sequence="41"/>
 
-    <menuitem id="menu_hr_license_check_setting"
-              name="教育訓練和在職回訓有效期限設定"
-              parent="hr.menu_human_resources_configuration"
-              sequence="11"
-              action="action_sl_license_check_setting"/>
+    <menuitem id="menu_sl_attendance_import"
+              name="打卡資料匯入"
+              parent="sl_hr_attendance_setting_manager"
+              action="sl_attendance_import_action"
+              sequence="50"/>
 </odoo>

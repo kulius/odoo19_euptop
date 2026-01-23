@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="hr_attendance_raw_view_tree" model="ir.ui.view">
+        <field name="name">hr.attendance.raw.tree</field>
+        <field name="model">hr.attendance.raw</field>
+        <field name="arch" type="xml">
+            <list string="原始打卡記錄" create="false">
+                <field name="employee_number"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="check_time"/>
+                <field name="source"/>
+                <field name="note"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="hr_attendance_raw_view_form" model="ir.ui.view">
+        <field name="name">hr.attendance.raw.form</field>
+        <field name="model">hr.attendance.raw</field>
+        <field name="arch" type="xml">
+            <form string="原始打卡記錄" create="false" delete="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="1"/>
+                            <field name="employee_number" readonly="1"/>
+                            <field name="department_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="check_time" readonly="1"/>
+                            <field name="source" readonly="1"/>
+                            <field name="note"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="hr_attendance_raw_view_filter" model="ir.ui.view">
+        <field name="name">hr.attendance.raw.search</field>
+        <field name="model">hr.attendance.raw</field>
+        <field name="arch" type="xml">
+            <search string="原始打卡記錄搜尋">
+                <field name="employee_id"/>
+                <field name="employee_number"/>
+                <field name="department_id"/>
+                <field name="check_time"/>
+
+                <filter string="手動匯入" name="manual" domain="[('source', '=', 'manual')]"/>
+                <filter string="打卡機" name="device" domain="[('source', '=', 'device')]"/>
+                <filter string="系統建立" name="system" domain="[('source', '=', 'system')]"/>
+
+                <separator/>
+                <filter string="今天" name="today"
+                    domain="[('check_time', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))),
+                            ('check_time', '&lt;=', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]"/>
+                <filter string="本週" name="this_week" domain="[('check_time', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d 00:00:00'))]"/>
+                <filter string="本月" name="this_month"
+                    domain="[('check_time', '&gt;=', (context_today() + relativedelta(day=1)).strftime('%Y-%m-%d 00:00:00')),
+                            ('check_time', '&lt;=', (context_today() + relativedelta(day=31)).strftime('%Y-%m-%d 23:59:59'))]"/>
+                <filter string="本年" name="this_year"
+                    domain="[('check_time', '&gt;=', time.strftime('%Y-01-01 00:00:00')),
+                            ('check_time', '&lt;=', time.strftime('%Y-12-31 23:59:59'))]"/>
+
+                <separator/>
+                <filter string="打卡時間" name="filter_check_time" date="check_time"/>
+
+                <separator/>
+                <filter string="員工" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                <filter string="部門" name="group_department" context="{'group_by': 'department_id'}"/>
+                <filter string="來源" name="group_source" context="{'group_by': 'source'}"/>
+                <filter string="打卡日期" name="group_check_date" context="{'group_by': 'check_time:day'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="hr_attendance_raw_action" model="ir.actions.act_window">
+        <field name="name">原始打卡記錄</field>
+        <field name="res_model">hr.attendance.raw</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_this_month': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                目前沒有原始打卡記錄
+            </p>
+            <p>
+                這裡記錄所有員工的原始打卡資料，包含從打卡機、手動匯入等各種來源的打卡時間點。
+            </p>
+        </field>
+    </record>
+
+</odoo>

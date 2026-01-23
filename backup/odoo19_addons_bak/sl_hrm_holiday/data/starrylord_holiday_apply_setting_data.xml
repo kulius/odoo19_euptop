@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding='UTF-8'?>
+<odoo>
+    <data noupdate="1">
+        <record id="can_self_as_substitute_id" model="ir.config_parameter">
+            <field name="key">can_self_as_substitute_id</field>
+            <field name="value">0</field>
+        </record>
+    </data>
+</odoo>

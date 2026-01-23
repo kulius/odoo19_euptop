@@ -1,0 +1,49 @@
+<odoo>
+    <!-- ========== 加班選單 (從 sl_hrm_overtime 合併) ========== -->
+    <menuitem id="starrylord_overtime_menu" name="加班"
+              groups="base.group_user"
+              sequence="220"
+    />
+
+    <menuitem id="starrylord_overtime_apply" name="我的加班單"
+              parent="starrylord_overtime_menu"
+              action="starrylord_overtime_apply_action"
+              groups="base.group_user"
+              sequence="9"
+    />
+
+    <menuitem id="starrylord_overtime_apply_portal_todo" name="加班單審核"
+              parent="starrylord_overtime_menu"
+              action="action_overtime_apply_portal_todo"
+              groups="sl_hrm.group_starrylord_overtime_director"
+              sequence="10"
+    />
+
+    <menuitem id="starrylord_overtime_apply_manager" name="加班管理"
+              parent="starrylord_overtime_menu"
+              action="starrylord_overtime_apply_manager_action"
+              groups="sl_hrm.group_starrylord_overtime_manager"
+              sequence="13"
+    />
+
+    <menuitem id="starrylord_overtime_apply_record_report" name="加班申請報表"
+              parent="starrylord_overtime_menu"
+              action="action_overtime_apply_record_wizard"
+              groups="sl_hrm.group_starrylord_overtime_manager"
+              sequence="16"
+    />
+
+    <menuitem id="starrylord_overtime_setting" name="加班設定"
+              parent="starrylord_overtime_menu"
+              groups="sl_hrm.group_starrylord_overtime_developer"
+              sequence="30"
+    />
+
+    <menuitem id="starrylord_overtime_type" name="加班類型"
+              parent="starrylord_overtime_setting"
+              action="starrylord_overtime_type_action"
+              groups="sl_hrm.group_starrylord_overtime_developer"
+              sequence="30"
+    />
+
+</odoo>

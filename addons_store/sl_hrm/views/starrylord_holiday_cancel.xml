@@ -1,0 +1,166 @@
+<odoo>
+    <record id="view_starrylord_holiday_cancel_list" model="ir.ui.view">
+        <field name="name">starrylord.holiday.cancel.list</field>
+        <field name="model">starrylord.holiday.cancel</field>
+        <field name="arch" type="xml">
+            <list default_order="create_date desc">
+                <field name="name"/>
+                <field name="state"/>
+                <field name="employee_id"/>
+                <field name="holiday_apply_id"/>
+                <field name="cancel_day"/>
+                <field name="cancel_hours"/>
+                <field name="hr_user_id"/>
+                <field name="approve_user_id"/>
+                <field name="create_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_starrylord_holiday_cancel_form" model="ir.ui.view">
+        <field name="name">starrylord.holiday.cancel.form</field>
+        <field name="model">starrylord.holiday.cancel</field>
+        <field name="arch" type="xml">
+            <form string="銷假調整單">
+                <header>
+                    <!-- 按鈕 -->
+                    <button name="action_confirm"
+                            string="確認"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+
+                    <button name="action_done"
+                            string="生效"
+                            type="object"
+                            class="btn-success"
+                            invisible="state not in ['draft','confirm']"
+                            groups="sl_hrm.group_starrylord_holiday_manager"/>
+
+                    <button name="action_void"
+                            string="作廢"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state not in ['draft','confirm']"
+                            groups="sl_hrm.group_starrylord_holiday_manager"/>
+
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirm,done,cancel"/>
+                </header>
+
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="holiday_apply_id"
+                                   domain="[('state','=','agree')]"
+                                   readonly="state != 'draft'"/>
+                            <field name="employee_id" readonly="1"/>
+                            <field name="company_id" readonly="1"/>
+                        </group>
+
+                        <group>
+                            <field name="cancel_day"
+                                   readonly="state != 'draft'"/>
+                            <field name="cancel_hours"
+                                   readonly="state != 'draft'"/>
+                            <field name="reason"
+                                   readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+
+                    <group string="流程資訊" col="2">
+                        <field name="hr_user_id" readonly="1"/>
+                        <field name="approve_user_id" readonly="1"/>
+                    </group>
+
+                    <separator string="沖銷明細" />
+                        <field name="used_record_ids" nolabel="1">
+                            <list>
+                                <field name="holiday_day"/>
+                                <field name="holiday_allocation_id"/>
+                                <field name="hours"/>
+                                <field name="note"/>
+                            </list>
+                        </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_starrylord_holiday_cancel" model="ir.actions.act_window">
+        <field name="name">銷假調整</field>
+        <field name="res_model">starrylord.holiday.cancel</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_starrylord_holiday_cancel_employee" model="ir.actions.act_window">
+        <field name="name">我的銷假單</field>
+        <field name="res_model">starrylord.holiday.cancel</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">
+            [('employee_id.user_id', '=', uid)]
+        </field>
+    </record>
+
+
+<!--    在休假介面的建立銷假單wizard-->
+    <record id="view_starrylord_holiday_cancel_wizard_form" model="ir.ui.view">
+        <field name="name">starrylord.holiday.cancel.wizard.form</field>
+        <field name="model">starrylord.holiday.cancel.wizard</field>
+        <field name="arch" type="xml">
+            <form string="建立銷假單">
+                <sheet>
+
+                    <!-- 原請假資訊（唯讀） -->
+                    <group string="原請假資訊">
+                        <group>
+                            <field name="holiday_apply_id"/>
+                            <field name="employee_id"/>
+                        </group>
+                        <group>
+                            <field name="start_day"/>
+                            <field name="end_day"/>
+                            <field name="holiday_time_total"/>
+                        </group>
+                    </group>
+
+                    <!-- 銷假輸入 -->
+                    <group string="銷假內容">
+                        <group>
+                            <field name="cancel_day"/>
+                            <field name="cancel_hours"/>
+                        </group>
+                        <group>
+                            <field name="reason"/>
+                        </group>
+                    </group>
+
+                    <!-- 系統計算提示（輔助防呆） -->
+                    <group string="系統計算資訊">
+                        <group>
+                            <field name="cancelable_hours_today"/>
+                            <field name="canceled_hours_total"/>
+                        </group>
+                        <group>
+                            <field name="time_type"/>
+                        </group>
+                    </group>
+
+                </sheet>
+
+                <footer>
+                    <button name="action_create_cancel"
+                            string="建立銷假單"
+                            type="object"
+                            class="btn-primary"/>
+
+                    <button string="取消"
+                            special="cancel"
+                            class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

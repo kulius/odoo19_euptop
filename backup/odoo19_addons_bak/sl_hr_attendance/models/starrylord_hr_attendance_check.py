@@ -53,7 +53,8 @@ class HrAttendanceCheck(models.Model):
     holiday_memo = fields.Char(string="請假說明", compute='_compute_worktime')
     time_diff = fields.Char(string="時數", compute='_compute_worktime')
     holiday_id = fields.Many2one('starrylord.holiday.apply', string="請假", required=False, store=True)
-    overtime_id = fields.Many2one('starrylord.overtime.apply', string="加班", required=False, )
+    # overtime_id 欄位已移至 sl_hrm_overtime 模組以避免循環依賴
+    # overtime_id = fields.Many2one('starrylord.overtime.apply', string="加班", required=False, )
 
     memo5 = fields.Char(string="備註", required=False, )
     memo6 = fields.Char(string="審核備註", required=False, )
@@ -683,12 +684,8 @@ class HrAttendanceCheck(models.Model):
             rec.holiday_id = holiday.id if holiday else False
 
             # 檢查加班記錄（只要有重疊就算）
-            overtime = self.env['starrylord.overtime.apply'].search([
-                ('employee_id', '=', rec.employee_id.id),
-                ('apply_from', '<=', rec.date + timedelta(days=1) - timedelta(seconds=1)),
-                ('apply_to', '>=', rec.date)
-            ], limit=1)
-            rec.overtime_id = overtime.id if overtime else False
+            # 此邏輯已移至 sl_hrm_overtime 模組以避免循環依賴
+            # overtime_id 欄位由 sl_hrm_overtime 模組提供
             
             if rec.is_no_need_check_in:
                 rec.warning_id = '0'

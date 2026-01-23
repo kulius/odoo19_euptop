@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="view_form_sl_attendance_repair" model="ir.ui.view">
+        <field name="name">出勤異常說明單</field>
+        <field name="model">sl.attendance.repair</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,f_approve,refused,confirmed,cancel" />
+                    <button name="to_f_approve" string="送出申請" invisible="state not in ['draft']"
+                        type="object" class="btn-primary" />
+                    <!-- <button name="to_cancel" string="取消申請" invisible="state not in
+                    ['f_approve']" class="btn-primary" type="object"/> -->
+                    <!-- <button string="退回草稿" name="to_draft" type="object"
+                        invisible="state not in ['f_approve']"
+                        groups="hr_attendance.group_hr_attendance_manager" /> -->
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1" force_save="1" />
+                        <field name="employee_id" readonly="1" options="{'no_open': True}" />
+                        <field name="user_id" readonly="1" invisible="1" options="{'no_open': True}" />
+                        <field name="department_id" readonly="1" options="{'no_open': True}" />
+                        <field name="is_current_user" string="是否為目前使用者" invisible="1" />
+                        <field name="is_readonly" string="是否維讀" invisible="1" />
+                    </group>
+                    <group string="正常出勤時間(調整後)" col="2">
+                        <group>
+                            <label for="hour_from" string="上班打卡"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="hour_from" readonly="is_readonly" />
+                                <label for="hour_from" string=" : " />
+                                <field name="min_from" readonly="is_readonly" />
+                            </div>
+                        </group>
+                        <group>
+                            <label for="hour_to" string="下班打卡"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="hour_to" readonly="is_readonly" />
+                                <label for="hour_to" string=" : " />
+                                <field name="min_to" readonly="is_readonly" />
+                            </div>
+                        </group>
+                    </group>
+                    <group string="加班時間(調整後)" col="2">
+
+                        <group>
+                            <label string="加班開始" for="ot_hour_from"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="ot_hour_from" readonly="is_readonly"/>
+                                <label for="ot_hour_from" string=" : "/>
+                                <field name="ot_min_from" readonly="is_readonly"/>
+                            </div>
+                        </group>
+
+                        <group>
+                            <label string="加班結束" for="ot_hour_to"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="ot_hour_to" readonly="is_readonly"/>
+                                <label for="ot_hour_to" string=" : "/>
+                                <field name="ot_min_to" readonly="is_readonly"/>
+                            </div>
+                        </group>
+
+                    </group>
+
+                    <group string="異常說明" col="2">
+                        <group>
+                            <field name="sl_attendance_check_id"
+                                domain="[('employee_id', '=', employee_id)]"
+                                readonly="is_readonly"
+                                options="{'no_create': True, 'no_open': True}" />
+                            <field name="notes" readonly="is_readonly" />
+                        </group>
+                        <group>
+                            <field name="attendance_information" widget="text" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+
+        </field>
+    </record>
+
+    <!-- Tree(list) View -->
+    <record id="view_tree_sl_attendance_repair" model="ir.ui.view">
+        <field name="name">未打卡說明單列表</field>
+        <field name="model">sl.attendance.repair</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'f_approve'"
+                decoration-success="state == 'confirmed'" decoration-danger="state == 'refused'"
+                decoration-warning="state == 'cancel'">
+                <field name="state" />
+                <field name="employee_id" optional="show" />
+                <field name="name" />
+                <field name="start_date" />
+                <field name="notes" optional="hide" />
+                <field name="user_id" optional="hide" />
+                <field name="department_id" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Tree(list) View for Manager -->
+    <record id="view_tree_sl_attendance_repair_manager" model="ir.ui.view">
+        <field name="name">出勤異常說明單管理列表</field>
+        <field name="model">sl.attendance.repair</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'f_approve'"
+                decoration-success="state == 'confirmed'" decoration-danger="state == 'refused'"
+                decoration-warning="state == 'cancel'">
+                <field name="state" />
+                <field name="employee_id" />
+                <field name="department_id" />
+                <field name="start_date" />
+                <field name="hour_from" />
+                <field name="min_from" />
+                <field name="hour_to" />
+                <field name="min_to" />
+                <field name="notes" />
+                <field name="user_id" />
+                <field name="sl_attendance_check_id" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="attendance_repair_view_search" model="ir.ui.view">
+        <field name="name">attendance Search</field>
+        <field name="model">sl.attendance.repair</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="user_id" />
+                <field name="department_id" />
+                <field name="start_date" filter_domain="[('start_date', '&gt;=' , self)]"
+                    string="未刷卡日期-起" />
+                <field name="start_date" filter_domain="[('start_date', '&lt;=' , self)]"
+                    string="未刷卡日期-迄" />
+                <separator />
+                <filter
+                    name="needs_review"
+                    string="待同意"
+                    domain="[('reviewer_ids','in',uid), ('state', 'not in', ['done', 'cancel','to approve'])]"
+                    help="我申請正等待審核" />
+                <filter
+                    name="tier_validated"
+                    string="己同意"
+                    domain="[('validated', '=', True)]"
+                    help="己通過審核" />
+                <searchpanel>
+                    <field name="state" icon="fa-address-book-o" enable_counters="1" />
+                </searchpanel>
+            </search>
+
+
+        </field>
+    </record>
+
+    <record id='action_sl_attendance_repair' model='ir.actions.act_window'>
+        <field name="name">我的出勤異常說明單</field>
+        <field name="res_model">sl.attendance.repair</field>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids"
+            eval="[(5, 0, 0),
+                   (0, 0, {'view_mode': 'list', 'view_id': ref('view_tree_sl_attendance_repair')}),
+                   (0, 0, {'view_mode': 'form', 'view_id': ref('view_form_sl_attendance_repair')})]" />
+    </record>
+
+    <!-- Form View for Manager -->
+    <record id="view_form_sl_attendance_repair_manager" model="ir.ui.view">
+        <field name="name">出勤異常說明單管理表單</field>
+        <field name="model">sl.attendance.repair</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,f_approve,refused,confirmed,cancel" />
+                    <button name="to_f_approve" string="送出申請" invisible="state not in ['draft']"
+                        type="object" class="btn-primary" />
+                    <!-- <button name="to_cancel" string="取消申請" invisible="state not in
+                    ['f_approve']" class="btn-primary" type="object"/> -->
+                    <button string="退回草稿" name="to_draft" type="object"
+                        invisible="state not in ['f_approve', 'confirmed']"
+                        groups="hr_attendance.group_hr_attendance_manager" />
+                    <button name="agree" string="批准" invisible="state in ['confirmed']" type="object" class="btn-primary" groups="hr_attendance.group_hr_attendance_manager" />
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" readonly="is_readonly" force_save="1" />
+                        <field name="employee_id" readonly="is_readonly" />
+                        <field name="user_id" invisible="1" options="{'no_open': True}" />
+                        <field name="department_id" options="{'no_open': True}" readonly="1" />
+                        <field name="is_current_user" string="是否為目前使用者" invisible="1" />
+                        <field name="is_readonly" string="是否維讀" invisible="1" />
+                    </group>
+                    <group string="正常出勤時間(調整後)" col="2">
+                        <group>
+                            <label for="hour_from" string="上班打卡"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="hour_from" readonly="is_readonly" />
+                                <label for="hour_from" string=" : " />
+                                <field name="min_from" readonly="is_readonly" />
+                            </div>
+                        </group>
+                        <group>
+                            <label for="hour_to" string="下班打卡"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="hour_to" readonly="is_readonly" />
+                                <label for="hour_to" string=" : " />
+                                <field name="min_to" readonly="is_readonly" />
+                            </div>
+                        </group>
+                    </group>
+                    <group string="加班時間(調整後)" col="2">
+
+                        <group>
+                            <label string="加班開始" for="ot_hour_from"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="ot_hour_from" readonly="is_readonly"/>
+                                <label for="ot_hour_from" string=" : "/>
+                                <field name="ot_min_from" readonly="is_readonly"/>
+                            </div>
+                        </group>
+
+                        <group>
+                            <label string="加班結束" for="ot_hour_to"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="ot_hour_to" readonly="is_readonly"/>
+                                <label for="ot_hour_to" string=" : "/>
+                                <field name="ot_min_to" readonly="is_readonly"/>
+                            </div>
+                        </group>
+
+                    </group>
+                    <group string="異常說明" col="2">
+                        <group>
+                            <field name="sl_attendance_check_id" string="出勤紀錄"
+                                options="{'no_create': True, 'no_open': True}"
+                                domain="[('employee_id', '=', employee_id),]"
+                                readonly="is_readonly" />
+                            <field name="notes" readonly="is_readonly" />
+                        </group>
+                        <group>
+                            <field name="attendance_information" widget="text" readonly="1" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- 修改 action 讓管理者用 manager form view -->
+    <record id='action_sl_attendance_repair_manager' model='ir.actions.act_window'>
+        <field name="name">出勤異常說明單管理</field>
+        <field name="res_model">sl.attendance.repair</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids"
+            eval="[(5, 0, 0),
+                   (0, 0, {'view_mode': 'list', 'view_id': ref('view_tree_sl_attendance_repair')}),
+                   (0, 0, {'view_mode': 'form', 'view_id': ref('view_form_sl_attendance_repair_manager')})]" />
+    </record>
+
+</odoo>

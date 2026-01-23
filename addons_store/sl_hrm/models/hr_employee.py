@@ -248,6 +248,9 @@ class HrEmployeeInheritance(models.Model):
         string="無需打卡", help="是否為無需打卡的員工", groups="hr.group_hr_user", default=False,
     )
 
+    # 從 sl_hrm_personal_calendar 合併
+    schedule_id = fields.Many2one('hr.schedule', string='適用班別')
+
     _sql_constraints = [
         ("employee_number_uniq", "unique (employee_number)", "員工編號不能重複!"),
     ]

@@ -1,0 +1,20 @@
+<odoo>
+    <record id="starrylord_annual_leave_setting_tree_view" model="ir.ui.view">
+        <field name="name">starrylord.annual.leave.setting.tree</field>
+        <field name="model">starrylord.annual.leave.setting</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="seniority"/>
+                <field name="days"/>
+                <field name="annual_period"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="starrylord_annual_leave_setting_tree_view_action" model="ir.actions.act_window">
+        <field name="name">年資特休天數</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">starrylord.annual.leave.setting</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>

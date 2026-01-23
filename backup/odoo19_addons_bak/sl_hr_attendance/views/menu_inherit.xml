@@ -1,0 +1,13 @@
+<odoo>
+    <data>
+        <!-- Add group_hr_attendance_own_reader to the main attendance menu -->
+        <record id="hr_attendance.menu_hr_attendance_root" model="ir.ui.menu">
+            <field name="group_ids" eval="[(4, ref('hr_attendance.group_hr_attendance_own_reader'))]" />
+        </record>
+
+        <!-- Deactivate reporting menu -->
+        <record id="hr_attendance.menu_hr_attendance_reporting" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+    </data>
+</odoo>

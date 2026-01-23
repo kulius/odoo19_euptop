@@ -1,0 +1,691 @@
+<odoo>
+<!--list view-->
+
+<!--	用在我的加班單與加班管理-->
+    <record id="starrylord_overtime_apply_tree_view" model="ir.ui.view">
+        <field name="name">starrylord.overtime.apply.list</field>
+        <field name="model">starrylord.overtime.apply</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'f_approve'" decoration-success="state == 'agree'"
+                  decoration-danger="state == 'refused' or hr_confirm_state == 'invalid'">
+				  <header>
+					<button name="action_check_attendance" string="檢查考勤" type="object"
+							class="btn-primary" groups="sl_hrm.group_starrylord_overtime_manager"/>
+				  </header>
+                <field name="state"/>
+				<field name="compliance_state" optional="hide" groups="sl_hrm.group_starrylord_overtime_manager"/>
+				<field name="attendance_check_result" optional="hide" groups="sl_hrm.group_starrylord_overtime_manager"/>
+				<field name="overtime_attendance_process_state" optional="hide" groups="sl_hrm.group_starrylord_overtime_manager"/>
+                <field name="hr_confirm_state" optional="hide"/>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="start_day"/>
+                <field name="apply_from"/>
+                <field name="apply_to"/>
+                <field name="overtime_type_id"/>
+                <field name="duration_time"/>
+                <field name="type"/>
+                <field name="next_review" optional="show" string="審核階段"/>
+            </list>
+        </field>
+    </record>
+
+
+<!--	用在我的加班單審核-->
+    <record id="view_overtime_apply_portal_todo" model="ir.ui.view">
+        <field name="name">starrylord.overtime.apply.portal.list</field>
+        <field name="model">starrylord.overtime.apply</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="state"/>
+                <field name="company_id"/>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="start_day"/>
+                <field name="apply_from"/>
+                <field name="apply_to"/>
+                <field name="overtime_type_id"/>
+                <field name="duration_time"/>
+            </list>
+        </field>
+    </record>
+
+
+<!--未使用-->
+    <record id="starrylord_overtime_apply_manager_tree_view" model="ir.ui.view">
+        <field name="name">starrylord.overtime.apply.list</field>
+        <field name="model">starrylord.overtime.apply</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'f_approve'" decoration-success="state == 'agree'"
+                  decoration-danger="state == 'refused' or hr_confirm_state == 'invalid'">
+                <field name="state" column_invisible="1"/>
+                <field name="hr_confirm_state" optional="hide"/>
+                <field name="next_review" optional="show" string="審核階段"/>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="start_day"/>
+                <field name="overtime_type_id"/>
+                <field name="duration_time"/>
+            </list>
+        </field>
+    </record>
+
+<!--form view-->
+
+<!--用在我的加班單-->
+    <record id="starrylord_overtime_apply_form_view" model="ir.ui.view">
+        <field name="name">starrylord.overtime.apply.form</field>
+        <field name="model">starrylord.overtime.apply</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="is_readonly" invisible="1"/>
+                <field name="can_review" invisible="1"/>
+                <header>
+                    <field name="hr_confirm_state" widget="statusbar"
+                           invisible="state != 'agree'" groups="sl_hrm.group_starrylord_overtime_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,f_approve,agree,refused"/>
+                    <button name="to_f_approve" string="送出簽核"
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_hr_confirm" string="加班確認"
+                            type="object" class="btn-primary"
+							groups="sl_hrm.group_starrylord_overtime_manager"
+                            invisible="state != 'agree' or hr_confirm_state != 'pending'"/>
+                    <button name="action_hr_invalid" string="未符合"
+                            type="object" class="btn-danger"
+							groups="sl_hrm.group_starrylord_overtime_manager"
+                            invisible="state != 'agree' or hr_confirm_state != 'pending'"/>
+                    <!--                    <button string="" name="to_draft" type="object"-->
+                    <!--                            invisible="state not in ['f_approve', 'refused']"/>-->
+                </header>
+                <sheet>
+					<div class="oe_button_box" name="button_box">
+						<button name="action_view_holiday_allocations"
+								string="查看補休"
+								type="object"
+								icon="fa-calendar-check-o"
+								invisible="holiday_allocation_count == 0">
+							<field name="holiday_allocation_count" widget="statinfo" string="補休"/>
+						</button>
+					</div>
+                    <h1>
+                        <field name="name" readonly="1"/>
+                    </h1>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="1"/>
+                            <field name="company_id" options="{'no_create':True, 'no_open':True}"/>
+                            <field name="job_id" options="{'no_create':True, 'no_open':True}"/>
+                        </group>
+                        <group>
+                            <field name="department_id" options="{'no_create':True, 'no_open':True}"/>
+                            <field name="manager_id"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group>
+                            <field name="start_day" readonly="state != 'draft'"/>
+                            <field name="apply_from" invisible="1"/>
+                            <field name="apply_to" invisible="1"/>
+                            <label for="hour_from"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="hour_from" readonly="state not in ['draft']"/>
+                                <label for="hour_from" string=" : "/>
+                                <field name="min_from" readonly="state not in ['draft']" required="1"/>
+                            </div>
+                            <label for="hour_to"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="hour_to" readonly="state not in ['draft']"/>
+                                <label for="hour_to" string=" : "/>
+                                <field name="min_to" readonly="state not in ['draft']" required="1"/>
+                            </div>
+                            <field name="duration_time" readonly="state != 'draft'" force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="overtime_type_id" widget="selection" options="{'no_create': True, 'no_open': True}" class="w-100"
+                                   readonly="1" force_save="1"/>
+                            <field name="type" readonly="state != 'draft'"/>
+                            <field name="allocation_validity_end" invisible="type != 'holiday'" readonly="1"/>
+                            <field name="has_overtime_meal_allowance" invisible="not can_review"/>
+                            <field name="without_rest_time"/>
+                            <field name="attached" widget="many2many_binary" readonly="state not in ['draft']"/>
+                        </group>
+                    </group>
+                    <group>
+						<group>
+							<field name="desc" widget="text" readonly="state != 'draft'"/>
+							<field name="create_date" string="填單時間" readonly="1"
+									   invisible="create_date == False "/>
+						</group>
+
+                    </group>
+					<notebook>
+						<page string="人資處理與回覆">
+							<group>
+								<field name="hr_invalid_reason" readonly="1" invisible="not hr_invalid_reason"/>
+							</group>
+							<group string="加班時間修正調整"  invisible="overtime_attendance_process_state != 'done'">
+								<field name="start_day" readonly="1"/>
+								<field name="overtime_attendance_process_state" readonly="1" invisible="1"/>
+								<!-- 隱藏實際 datetime（僅做資料用） -->
+								<field name="apply_from" invisible="1"/>
+								<field name="apply_to" invisible="1"/>
+
+								<!-- 調整後開始時間 -->
+								<label for="adjust_hour_from"/>
+								<div class="o_row o_row_readonly">
+									<field name="adjust_hour_from" readonly="1"/>
+									<label for="adjust_hour_from" string=" : "/>
+									<field name="adjust_min_from" readonly="1"/>
+								</div>
+
+								<!-- 調整後結束時間 -->
+								<label for="adjust_hour_to"/>
+								<div class="o_row o_row_readonly">
+									<field name="adjust_hour_to" readonly="1"/>
+									<label for="adjust_hour_to" string=" : "/>
+									<field name="adjust_min_to" readonly="1"/>
+								</div>
+
+								<!-- 調整後時數 -->
+								<field name="adjust_duration_time" readonly="1"/>
+
+								<!-- 調整說明 -->
+								<field name="overtime_adjust_memo" readonly="1"/>
+							</group>
+						</page>
+					</notebook>
+                </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" groups="base.group_user" options="{'post_refresh': 'recipients'}"/>
+                        <field name="message_ids"/>
+                    </div>
+            </form>
+        </field>
+    </record>
+
+<!--用在加班單審核-->
+    <record id="starrylord_overtime_apply_review_form_view" model="ir.ui.view">
+        <field name="name">starrylord.overtime.apply.form</field>
+        <field name="model">starrylord.overtime.apply</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="is_readonly" invisible="1"/>
+                <field name="can_review" invisible="1"/>
+                <header>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,f_approve,agree,refused"/>
+                </header>
+                <sheet>
+                    <h1>
+                        <field name="name" readonly="1"/>
+                    </h1>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="1"/>
+                            <field name="company_id" options="{'no_create':True, 'no_open':True}"/>
+                            <field name="job_id" options="{'no_create':True, 'no_open':True}"/>
+                        </group>
+                        <group>
+                            <field name="department_id" options="{'no_create':True, 'no_open':True}"/>
+                            <field name="manager_id"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group>
+                            <field name="start_day" readonly="state != 'draft'"/>
+                            <field name="apply_from" invisible="1"/>
+                            <field name="apply_to" invisible="1"/>
+                            <label for="hour_from"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="hour_from" readonly="state not in ['draft']"/>
+                                <label for="hour_from" string=" : "/>
+                                <field name="min_from" readonly="state not in ['draft']" required="1"/>
+                            </div>
+                            <label for="hour_to"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="hour_to" readonly="state not in ['draft']"/>
+                                <label for="hour_to" string=" : "/>
+                                <field name="min_to" readonly="state not in ['draft']" required="1"/>
+                            </div>
+                            <field name="duration_time" readonly="state != 'draft'" force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="overtime_type_id" widget="selection" options="{'no_create': True, 'no_open': True}" class="w-100"
+                                   readonly="1" force_save="1"/>
+                            <field name="type" readonly="state != 'draft'"/>
+                            <field name="allocation_validity_end" invisible="type != 'holiday'" readonly="state != 'draft' and type == 'holiday'"/>
+                            <field name="has_overtime_meal_allowance" invisible="not can_review"/>
+                            <field name="without_rest_time"/>
+                            <field name="attached" widget="many2many_binary" readonly="state not in ['draft']"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="desc" widget="text" readonly="state != 'draft'"/>
+                        <field name="create_date" string="填單時間" readonly="1"
+                                   invisible="create_date == False "/>
+                    </group>
+                </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" groups="base.group_user" options="{'post_refresh': 'recipients'}"/>
+                        <field name="message_ids"/>
+                    </div>
+            </form>
+        </field>
+    </record>
+
+<!--用在加班管理-->
+    <record id="starrylord_overtime_apply_manager_form_view" model="ir.ui.view">
+        <field name="name">starrylord.overtime.apply.form</field>
+        <field name="model">starrylord.overtime.apply</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+					<field name="compliance_state" widget="statusbar"
+						   invisible="state != 'agree'" groups="sl_hrm.group_starrylord_overtime_manager"/>
+					<field name="attendance_check_result" invisible="state != 'agree'" widget="statusbar" groups="sl_hrm.group_starrylord_overtime_manager"/>
+
+                    <field name="overtime_attendance_process_state" widget="statusbar"
+                           invisible="state != 'agree'" groups="sl_hrm.group_starrylord_overtime_manager"/>
+                    <field name="hr_confirm_state" widget="statusbar"
+                           invisible="state != 'agree'" groups="sl_hrm.group_starrylord_overtime_manager"/>
+                    <button name="to_f_approve" string="送出簽核" type="object" class="btn-primary"
+                            invisible="state not in ['draft']"/>
+                    <button name="agree" string="批准" type="object" class="btn-primary"
+                            invisible="state not in ['draft']"/>
+					<button name="action_open_compliance_wizard" string="合規判斷" type="object" class="btn-primary"
+							invisible="compliance_state != 'pending'"
+							groups="sl_hrm.group_starrylord_overtime_manager"/>
+                    <button name="action_hr_confirm" string="加班確認"
+                            type="object" class="btn-primary"
+							groups="sl_hrm.group_starrylord_overtime_manager"
+                            invisible="state != 'agree' or hr_confirm_state != 'pending'"/>
+                    <button name="action_hr_invalid" string="未符合"
+                            type="object" class="btn-danger"
+							groups="sl_hrm.group_starrylord_overtime_manager"
+                            invisible="state != 'agree' or hr_confirm_state != 'pending'"/>
+<!--
+                    <button string="重置為草稿" name="to_draft" type="object"
+                            invisible="state not in ['agree','refused']"/>
+-->
+					<button name="action_check_attendance"
+							string="檢查考勤"
+							type="object"
+							class="btn-primary"
+							groups="sl_hrm.group_starrylord_overtime_manager"
+							invisible="state != 'agree' or hr_confirm_state != 'pending'"/>
+					<button name="action_open_overtime_adjust_wizard"
+							string="加班異常處理"
+							type="object"
+							class="btn-warning"
+							groups="sl_hrm.group_starrylord_overtime_manager"
+							invisible="attendance_check_result != 'ng' or overtime_attendance_process_state != 'pending' or hr_confirm_state != 'pending'"/>
+                </header>
+                <sheet>
+					<div class="oe_button_box" name="button_box">
+						<button name="action_view_holiday_allocations"
+								string="查看補休"
+								type="object"
+								icon="fa-calendar-check-o"
+								invisible="holiday_allocation_count == 0">
+							<field name="holiday_allocation_count" widget="statinfo" string="補休"/>
+						</button>
+					</div>
+                    <h1>
+                        <group>
+                            <group>
+                                <field name="name" readonly="1"/>
+                            </group>
+                            <group>
+							    <field name="state" widget="statusbar" statusbar_visible="draft,f_approve,agree,refused"/>
+                            </group>
+                        </group>
+                    </h1>
+				<notebook>
+					<page string="員工介面">
+						<group>
+							<group>
+								<field name="employee_id" readonly="state in ['agree', 'f_approve']"/>
+								<field name="company_id" options="{'no_create':True, 'no_open':True}"/>
+								<field name="job_id"/>
+							</group>
+							<group>
+								<field name="department_id" options="{'no_create':True, 'no_open':True}"/>
+								<field name="manager_id"/>
+							</group>
+						</group>
+
+						<group>
+							<group>
+								<field name="start_day" readonly="state == 'agree'"/>
+								<field name="apply_from" invisible="1"/>
+								<field name="apply_to" invisible="1"/>
+								<label for="hour_from"/>
+								<div class="o_row o_row_readonly">
+									<field name="hour_from" readonly="state == 'agree'"/>
+									<label for="hour_from" string=" : "/>
+									<field name="min_from" readonly="state == 'agree'" required="1"/>
+								</div>
+								<label for="hour_to"/>
+								<div class="o_row o_row_readonly">
+									<field name="hour_to" readonly="state == 'agree'"/>
+									<label for="hour_to" string=" : "/>
+									<field name="min_to" readonly="state == 'agree'" required="1"/>
+								</div>
+								<field name="duration_time" readonly="state == 'agree'" force_save="1"/>
+							</group>
+							<group>
+								<field name="overtime_type_id" widget="selection" options="{'no_create': True, 'no_open': True}" class="w-100"
+									   readonly="1" force_save="1"/>
+								<field name="type" readonly="state != 'draft'"/>
+								<field name="allocation_validity_end" invisible="type != 'holiday'" readonly="1"/>
+								<field name="has_overtime_meal_allowance" readonly="state == 'agree'"/>
+								<field name="without_rest_time" readonly="state == 'agree'"/>
+								<field name="attached" widget="many2many_binary" readonly="state == 'agree'"/>
+							</group>
+						</group>
+						<group>
+							<group>
+								<field name="desc" widget="text" readonly="state != 'draft'"/>
+								<field name="create_date" string="填單時間" readonly="1"
+										   invisible="create_date == False "/>
+							</group>
+							<group>
+								<field name="hr_invalid_reason" readonly="1" invisible="not hr_invalid_reason"/>
+							</group>
+						</group>
+
+					</page>
+
+					<page string="人資作業區" groups="sl_hrm.group_starrylord_overtime_manager">
+						<group>
+							<group string="合規判斷">
+								<field name="compliance_state"/>
+								<field name="compliance_reason" invisible="compliance_state != 'ng'"/>
+
+							<separator string="考勤資料驗證"/>
+								<field name="attendance_check_result"
+									   readonly="1"/>
+
+								<field name="overtime_attendance_process_state"
+									   readonly="1"/>
+								<field name="attendance_abnormal_reason"
+									   readonly="1"/>
+							</group>
+							<group string="加班時間修正調整"  invisible="overtime_attendance_process_state != 'done'">
+								<field name="start_day" readonly="1"/>
+
+								<!-- 隱藏實際 datetime（僅做資料用） -->
+								<field name="apply_from" invisible="1"/>
+								<field name="apply_to" invisible="1"/>
+
+								<!-- 調整後開始時間 -->
+								<label for="adjust_hour_from"/>
+								<div class="o_row o_row_readonly">
+									<field name="adjust_hour_from" readonly="1"/>
+									<label for="adjust_hour_from" string=" : "/>
+									<field name="adjust_min_from" readonly="1"/>
+								</div>
+
+								<!-- 調整後結束時間 -->
+								<label for="adjust_hour_to"/>
+								<div class="o_row o_row_readonly">
+									<field name="adjust_hour_to" readonly="1"/>
+									<label for="adjust_hour_to" string=" : "/>
+									<field name="adjust_min_to" readonly="1"/>
+								</div>
+
+								<!-- 調整後時數 -->
+								<field name="adjust_duration_time" readonly="1"/>
+
+								<!-- 調整說明 -->
+								<field name="overtime_adjust_memo" readonly="1"/>
+							</group>
+
+						<field name="attendance_ids" readonly="1" nolabel="1"/>
+						<field name="attendance_check_ids" readonly="1" nolabel="1"/>
+						</group>
+					</page>
+				</notebook>
+                </sheet>
+                <!--                <div class="oe_chatter">-->
+                <!--                    <field name="message_follower_ids"-->
+                <!--                           widget="mail_followers"/>-->
+                <!--                    <field name="message_ids" widget="mail_thread"/>-->
+                <!--                </div>-->
+            </form>
+        </field>
+    </record>
+
+
+<!--search view-->
+
+    <record id="starrylord_overtime_apply_manager_search" model="ir.ui.view">
+        <field name="name">starrylord.overtime.apply.manager.search</field>
+        <field name="model">starrylord.overtime.apply</field>
+        <field name="arch" type="xml">
+            <search string="加班管理搜尋">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="manager_id"/>
+                <field name="start_day"/>
+                <field name="type"/>
+                <field name="overtime_type_id"/>
+                <filter string="員工分組" name="employee_id_group" domain="[]" context="{'group_by': 'employee_id'}"/>
+                <filter string="上月記錄" name="this_month" domain="[('start_day', '&gt;=', (context_today() - relativedelta(months=1) + relativedelta(day=1))), ('start_day', '&lt;=', (context_today()+ relativedelta(day=1)-relativedelta(days=1)))]"/>
+                <filter string="本月記錄" name="this_month" domain="[('start_day', '&gt;=', context_today() + relativedelta(day=1)), ('start_day', '&lt;', context_today() + relativedelta(day=1, month=context_today().month + 1))]"/>
+            </search>
+        </field>
+    </record>
+
+
+    <record id="starrylord_overtime_apply_pivot" model="ir.ui.view">
+        <field name="name">starrylord.overtime.apply.pivot</field>
+        <field name="model">starrylord.overtime.apply</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <pivot string="加班申請紀錄分析報表" sample="1">
+                <field name="employee_info" type="row"/>
+                <field name="start_day_format" type="row"/>
+                <field name="overtime_type_id" type="col"/>
+                <field name="type" type="col"/>
+                <field name="duration_time" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+
+
+<!--    action-->
+
+    <record id="starrylord_overtime_apply_action" model="ir.actions.act_window">
+        <field name="name">我的加班單</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">starrylord.overtime.apply</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="view_ids"
+               eval="[(5, 0, 0),
+                          (0, 0, {'view_mode': 'list', 'view_id': ref('starrylord_overtime_apply_tree_view')}),
+                          (0, 0, {'view_mode': 'form', 'view_id': ref('starrylord_overtime_apply_form_view')})]"/>
+    </record>
+
+    <record id="starrylord_overtime_apply_manager_action" model="ir.actions.act_window">
+        <field name="name">加班管理</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">starrylord.overtime.apply</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="starrylord_overtime_apply_manager_search"/>
+        <field name="view_ids"
+               eval="[(5, 0, 0),
+                          (0, 0, {'view_mode': 'list', 'view_id': ref('starrylord_overtime_apply_tree_view')}),
+                          (0, 0, {'view_mode': 'form', 'view_id': ref('starrylord_overtime_apply_manager_form_view')})]"/>
+        <field name="context"></field>
+    </record>
+
+
+    <record id="action_overtime_apply_portal_todo" model="ir.actions.act_window">
+        <field name="name">加班單審核</field>
+        <field name="res_model">starrylord.overtime.apply</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('can_review','=',True)]</field>
+        <field name="context">{'edit': 1,'create': 0}</field>
+        <field name="view_ids"
+               eval="[(5, 0, 0),
+                          (0, 0, {'view_mode': 'list', 'view_id': ref('view_overtime_apply_portal_todo')}),
+                          (0, 0, {'view_mode': 'form', 'view_id': ref('starrylord_overtime_apply_review_form_view')})]"/>
+<!--        <field name="view_id" ref="view_overtime_apply_portal_todo"/>-->
+    </record>
+
+    <record id="starrylord_overtime_apply_report_action" model="ir.actions.act_window">
+        <field name="name">加班申請紀錄分析</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">starrylord.overtime.apply</field>
+        <field name="view_mode">pivot</field>
+        <field name="view_id" ref="starrylord_overtime_apply_pivot"/>
+    </record>
+
+
+    <!-- 合規性判斷窗口 Wizard Form View -->
+    <record id="view_starrylord_overtime_compliance_wizard_form" model="ir.ui.view">
+        <field name="name">starrylord.overtime.compliance.wizard.form</field>
+        <field name="model">starrylord.overtime.compliance.wizard</field>
+        <field name="arch" type="xml">
+            <form string="加班合規判斷">
+                <sheet>
+
+                    <group>
+                        <field name="compliance_state"/>
+                        <field name="compliance_reason"
+                               invisible="compliance_state != 'ng'"/>
+                    </group>
+
+                    <footer>
+                        <button name="action_confirm"
+                                string="確認"
+                                type="object"
+                                class="btn-primary"/>
+                        <button string="取消"
+                                special="cancel"
+                                class="btn-secondary"/>
+                    </footer>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+	<record id="view_overtime_attendance_adjust_wizard_form" model="ir.ui.view">
+		<field name="name">starrylord.overtime.attendance.adjust.wizard.form</field>
+		<field name="model">starrylord.overtime.attendance.adjust.wizard</field>
+		<field name="arch" type="xml">
+			<form string="加班異常處理">
+				<sheet>
+
+					<group>
+						<field name="adjust_mode"/>
+						<field name="attendance_id"
+							   invisible="adjust_mode != 'attendance'"/>
+						<field name="attendance_ids" invisible="1"/>
+					</group>
+
+					<group invisible="adjust_mode == 'manual'">
+								<label for="adjust_hour_from"/>
+								<div class="o_row o_row_readonly">
+									<field name="adjust_hour_from" readonly="1"/>
+									<label for="adjust_hour_from" string=" : "/>
+									<field name="adjust_min_from" readonly="1"/>
+								</div>
+
+								<!-- 調整後結束時間 -->
+								<label for="adjust_hour_to"/>
+								<div class="o_row o_row_readonly">
+									<field name="adjust_hour_to" readonly="1"/>
+									<label for="adjust_hour_to" string=" : "/>
+									<field name="adjust_min_to" readonly="1"/>
+								</div>
+						<field name="adjust_duration_time" readonly="1"/>
+						<field name="adjust_duration_time" readonly="0" invisible="1"/>
+					</group>
+
+					<group invisible="adjust_mode != 'manual'">
+								<label for="adjust_hour_from"/>
+								<div class="o_row o_row_readonly">
+									<field name="adjust_hour_from" readonly="0"/>
+									<label for="adjust_hour_from" string=" : "/>
+									<field name="adjust_min_from" readonly="0"/>
+								</div>
+
+								<!-- 調整後結束時間 -->
+								<label for="adjust_hour_to"/>
+								<div class="o_row o_row_readonly">
+									<field name="adjust_hour_to" readonly="0"/>
+									<label for="adjust_hour_to" string=" : "/>
+									<field name="adjust_min_to" readonly="0"/>
+								</div>
+						<field name="adjust_duration_time" readonly="1"/>
+						<field name="adjust_duration_time" readonly="0" invisible="1"/>
+					</group>
+
+					<group>
+						<field name="adjust_memo"/>
+					</group>
+
+					<footer>
+						<button string="確認"
+								type="object"
+								name="action_confirm"
+								class="btn-primary"/>
+						<button string="取消"
+								special="cancel"/>
+					</footer>
+
+				</sheet>
+			</form>
+		</field>
+	</record>
+
+    <record id="view_overtime_hr_invalid_wizard_form" model="ir.ui.view">
+        <field name="name">starrylord.overtime.hr.invalid.wizard.form</field>
+        <field name="model">starrylord.overtime.hr.invalid.wizard</field>
+        <field name="arch" type="xml">
+            <form string="人資未符合說明">
+                <group>
+                    <field name="overtime_apply_id" readonly="1"/>
+                    <field name="hr_invalid_reason" placeholder="請填寫未符合原因"/>
+                </group>
+                <footer>
+                    <button string="確認"
+                            type="object"
+                            name="action_confirm"
+                            class="btn-primary"/>
+                    <button string="取消"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="starrylord_hr_attendance_check_manager_view_tree_inherit_overtime"
+            model="ir.ui.view">
+        <field name="name">hr.attendance.check.list.inherit.overtime</field>
+        <field name="model">hr.attendance.check</field>
+        <field name="inherit_id"
+               ref="sl_hrm.starrylord_hr_attendance_check_manager_view_tree"/>
+        <field name="arch" type="xml">
+
+            <!-- 在 holiday_memo 後面插入加班相關欄位 -->
+            <xpath expr="//field[@name='holiday_memo']" position="after">
+                <field name="overtime_time_summary"/>
+            </xpath>
+
+        </field>
+    </record>
+
+
+</odoo>

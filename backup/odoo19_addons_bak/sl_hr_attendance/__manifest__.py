@@ -6,7 +6,8 @@
     'website': "https://www.starrylord.com.tw",
     'category': 'HRM',
     'version': '19.0.0.1',
-    'depends': ['base', 'hr', 'sl_hrm_personal_calendar', 'hr_attendance', 'base_tier_validation', 'sl_hrm_holiday', 'sl_hrm_overtime'],
+    'depends': ['base', 'hr', 'sl_hrm_personal_calendar', 'hr_attendance', 'base_tier_validation', 'sl_hrm_holiday'],
+    # NOTE: sl_hrm_overtime 已移除以避免循環依賴，overtime_id 欄位改用動態引用
     'external_dependencies': {
         'python': ['pandas', 'openpyxl'],
     },

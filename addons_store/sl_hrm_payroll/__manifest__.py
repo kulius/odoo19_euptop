@@ -9,10 +9,11 @@
     # Check https://github.com/odoo/odoo/blob/19.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'HRM',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'hr', 'sl_hrm_overtime'],
+    # 2026-01-23: sl_hrm_overtime 已合併至 sl_hrm
+    'depends': ['base', 'hr', 'sl_hrm'],
 
     # external python dependencies
     'external_dependencies': {

@@ -11,5 +11,37 @@
             <field name="name">SL HRM Manager</field>
             <field name="implied_ids" eval="[(4, ref('group_sl_hrm_user'))]"/>
         </record>
+
+        <!-- ========== 請假群組 (從 sl_hrm_holiday 合併) ========== -->
+        <record id="group_starrylord_holiday_director" model="res.groups">
+            <field name="name">請假主管(審核)</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_starrylord_holiday_manager" model="res.groups">
+            <field name="name">請假管理員</field>
+            <field name="implied_ids" eval="[(4, ref('group_starrylord_holiday_director'))]"/>
+        </record>
+
+        <record id="group_starrylord_holiday_developer" model="res.groups">
+            <field name="name">請假系統管理員</field>
+            <field name="implied_ids" eval="[(4, ref('group_starrylord_holiday_manager'))]"/>
+        </record>
+
+        <!-- ========== 加班群組 (從 sl_hrm_overtime 合併) ========== -->
+        <record id="group_starrylord_overtime_director" model="res.groups">
+            <field name="name">加班主管(審核)</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_starrylord_overtime_manager" model="res.groups">
+            <field name="name">加班管理員</field>
+            <field name="implied_ids" eval="[(4, ref('group_starrylord_overtime_director'))]"/>
+        </record>
+
+        <record id="group_starrylord_overtime_developer" model="res.groups">
+            <field name="name">加班系統管理員</field>
+            <field name="implied_ids" eval="[(4, ref('group_starrylord_overtime_manager'))]"/>
+        </record>
     </data>
 </odoo>

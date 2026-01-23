@@ -1,0 +1,28 @@
+<odoo>
+    <record id="view_holiday_used_record_wizard_form" model="ir.ui.view">
+        <field name="name">holiday.used.record.wizard.form</field>
+        <field name="model">holiday.used.record.wizard</field>
+        <field name="arch" type="xml">
+            <form string="請選擇時間區間">
+                <group>
+                    <group>
+                        <field name="start_date" />
+                    </group>
+                    <group>
+                        <field name="end_date" />
+                    </group>
+                </group>
+                <group>
+                    <field name="state" string="簽核狀態"/>
+                </group>
+                <button name="set_this_month" string="本月" type="object" class="btn-primary" />
+                <span>　　</span>
+                <button name="set_this_year" string="本年度" type="object" class="btn-primary" />
+                <footer>
+                    <button name="action_open_pivot" string="檢視報表" type="object" class="btn-primary" />
+                    <button string="取消" special="cancel" class="btn-secondary" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

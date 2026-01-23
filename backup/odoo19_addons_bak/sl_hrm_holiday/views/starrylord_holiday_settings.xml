@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="starrylord_holiday_setting_form">
+            <field name="name">starrylord_holiday_setting_form</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="90"/>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="inside">
+                    <app data-string="Holidays" string="休假設定" name="sl_hrm_holiday">
+                        <block title="公司特休制度選擇" name="Holidays">
+                            <setting string="特休制度">
+                                <div class="content-group">
+                                    <div class="mt8">
+                                        <field name="cycle_calendar" widget="radio"/>
+                                    </div>
+                                </div>
+                            </setting>
+<!--                            <div class="row mt16 o_settings_container">-->
+<!--                                <div class="col-12 col-lg-20 o_setting_box">-->
+<!--                                    <div class="o_setting_right_pane">-->
+<!--                                        <label for="cycle_calendar"/>-->
+<!--                                        <div class="content-group">-->
+<!--                                            <div class="mt16">-->
+
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+                        </block>
+                        <block title="假期分配設定">
+                            <setting string="特休"
+                                     help="週年制:以人員到職日為基礎，計算年資自動配給。曆年制:以1/1為基礎，計算年資自動配給。">
+                                <div class="content-group">
+                                    <div class="mt8">
+                                        <field name="holiday_special_id"/>
+                                    </div>
+                                </div>
+                            </setting>
+
+                            <setting id="holiday_sick_settings" string="病假"
+                                     help="以歷年制為配假起訖基礎，於每年1月1日自動配給所有員工30天。">
+                                <div class="content-group">
+                                    <div class="mt8">
+                                        <field name="holiday_sick_id" options="{'no_create':True}"/>
+                                    </div>
+                                </div>
+                            </setting>
+
+                            <setting id="holiday_menstrual_settings" string="生理假"
+                                     help="以歷年制為配假起迄基礎，於每年1月1日自動配給女性員工3日。">
+                                <div class="content-group">
+                                    <div class="mt8">
+                                        <field name="holiday_menstrual_id" options="{'no_create':True}"/>
+                                    </div>
+                                </div>
+                            </setting>
+
+                            <setting id="holiday_leave_settings" string="事假"
+                                     help="以歷年制為配假起迄基礎，於每年1月1日自動配給所有員工14日。">
+                                <div class="content-group">
+                                    <div class="mt8">
+                                        <field name="holiday_leave_id" options="{'no_create':True}"/>
+                                    </div>
+                                </div>
+                            </setting>
+
+                            <setting id="holiday_leave_settings" string="補休"
+                                     help="加班時加班類型選擇補休將於確認執行時分配假期給該員工">
+                                <div class="content-group">
+                                    <div class="mt8">
+                                        <field name="holiday_comp_id" options="{'no_create':True}"/>
+                                    </div>
+                                </div>
+                            </setting>
+                        </block>
+                        <block title="其他設定">
+                            <setting>
+                                <button name="holiday_hour_list_action_go" class="btn-primary" type="object" string="休假-小時表維護"/>
+                            </setting>
+                            <setting>
+                                <button name="holiday_min_list_action_go" class="btn-primary" type="object" string="休假-分鐘表維護"/>
+                            </setting>
+                        </block>
+                    </app>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
