@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 考勤表單視圖擴充 - 顯示 GPS 座標 (LINE 打卡) -->
+    <!--
+        注意: Odoo 19 hr_attendance 模組已內建 GPS 座標顯示，
+        因此此視圖僅作為備用或額外客製化使用
+    -->
+
+    <!-- 考勤列表視圖擴充 - 新增 LINE 打卡標記 -->
+    <record id="view_attendance_list_inherit_line" model="ir.ui.view">
+        <field name="name">hr.attendance.list.inherit.line</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.view_attendance_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='in_mode']" position="after">
+                <field name="in_latitude" string="LINE Lat (In)" optional="hidden"/>
+                <field name="in_longitude" string="LINE Lng (In)" optional="hidden"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

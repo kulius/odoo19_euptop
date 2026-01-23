@@ -78,7 +78,7 @@ class StarryLordAttendanceRepair(models.Model):
         compute='_compute_department_id',
     )
     user_id = fields.Many2one(comodel_name='res.users', string="申請人", default=lambda self: self.env.user)
-    employee_id = fields.Many2one(comodel_name='hr.employee.public', string="員工", default=lambda self: self.env.user.employee_id)
+    employee_id = fields.Many2one(comodel_name='hr.employee', string="員工", default=lambda self: self.env.user.employee_id)
     sl_attendance_check_id = fields.Many2one(comodel_name='hr.attendance.check', string="出勤異常記錄", ondelete="set null",)
     start_date = fields.Date(string='異常打卡日期', related='sl_attendance_check_id.date', store=True)
     state = fields.Selection(selection=[('draft', '草稿'),

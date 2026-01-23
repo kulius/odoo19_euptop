@@ -26,16 +26,16 @@ class HrAttendanceCheck(models.Model):
         string='星期',
         compute='_compute_worktime'
     )
-    employee_id = fields.Many2one('hr.employee.public', string='員工', required=True)
+    employee_id = fields.Many2one('hr.employee', string='員工', required=True)
     is_no_need_check_in = fields.Boolean(
         string='無需打卡',
-        related='employee_id.employee_id.is_no_need_check_in',
+        related='employee_id.is_no_need_check_in',
         readonly=True
     )
     user_id = fields.Many2one('res.users', string='User', related='employee_id.user_id', related_sudo=True,
                               compute_sudo=True, store=True, readonly=True)
     # schedule_id = fields.Many2one('hr.schedule', related='employee_id.schedule_id', string='班別')
-    employee_number = fields.Char(string='員工編號', related='employee_id.employee_id.employee_number', store=True, related_sudo=True)
+    employee_number = fields.Char(string='員工編號', related='employee_id.employee_number', store=True, related_sudo=True)
     department_id = fields.Many2one('hr.department', string="部門", store=True,
                                     related="employee_id.department_id")
     job_id = fields.Many2one('hr.job', string="職稱", related="employee_id.job_id", store=True, related_sudo=True)

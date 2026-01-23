@@ -1,20 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record model="ir.module.category" id="module_category_sl_hrm_payroll">
-        <field name="name">SL-薪資</field>
-        <field name="description">Starry Lord 薪資管理</field>
-        <field name="sequence">15</field>
+    <!-- Odoo 19: 使用 res.groups.privilege 在人力資源分類下建立「SL 薪資」目錄 -->
+    <record model="res.groups.privilege" id="res_groups_privilege_payroll">
+        <field name="name">SL 薪資</field>
+        <field name="sequence">20</field>
+        <field name="category_id" ref="base.module_category_human_resources"/>
+        <field name="placeholder">無</field>
     </record>
 
+    <!-- 一般員工薪資單 (User level) -->
     <record id="group_sl_hrm_payroll" model="res.groups">
-        <field name="name">一般員工薪資單</field>
+        <field name="name">使用者</field>
+        <field name="sequence">10</field>
+        <field name="privilege_id" ref="res_groups_privilege_payroll"/>
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
         <field name="comment">可以看到薪資單,看不到薪資設定</field>
     </record>
 
+    <!-- 薪資單管理 (Manager level) -->
     <record id="group_sl_hrm_payroll_manager" model="res.groups">
-        <field name="name">薪資單管理</field>
+        <field name="name">管理員</field>
+        <field name="sequence">20</field>
+        <field name="privilege_id" ref="res_groups_privilege_payroll"/>
         <field name="implied_ids" eval="[(4, ref('sl_hrm_payroll.group_sl_hrm_payroll'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         <field name="comment">薪資單管理人員</field>
     </record>
 

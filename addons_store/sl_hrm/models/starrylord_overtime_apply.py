@@ -13,7 +13,7 @@ class StarryLordOvertimeApply(models.Model):
     _order = 'create_date desc, id desc'
 
     name = fields.Char(string='單號')
-    employee_id = fields.Many2one('hr.employee.public', string='申請人',
+    employee_id = fields.Many2one('hr.employee', string='申請人',
                                   default=lambda self: self.env.user.employee_id.id,
                                   required=True)
     user_id = fields.Many2one('res.users', string='User', related='employee_id.user_id', related_sudo=True,

@@ -1,0 +1,22 @@
+{
+  "name": "sl-hrm-line",
+  "version": "1.0.0",
+  "description": "LINE LIFF 打卡系統",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@line/liff": "^2.24.0"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^5.0.3",
+    "@tailwindcss/vite": "^4.0.0",
+    "daisyui": "^5.0.0",
+    "svelte": "^5.16.0",
+    "tailwindcss": "^4.0.0",
+    "vite": "^6.0.7"
+  }
+}

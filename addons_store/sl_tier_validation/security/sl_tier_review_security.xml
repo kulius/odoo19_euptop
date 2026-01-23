@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Odoo 19: 使用 res.groups.privilege 在人力資源分類下建立「SL 待辦簽核」目錄 -->
+        <record model="res.groups.privilege" id="res_groups_privilege_tier_review">
+            <field name="name">SL 待辦簽核</field>
+            <field name="sequence">25</field>
+            <field name="category_id" ref="base.module_category_human_resources"/>
+            <field name="placeholder">無</field>
+        </record>
+
+        <!-- 待辦簽核管理人員 -->
+        <record id="group_sl_tier_review_manager" model="res.groups">
+            <field name="name">管理員</field>
+            <field name="sequence">20</field>
+            <field name="privilege_id" ref="res_groups_privilege_tier_review"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+            <field name="comment">管理待辦簽核</field>
+        </record>
+    </data>
+</odoo>

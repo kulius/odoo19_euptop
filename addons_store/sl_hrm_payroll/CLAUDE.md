@@ -396,3 +396,104 @@ sl_hrm_payroll/
 | Many2many 關聯表衝突 | `wizard/wizard_payslip_batch_process.py` | 使用 `hr_payslip_batch_processing_employee_rel` |
 | 報表缺少 _description | `report/report_hr_payslip.py` | 新增 `_description = '薪資單報表'` |
 | Search View 無效屬性 | `views/hr_salary_rule.xml` | 移除 `group` 元素的 `col`, `colspan`, `expand`, `string` 屬性 |
+
+### 本模組修復記錄 (2026-01-23)
+
+| 問題 | 檔案 | 修復內容 |
+|------|------|----------|
+| 依賴模組合併 | `__manifest__.py` | `sl_hrm_overtime` → `sl_hrm` (因 sl_hrm_overtime 已合併至 sl_hrm) |
+| 版本更新 | `__manifest__.py` | `19.0.1.0.0` → `19.0.1.1.0` |
+| 權限整理 | `security/sl_hrm_payroll_security.xml` | 使用 `res.groups.privilege` 在「人力資源」分類下新增「薪資」目錄 |
+| 資料遷移驗證 | 測試資料 | 從 odoo17_yc_hrtest 遷移測試資料至 odoo19_sanoc |
+| 重複薪資規則 | 資料清理 | 移除重複的 salary rules (85 → 43 條) |
+| 員工薪資設定 ID 對應 | 資料遷移 | 正確對應 salary_rule_id 從 Odoo 17 到 Odoo 19 |
+
+---
+
+## Odoo 17 vs Odoo 19 檔案比對結果
+
+此模組已完成從 Odoo 17 到 Odoo 19 的升級，以下為檔案比對結果：
+
+| 類別 | 檔案數量 | 狀態 |
+|------|----------|------|
+| Models | 22 | ✅ 完整 |
+| Views | 14 | ✅ 完整 |
+| Wizard | 11 | ✅ 完整 |
+| Security | 2 | ✅ 完整 |
+| Report | 8 | ✅ 完整 |
+| Data | 3 | ✅ 完整 |
+
+### Models (22 檔案)
+
+所有模型檔案皆已遷移：
+- `hr_employee.py` - 員工擴充
+- `hr_payroll_structure.py` - 薪資結構
+- `hr_payslip.py` - 薪資單
+- `hr_payslip_line.py` - 薪資單明細
+- `hr_payslip_line_other.py` - 其他薪資明細
+- `hr_payslip_sheet.py` - 薪資單總表
+- `hr_salary_rule.py` - 薪資規則
+- `hr_salary_rule_category.py` - 薪資分類
+- `payslip_withholding_statement.py` - 代扣申報
+- `payslip_withholding_statement_sheet.py` - 代扣申報總表
+- `res_config_settings.py` - 系統設定
+- `sl_bonus_record.py` - 獎金紀錄
+- `sl_payroll_adjustment.py` - 薪資調整
+- `starrylord_employee_payslip_salary_setting.py` - 本薪設定
+- `starrylord_employee_payslip_setting.py` - 員工薪資設定
+- `starrylord_payslip_holiday_middleware.py` - 請假中介
+- `starrylord_payslip_overtime_holiday_middleware.py` - 加班補休中介
+- `starrylord_payslip_overtime_middleware.py` - 加班中介
+
+### Views (14 檔案)
+
+所有視圖檔案皆已遷移並升級為 Odoo 19 語法：
+- `hr_employee_view.xml`
+- `hr_payroll_structure.xml`
+- `hr_payslip.xml`
+- `hr_payslip_sheet.xml`
+- `hr_salary_rule.xml`
+- `hr_salary_rule_category.xml`
+- `menu.xml`
+- `payslip_withholding_statement_sheet.xml`
+- `res_config_settings.xml`
+- `sl_bonus_record_view.xml`
+- `sl_payroll_adjustment.xml`
+- `starrylord_employee_payslip_salary_setting.xml`
+- `starrylord_employee_payslip_setting.xml`
+
+### Wizard (11 檔案)
+
+所有精靈檔案皆已遷移：
+- `hr_payslip_batch_processing.py` / `.xml`
+- `payslip_sheet_report_wizard.py` / `.xml`
+- `payslip_withholding_statement_wizard.py` / `.xml`
+- `wizard_payslip_line_edit.py` / `.xml`
+- `wizard_payslip_salary_rule_add.py` / `.xml`
+- `wizard_payslip_sheet_select_employee.py` / `.xml`
+
+### Report (8 檔案)
+
+所有報表檔案皆已遷移：
+- `report_hr_payslip.py`
+- `report_hr_payslip.xml`
+- `report_hr_payslip_template.xml`
+- `report_payslip_sheet.xml`
+- `report_payslip_sheet_template.xml`
+- `report_payslip_withholding_statement.xml`
+- `report_payslip_withholding_statement_template.xml`
+
+---
+
+## 權限結構
+
+Odoo 19 使用 `res.groups.privilege` 來組織權限分類：
+
+```
+人力資源 (base.module_category_human_resources)
+├── 員工 (hr.res_groups_privilege_employees)
+├── 考勤 (hr_attendance.res_groups_privilege_attendances)
+└── 薪資 (sl_hrm_payroll.res_groups_privilege_payroll)  ← 本模組新增
+    ├── 使用者 (group_sl_hrm_payroll)
+    └── 管理員 (group_sl_hrm_payroll_manager)
+```

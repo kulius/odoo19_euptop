@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 員工表單視圖擴充 - 添加 LINE 綁定資訊 -->
+    <record id="view_employee_form_inherit_line" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.line</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet//group" position="after">
+                <group string="LINE 綁定資訊" name="line_info">
+                    <group>
+                        <field name="is_line_bound" readonly="1"/>
+                        <field name="line_user_id" readonly="1"/>
+                        <field name="line_display_name" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="line_binding_date" readonly="1"/>
+                        <field name="line_picture_url" readonly="1" widget="url"/>
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//sheet//group[@name='line_info']" position="after">
+                <div class="oe_button_box" name="line_button_box">
+                    <button name="action_unbind_line"
+                            type="object"
+                            string="解除 LINE 綁定"
+                            class="btn-secondary"
+                            invisible="not is_line_bound"
+                            confirm="確定要解除此員工的 LINE 綁定嗎？"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 員工列表視圖擴充 -->
+    <record id="view_employee_list_inherit_line" model="ir.ui.view">
+        <field name="name">hr.employee.list.inherit.line</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='department_id']" position="after">
+                <field name="is_line_bound" string="LINE" widget="boolean"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 員工搜尋視圖擴充 -->
+    <record id="view_employee_search_inherit_line" model="ir.ui.view">
+        <field name="name">hr.employee.search.inherit.line</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[last()]" position="after">
+                <separator/>
+                <filter string="已綁定 LINE" name="line_bound" domain="[('is_line_bound', '=', True)]"/>
+                <filter string="未綁定 LINE" name="line_not_bound" domain="[('is_line_bound', '=', False)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

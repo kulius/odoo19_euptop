@@ -17,14 +17,14 @@ class StarryLordHolidayApply(models.Model):
                                             required=True,
                                             compute='_compute_holiday_allocation_id',
                                             )
-    employee_id = fields.Many2one('hr.employee.public', string='申請人', required=True,
+    employee_id = fields.Many2one('hr.employee', string='申請人', required=True,
                                   default=lambda self: self.env.user.employee_id.id)
     user_id = fields.Many2one('res.users', string='User', related='employee_id.user_id', related_sudo=True,
                               compute_sudo=True, store=True, readonly=True)
     company_id = fields.Many2one(comodel_name="res.company", string="公司別", related="employee_id.company_id",)
     department_id = fields.Many2one('hr.department', string="部門", store=True,
                                     related="employee_id.department_id")
-    substitute_id = fields.Many2one('hr.employee.public', string='代理人', required=True)
+    substitute_id = fields.Many2one('hr.employee', string='代理人', required=True)
 
     substitute_user_id = fields.Many2one('res.users', string='代理人使用者帳號', related='substitute_id.user_id', related_sudo=True,
                                          compute_sudo=True, store=True, readonly=True)

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Odoo 19: tree -> list -->
+    <template id="tier_validation_review_log">
+        <field
+                name="review_log_ids"
+                widget="tier_review_log"
+                invisible="not review_log_ids"
+                style="width:100%%; margin-top: 10px;"
+        >
+            <list>
+                <field name="id"/>
+                <field name="name"/>
+                <field name="sequence"/>
+                <field name="requested_by"/>
+                <field name="status"/>
+                <field name="todo_by"/>
+                <field name="done_by"/>
+                <field name="reviewed_date"/>
+                <field name="reviewed_formated_date"/>
+                <field name="comment"/>
+            </list>
+        </field>
+    </template>
+</odoo>

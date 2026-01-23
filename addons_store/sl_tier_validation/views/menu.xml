@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<menuitem name="電子簽核" id="menu_root_tier_portal"  web_icon="eup_tier_validation_portal,static/description/icon.png" sequence="250" groups="group_sl_tier_review_manager"/>
+
+<!--	<menuitem name="新增簽核" id="menu_tier_portal_form" parent="menu_root_tier_portal" action="action_tier_portal_form" sequence="10"/>-->
+<!--	<menuitem name="待辦簽核" id="menu_tier_portal_todo" parent="menu_root_tier_portal" action="action_tier_portal_todo" sequence="20"/>-->
+	<menuitem name="待辦簽核管理" id="menu_tier_portal_todo_manager" parent="menu_root_tier_portal" action="action_tier_portal_todo_manager" sequence="30" groups="group_sl_tier_review_manager"/>
+
+
+</odoo>

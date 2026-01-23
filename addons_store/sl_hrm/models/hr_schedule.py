@@ -220,15 +220,16 @@ class HrScheduleWorktime(models.Model):
         }
         self.create(values)
 
-    @api.model
-    def create(self, vals):
-        if not vals.get('name'):
-            weekStr = '周一 周二 周三 周四 周五 周六 周日 '
-            time_seconds_start = int(vals.get('work_start', 0) * 3600)
-            time_obj_start = time(hour=(time_seconds_start // 3600), minute=(time_seconds_start % 3600) // 60)
-            time_seconds_end = int(vals.get('work_end', 0) * 3600)
-            time_obj_end = time(hour=(time_seconds_end // 3600), minute=(time_seconds_end % 3600) // 60)
-            weekid = int(vals.get('dayofweek', 0)) * 3
-            vals['name'] = weekStr[weekid: weekid + 3] + time_obj_start.strftime('%H:%M') + '-' + time_obj_end.strftime(
-                '%H:%M')
-        return super(HrScheduleWorktime, self).create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        weekStr = '周一 周二 周三 周四 周五 周六 周日 '
+        for vals in vals_list:
+            if not vals.get('name'):
+                time_seconds_start = int(vals.get('work_start', 0) * 3600)
+                time_obj_start = time(hour=(time_seconds_start // 3600), minute=(time_seconds_start % 3600) // 60)
+                time_seconds_end = int(vals.get('work_end', 0) * 3600)
+                time_obj_end = time(hour=(time_seconds_end // 3600), minute=(time_seconds_end % 3600) // 60)
+                weekid = int(vals.get('dayofweek', 0)) * 3
+                vals['name'] = weekStr[weekid: weekid + 3] + time_obj_start.strftime('%H:%M') + '-' + time_obj_end.strftime(
+                    '%H:%M')
+        return super(HrScheduleWorktime, self).create(vals_list)
