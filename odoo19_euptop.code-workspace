@@ -1,15 +1,9 @@
 {
-	"folders": [
-		{
-			"path": "."
-		},
-		{
-			"path": "../odoo_19"
-		},
-		{
-			"path": "../odoo_conf"
-		}
-	],
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
     "settings": {
         "python.languageServer": "None",
         "files.associations": {
@@ -24,6 +18,7 @@
             "PYTHONPATH": "D:\\odoo\\odoo_19;D:\\odoo\\odoo19_euptop",
             "PYTHONUNBUFFERED": "1"
         },
-        "chatgpt.openOnStartup": true
+        "chatgpt.openOnStartup": true,
+        "git.ignoreLimitWarning": true
     }
 }

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="sl_hrm_holiday.HolidayDashboard">
+        <div class="container-fluid">
+            <div class="row justify-content-between gap-3 gap-lg-0">
+                <div class="col-12">
+                    <div class="d-flex flex-column justify-content-between gap-2 h-100">
+                        <div class="grid gap-2 h-100">
+                            <div class="g-col-4 g-col-md-3 grid gap-1 gap-md-1">
+                                <div class="g-col-12 g-col-sm-4 g-col-lg-6 d-flex align-items-center py-2 justify-content-center text-center justify-content-md-end text-md-end mt-4 mt-md-0">
+                                    <div class="btn btn-primary w-100 h-100 border-0 rounded-0 text-capitalize fw-normal">
+                                        特休剩餘<div class="fs-2" t-out="holidayData['annual_leave_hours']"/>小時
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="g-col-4 g-col-md-3 grid gap-1 gap-md-1">
+                                <div class="g-col-12 g-col-sm-4 g-col-lg-6 d-flex align-items-center py-2 justify-content-center text-center justify-content-md-end text-md-end mt-4 mt-md-0">
+                                    <div class="btn btn-primary w-100 h-100 border-0 rounded-0 text-capitalize fw-normal">
+                                        病假剩餘<div class="fs-2" t-out="holidayData['sick_leave_hours']"/>小時<br/>
+<!--                                        <t t-if="">-->
+
+<!--                                        </t>-->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="g-col-4 g-col-md-3 grid gap-1 gap-md-1" t-if="holidayData['gender'] == 'female'">
+                                <div class="g-col-12 g-col-sm-4 g-col-lg-6 d-flex align-items-center py-2 justify-content-center text-center justify-content-md-end text-md-end mt-4 mt-md-0">
+                                    <div class="btn btn-primary w-100 h-100 border-0 rounded-0 text-capitalize fw-normal">
+                                        生理假剩餘<div class="fs-2" t-out="holidayData['menstrual_leave_hours']"/>小時
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="g-col-4 g-col-md-3 grid gap-1 gap-md-1">
+                                <div class="g-col-12 g-col-sm-4 g-col-lg-6 d-flex align-items-center py-2 justify-content-center text-center justify-content-md-end text-md-end mt-4 mt-md-0">
+                                    <div class="btn btn-primary w-100 h-100 border-0 rounded-0 text-capitalize fw-normal">
+                                        補休剩餘<div class="fs-2" t-out="holidayData['compensation_leave_hours']"/>小時
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="g-col-4 g-col-md-3 grid gap-1 gap-md-1">
+                                <div class="g-col-12 g-col-sm-4 g-col-lg-6 d-flex align-items-center py-2 justify-content-center text-center justify-content-md-end text-md-end mt-4 mt-md-0">
+                                    <div class="btn btn-primary w-100 h-100 border-0 rounded-0 text-capitalize fw-normal">
+                                        事假剩餘<div class="fs-2" t-out="holidayData['private_leave_hours']"/>小時
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="g-col-4 g-col-md-3 grid gap-1 gap-md-4">
+                            </div>
+                        </div>
+<!--                        <div class="grid gap-2 h-100">-->
+<!--                            -->
+<!--                        </div>-->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </t>
+</templates>

@@ -52,6 +52,26 @@ class StarryLordAttendanceRepair(models.Model):
         , ('55', '55'), ('56', '56'), ('57', '57'), ('58', '58'), ('59', '59')], default=None,
                               string='下班打卡時間(分鐘)', )
 
+    # ===== 加班開始時間 =====
+    ot_hour_from = fields.Selection(
+        selection=[(str(i), str(i)) for i in range(24)],
+        string='加班開始時間(小時)'
+    )
+    ot_min_from = fields.Selection(
+        selection=[(str(i), str(i)) for i in range(60)],
+        string='加班開始時間(分鐘)'
+    )
+
+    # ===== 加班結束時間 =====
+    ot_hour_to = fields.Selection(
+        selection=[(str(i), str(i)) for i in range(24)],
+        string='加班結束時間(小時)'
+    )
+    ot_min_to = fields.Selection(
+        selection=[(str(i), str(i)) for i in range(60)],
+        string='加班結束時間(分鐘)'
+    )
+
     department_id = fields.Many2one(
         comodel_name='hr.department',
         string="申請人部門",
@@ -72,53 +92,90 @@ class StarryLordAttendanceRepair(models.Model):
     def _compute_department_id(self):
         for rec in self:
             rec.department_id = rec.employee_id.department_id
-            
-    @api.onchange('employee_id')
-    def _onchange_employee_id(self):
-        for rec in self:
-            rec.sl_attendance_check_id = False
-            rec.name = ''
 
-    @api.depends('sl_attendance_check_id', 'employee_id')
+    def _float_to_hhmm(self, value):
+        """
+        8.0   -> 08:00
+        13.5  -> 13:30
+        17.75 -> 17:45
+        """
+        if value in (None, False, ''):
+            return '無'
+
+        hours = int(value)
+        minutes = int(round((value - hours) * 60))
+
+        # 避免浮點誤差導致 60 分鐘
+        if minutes == 60:
+            hours += 1
+            minutes = 0
+
+        return f'{hours:02d}:{minutes:02d}'
+
+    @api.depends('sl_attendance_check_id')
     def compute_information(self):
         for rec in self:
-            # try:
             rec.attendance_information = ''
-            fun = lambda x: x if x[0] != '0' else x[1:]
+            check = rec.sl_attendance_check_id
+            if not check:
+                continue
 
-            attendance_ids = rec.env['hr.attendance'].search([('employee_id', '=', rec.employee_id.id),
-                                                              ('check_in', '>=', rec.start_date),
-                                                              ('check_out', '<=', rec.start_date)])
-            for attendance_id in attendance_ids:
-                rec.attendance_information += '考勤紀錄 '
-                rec.attendance_information += fun(
-                    datetime.datetime.strftime(attendance_id.check_in, '%Y-%m-%d %H:%M:%S') + ' - ')
-                rec.attendance_information += fun(
-                    datetime.datetime.strftime(attendance_id.check_out, '%Y-%m-%d %H:%M:%S'))
-                rec.attendance_information += '\n'
+            lines = []
 
-            if not rec.employee_id.schedule_id.is_user_personal_calendar and rec.sl_attendance_check_id:
-                start = rec.sl_attendance_check_id.date
-                end = rec.sl_attendance_check_id.date
-                current = start
-                while current <= end:
-                    worktime = self.env['hr.schedule.worktime'].sudo().search(
-                        [('worktime_id', '=', self.employee_id.schedule_id.id),
-                         ('date_type', '=', 'schedule'),
-                         ('dayofweek', '=', current.weekday()),
-                         ])
-                    if worktime:
-                        rec.attendance_information += '班表 '
-                        rec.attendance_information += '%s 上午 %s~%s ' % (
-                            current.strftime('%Y-%m-%d'), worktime.am_start, worktime.am_end)
-                        rec.attendance_information += '~ 下午 %s~%s' % (worktime.pm_start, worktime.pm_end)
-                        rec.attendance_information += '\n'
+            # =========================
+            # 1. 系統判斷的出勤異常
+            # =========================
+            lines.append('【系統判斷的出勤異常】')
+            if getattr(check, 'attendance_anomaly_str', False):
+                lines.append(check.attendance_anomaly_str)
+            else:
+                lines.append('正常')
+            lines.append('')
 
-                    current += timedelta(days=1)
-                rec.attendance_information += rec.sl_attendance_check_id.work_memo
+            # =========================
+            # 2. 正常出勤（班表 / 實際）
+            # =========================
+            lines.append('【正常出勤（班表 / 實際）】')
+            lines.append(check.normal_check_start_str or '無')
+            lines.append(check.normal_check_end_str or '無')
+            lines.append('')
 
-            # except:
-            #     return False
+            # =========================
+            # 3. 加班出勤
+            # =========================
+            lines.append('【加班出勤】')
+            lines.append(check.overtime_check_start_str or '無')
+            lines.append(check.overtime_check_end_str or '無')
+            lines.append('')
+
+            # =========================
+            # 4. 班表參考（HH:MM 顯示）
+            # =========================
+            employee = rec.employee_id
+            if (
+                employee
+                and employee.schedule_id
+                and not employee.schedule_id.is_user_personal_calendar
+            ):
+                worktime = self.env['hr.schedule.worktime'].sudo().search([
+                    ('worktime_id', '=', employee.schedule_id.id),
+                    ('date_type', '=', 'schedule'),
+                    ('dayofweek', '=', check.date.weekday()),
+                ], limit=1)
+
+                if worktime:
+                    lines.append('【班表參考】')
+                    lines.append(
+                        '%s 上午 %s~%s ~ 下午 %s~%s' % (
+                            check.date.strftime('%Y-%m-%d'),
+                            self._float_to_hhmm(worktime.am_start),
+                            self._float_to_hhmm(worktime.am_end),
+                            self._float_to_hhmm(worktime.pm_start),
+                            self._float_to_hhmm(worktime.pm_end),
+                        )
+                    )
+
+            rec.attendance_information = '\n'.join(lines)
 
     @api.constrains('hour_from', 'min_from', 'hour_to', 'min_to')
     def _check_time_fields(self):

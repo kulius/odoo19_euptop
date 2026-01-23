@@ -4,10 +4,141 @@
 
 ```
 odoo19_euptop/
+├── addons/            # 客戶專屬模組
 ├── addons_store/      # 自訂模組
+├── backup/            # Odoo 17 備份模組 (需升級後才能使用)
 ├── odoo-19.0/         # Odoo 核心
 └── CLAUDE.md          # 本文件
 ```
+
+## 開發注意事項
+
+> **重要**: 開發 Odoo 19 模組時，請先載入 `/odoo19_complete` skill 以獲取最新的 Odoo 19 開發規範和 API 參考。
+
+### 常見 OWL 錯誤
+
+| 錯誤訊息 | 原因 | 解決方案 |
+|----------|------|----------|
+| `Cannot find key "xxx" in the "views" registry` | 自訂 JS 視圖類別未正確載入 | 檢查模組的 `static/src/js` 是否存在且已在 manifest assets 中註冊 |
+
+### 待升級模組
+
+| 模組 | 位置 | 狀態 | 問題 |
+|------|------|------|------|
+| mt_odoo_shopify_connector | backup/ | 未部署 | JS 視圖 `shopify_import_product_k_button` 需升級至 OWL 3 |
+
+---
+
+# 模組文件
+
+## ep_thenone (諾內客製化)
+
+### 基本資訊
+
+| 項目 | 值 |
+|------|-----|
+| 模組名稱 | 諾內客製化 |
+| 技術名稱 | ep_thenone |
+| 版本 | 19.0.1.0.0 |
+| 類別 | Sales/Purchase |
+| 路徑 | addons/ep_thenone |
+
+### 依賴模組
+
+- `base`
+- `product`
+- `sale`
+- `purchase`
+- `mrp`
+
+### 功能概述
+
+此模組為諾內客戶的客製化需求，主要功能是在產品和訂單中新增「舊產品編號」和「供應商編號」欄位，方便客戶從舊系統過渡到新系統時能夠識別和搜尋產品。
+
+### 模型擴展
+
+#### 1. product.template (產品範本)
+
+新增欄位：
+
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| `old_product_code` | Char | 舊產品編號 |
+| `supplier_code` | Char | 供應商編號 |
+| `shopify_sku` | Char | Shopify SKU |
+
+#### 2. product.product (產品變體)
+
+繼承 `product.template`，欄位自動繼承。
+
+#### 3. sale.order.line (銷售訂單明細)
+
+新增欄位：
+
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| `old_product_code` | Char | 舊產品編號 (related, store=True) |
+
+方法：
+- `_onchange_product_id()`: 選擇產品時自動帶出舊產品編號
+
+#### 4. purchase.order.line (採購訂單明細)
+
+新增欄位：
+
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| `old_product_code` | Char | 舊產品編號 (related, store=True) |
+| `supplier_code` | Char | 供應商編號 (related, store=True) |
+
+#### 5. mrp.bom.line (BOM 材料明細)
+
+新增欄位：
+
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| `old_product_code` | Char | 舊產品編號 (related, store=True) |
+| `supplier_code` | Char | 供應商編號 (related, store=True) |
+
+### 視圖修改
+
+| 視圖 | 修改內容 |
+|------|----------|
+| 產品表單 | 在 type 欄位後新增 old_product_code, supplier_code |
+| 產品列表 | 在 name 欄位後新增 old_product_code, supplier_code |
+| 產品搜尋 | 新增 old_product_code, supplier_code 搜尋欄位 |
+| 銷售訂單表單 | 在訂單明細中新增 old_product_code |
+| 銷售訂單明細列表 | 在 name 欄位後新增 old_product_code |
+| 採購訂單表單 | 在訂單明細中新增 old_product_code, supplier_code |
+| 採購訂單明細列表 | 在 order_id 欄位後新增 old_product_code, supplier_code |
+| BOM 表單 | 在材料明細中新增 old_product_code, supplier_code |
+
+### 檔案結構
+
+```
+ep_thenone/
+├── __init__.py
+├── __manifest__.py
+├── models/
+│   ├── __init__.py
+│   ├── product_template.py
+│   ├── sale_order.py
+│   ├── purchase_order.py
+│   └── mrp_bom.py
+└── views/
+    ├── product_template_views.xml
+    ├── sale_order_views.xml
+    ├── purchase_order_views.xml
+    └── mrp_bom_views.xml
+```
+
+### 備註
+
+1. **無需 security 檔案**: 此模組僅繼承現有模型新增欄位，不需要額外的安全權限設定。
+
+2. **related 欄位自動同步**: 訂單明細中的 `old_product_code` 和 `supplier_code` 使用 `related` 欄位並設定 `store=True`，會自動從產品同步並儲存到資料庫。
+
+3. **Odoo 19 相容**: 視圖中使用 `//list` xpath 而非 `//tree`，符合 Odoo 19 規範。
 
 ## 開發環境
 

@@ -69,7 +69,7 @@ class StarryLordOvertimeApply(models.Model):
     desc = fields.Char(string='加班事由')
     state = fields.Selection([('draft', '草稿'),
                               ('f_approve', '待核准'),
-                              ('agree', '確認執行'),
+                              ('agree', '核准加班'),
                               ('refused', '己拒絕')], string="狀態",
                              default="draft", traceback=True)
     sl_holiday_allocation_ids = fields.One2many('starrylord.holiday.allocation', string='休假分配', inverse_name='sl_overtime_apply_id')
@@ -84,14 +84,306 @@ class StarryLordOvertimeApply(models.Model):
 
     hr_confirm_state = fields.Selection(
         [
-            ('pending', '待確認'),
-            ('confirmed', '已確認'),
-            ('invalid', '未符合'),
+            ('pending', '單據待確認'),
+            ('confirmed', '單據已生效'),
+            ('invalid', '單據未符合'),
         ],
         string='人資確認狀態',
         default='pending',
         tracking=True
     )
+
+    sl_holiday_allocation_ids = fields.One2many(
+        'starrylord.holiday.allocation',
+        'sl_overtime_apply_id',
+        string='補休分配'
+    )
+
+    holiday_allocation_count = fields.Integer(
+        string='補休筆數',
+        compute='_compute_holiday_allocation_count'
+    )
+
+    # 20260111 合規判斷
+    compliance_state = fields.Selection(
+        [
+            ('pending', '待確認合規'),
+            ('ok', '合規'),
+            ('ng', '不合規'),
+        ],
+        string='合規判斷',
+        default='pending',
+        tracking=True
+    )
+
+    compliance_reason = fields.Text(
+        string='不合規原因'
+    )
+
+    # 20260111
+
+    # === 出勤勾稽 ===
+    attendance_ids = fields.Many2many(
+        'hr.attendance',
+        string='出勤紀錄',
+        copy=False
+    )
+
+    attendance_check_ids = fields.Many2many(
+        'hr.attendance.check',
+        string='出勤檢查',
+        copy=False
+    )
+
+    attendance_check_result = fields.Selection(
+        [
+            ('ok', '出勤無異常'),
+            ('ng', '出勤異常'),
+        ],
+        string='資料檢查結果',
+        tracking=True
+    )
+
+    overtime_attendance_process_state = fields.Selection(
+        [
+            ('pending', '出勤檢核待處理'),
+            ('done', '已處理'),
+            ('no_issue', '無異常'),
+        ],
+        string='加班異常處理進度',
+        default='pending',
+        tracking=True
+    )
+
+    # === 調整後時間（人工調整用，後續 Wizard 會寫）===
+    adjust_hour_from = fields.Selection(
+        selection=lambda self: self._get_hour_selection(),
+        string='調整後開始小時'
+    )
+    adjust_min_from = fields.Selection(
+        selection=[('0', '00'), ('0.25', '15'), ('0.5', '30'), ('0.75', '45')],
+        string='調整後開始分鐘'
+    )
+    adjust_hour_to = fields.Selection(
+        selection=lambda self: self._get_hour_selection(end=True),
+        string='調整後結束小時'
+    )
+    adjust_min_to = fields.Selection(
+        selection=[('0', '00'), ('0.25', '15'), ('0.5', '30'), ('0.75', '45')],
+        string='調整後結束分鐘'
+    )
+
+    adjust_duration_time = fields.Float(
+        string='調整後加班時長',
+        help='若有異常並人工調整，後續薪資 / 補休皆以此欄位為準'
+    )
+
+    overtime_adjust_memo = fields.Char(
+        string='加班調整紀錄',
+        tracking=True
+    )
+
+    hr_invalid_reason = fields.Text(
+        string='人資未符合原因',
+        tracking=True
+    )
+
+    attendance_abnormal_reason = fields.Text(
+        string='加班考勤異常原因',
+        tracking=True,
+        help='系統於考勤檢查時自動產生的異常說明'
+    )
+
+    # 加班異常時間調整功能
+    def action_open_overtime_adjust_wizard(self):
+        self.ensure_one()
+
+        if self.attendance_check_result != 'ng':
+            raise UserError('此加班單無考勤異常，無需進行異常處理')
+
+        if self.overtime_attendance_process_state != 'pending':
+            raise UserError('此加班單已完成異常處理')
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': '加班異常處理',
+            'res_model': 'starrylord.overtime.attendance.adjust.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_overtime_apply_id': self.id,
+            }
+        }
+
+
+    # 共用 hour selection
+    def _get_hour_selection(self, end=False):
+        end_hour = 24 if end else 23
+        return [(str(i), str(i)) for i in range(0, end_hour + 1)]
+
+    def action_check_attendance(self):
+        """
+        檢查加班單是否有『單筆』出勤紀錄完整涵蓋
+        容忍規則：允許加班開始「晚進」、結束「早退」各 ±5 分鐘
+        """
+        TOLERANCE_MINUTES = 5
+
+        for rec in self:
+            if not rec.apply_from or not rec.apply_to:
+                continue
+
+            employee = rec.employee_id
+            apply_from = rec.apply_from
+            apply_to = rec.apply_to
+
+            # === 正確的容忍定義（放寬，不是加嚴）===
+            tolerant_start = apply_from + timedelta(minutes=TOLERANCE_MINUTES)
+            tolerant_end = apply_to - timedelta(minutes=TOLERANCE_MINUTES)
+
+            # === 搜尋用範圍（只用來撈資料）===
+            search_from = apply_from - timedelta(minutes=TOLERANCE_MINUTES)
+            search_to = apply_to + timedelta(minutes=TOLERANCE_MINUTES)
+
+            # === 1. 抓 hr.attendance ===
+            attendances = self.env['hr.attendance'].search([
+                ('employee_id', '=', employee.id),
+                ('check_in', '<=', search_to),
+                ('check_out', '>=', search_from),
+            ])
+
+            # === 2. 抓 hr.attendance.check（留稽核）===
+            attendance_checks = self.env['hr.attendance.check'].search([
+                ('employee_id', '=', employee.id),
+                ('date', '>=', apply_from.date()),
+                ('date', '<=', apply_to.date()),
+            ])
+
+            # === 3. 寫入稽核關聯 ===
+            rec.attendance_ids = [(6, 0, attendances.ids)]
+            rec.attendance_check_ids = [(6, 0, attendance_checks.ids)]
+
+            for check in attendance_checks:
+                check.write({
+                    'overtime_apply_ids': [(4, rec.id)]
+                })
+
+            # === 4. 核心判斷 ===
+            matched_attendance = False
+            has_attendance = False
+            only_full_day_attendance = True
+
+            for att in attendances:
+                if not att.check_in or not att.check_out:
+                    continue
+
+                has_attendance = True
+
+                # 排除整天打卡（例如 09:00~21:00）
+                if att.check_in < search_from and att.check_out > search_to:
+                    continue
+                else:
+                    only_full_day_attendance = False
+
+                # 正確的涵蓋判斷（容忍後）
+                if att.check_in <= tolerant_start and att.check_out >= tolerant_end:
+                    matched_attendance = True
+                    break
+
+            # === 5. 寫回結果 ===
+            if matched_attendance:
+                rec.attendance_check_result = 'ok'
+                rec.overtime_attendance_process_state = 'no_issue'
+                rec.attendance_abnormal_reason = False
+
+                # 預設調整欄位 = 原始加班
+                rec.adjust_hour_from = rec.hour_from
+                rec.adjust_min_from = rec.min_from
+                rec.adjust_hour_to = rec.hour_to
+                rec.adjust_min_to = rec.min_to
+                rec.adjust_duration_time = rec.duration_time
+
+                # === 自動 HR 確認（嚴格條件）===
+                if (
+                    rec.state == 'agree'
+                    and rec.hr_confirm_state == 'pending'
+                    and rec.adjust_duration_time == rec.duration_time
+                ):
+                    rec.action_hr_confirm()
+
+            else:
+                rec.attendance_check_result = 'ng'
+                rec.overtime_attendance_process_state = 'pending'
+
+                # === 組合異常原因 ===
+                abnormal_reasons = []
+
+                if not has_attendance:
+                    abnormal_reasons.append('查無任何打卡紀錄')
+                elif only_full_day_attendance:
+                    abnormal_reasons.append('僅有整天打卡紀錄，未能作為加班依據')
+                else:
+                    abnormal_reasons.append('打卡時間未涵蓋加班申請時段（已套用容忍時間）')
+
+                # 加班申請
+                abnormal_reasons.append(
+                    f'【加班申請】{rec.start_day} '
+                    f'{rec.hour_from}:{int(float(rec.min_from) * 60):02d} ~ '
+                    f'{rec.hour_to}:{int(float(rec.min_to) * 60):02d}'
+                )
+
+                # 實際打卡
+                if attendances:
+                    lines = []
+                    for att in attendances:
+                        if not att.check_in or not att.check_out:
+                            continue
+                        check_in = (att.check_in + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M')
+                        check_out = (att.check_out + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M')
+                        lines.append(f'{check_in} ~ {check_out}')
+
+                    abnormal_reasons.append('【實際打卡】' + '；'.join(lines))
+                else:
+                    abnormal_reasons.append('【實際打卡】無')
+
+                rec.attendance_abnormal_reason = '；'.join(abnormal_reasons)
+
+    # 人資合規判斷
+    def action_open_compliance_wizard(self):
+        self.ensure_one()
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': '合規判斷',
+            'res_model': 'starrylord.overtime.compliance.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_overtime_apply_id': self.id,
+            }
+        }
+
+
+    # 智慧按鈕 可以查看補休
+    def action_view_holiday_allocations(self):
+        self.ensure_one()
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': '補休分配',
+            'res_model': 'starrylord.holiday.allocation',
+            'view_mode': 'list,form',
+            'domain': [('sl_overtime_apply_id', '=', self.id)],
+            'context': {
+                'default_sl_overtime_apply_id': self.id,
+                'default_employee_id': self.employee_id.id,
+            }
+        }
+
+    @api.depends('sl_holiday_allocation_ids')
+    def _compute_holiday_allocation_count(self):
+        for rec in self:
+            rec.holiday_allocation_count = len(rec.sl_holiday_allocation_ids)
+
 
     @api.depends('start_day', 'type')
     def _compute_allocation_validity_end(self):
@@ -102,12 +394,12 @@ class StarryLordOvertimeApply(models.Model):
                 rec.allocation_validity_end = (rec.start_day + relativedelta(months=6, day=1)) - relativedelta(days=1)
             else:
                 rec.allocation_validity_end = False
-    
+
     @api.depends('employee_id')
     def _compute_employee_info(self):
         for rec in self:
             rec.employee_info = f"{rec.department_name}\\{rec.employee_id.employee_number}\\{rec.employee_id.name}"
-            
+
     @api.depends('start_day')
     def _compute_start_day_str(self):
         for rec in self:
@@ -341,27 +633,27 @@ class StarryLordOvertimeApply(models.Model):
                 schedule_ids = schedule_list.filtered(
                     lambda x: (x.start_date + relativedelta(hours=+8)).date() >= self.start_day >= (
                             x.end_date + relativedelta(hours=+8)).date())
-                
+
                 total_overtime_hours = 0
-                
+
                 for schedule in schedule_ids:
                     work_start = schedule.start_date + relativedelta(hours=+8)  # 上班開始時間
                     work_end = schedule.end_date + relativedelta(hours=+8.5)   # 下班結束時間（含休息0.5小時）
-                    
+
                     # 計算提早上班的時數（在上班時間前的加班）
                     if apply_from < work_start:
                         early_overtime_end = min(apply_to, work_start)
                         if early_overtime_end > apply_from:
                             early_overtime_hours = (early_overtime_end - apply_from).total_seconds() / 3600
                             total_overtime_hours += early_overtime_hours
-                    
+
                     # 計算下班後的加班時數
                     if apply_to > work_end:
                         late_overtime_start = max(apply_from, work_end)
                         if apply_to > late_overtime_start:
                             late_overtime_hours = (apply_to - late_overtime_start).total_seconds() / 3600
                             total_overtime_hours += late_overtime_hours
-                
+
                 self.duration_time = total_overtime_hours
             else:  # 使用每日8hr班表
                 public_holiday = self.env['hr.public.holiday'].search([('start_date', '>=', self.merge_date_time(self.start_day, 0)),
@@ -374,41 +666,6 @@ class StarryLordOvertimeApply(models.Model):
                         overtime_duration_time += 1
                     self.duration_time = overtime_duration_time
                 elif public_holiday and public_holiday.holiday_type in ['day_off']:  # 休息日
-                    # worktime_list = self.env['hr.schedule.worktime'].sudo().search(
-                    #     [('worktime_id', '=', self.employee_id.schedule_id.id),
-                    #      ('date_type', 'in', ['day_off']),
-                    #      ('dayofweek', '=', apply_from.weekday()),
-                    #      ])
-                    # overtime_duration_time = 0
-                    # if worktime_list:
-                    #     worktime = worktime_list[0]
-                    #
-                    #     # 你需要将 float 时间转换为 'HH:MM' 格式的字符串
-                    #     am_start_time = self.convert_float_time_to_string(worktime.am_start)
-                    #     am_end_time = self.convert_float_time_to_string(worktime.am_end)
-                    #     pm_start_time = self.convert_float_time_to_string(worktime.pm_start)
-                    #     pm_end_time = self.convert_float_time_to_string(worktime.pm_end)
-                    #     # 添加上午和下午的工作时间
-                    #     shifts = []
-                    #     if worktime.am_start and worktime.am_end:  # 有上午班
-                    #         shifts.append((am_start_time, am_end_time))
-                    #     if worktime.pm_start and worktime.pm_end:  # 有下午班
-                    #         shifts.append((pm_start_time, pm_end_time))
-                    #
-                    #     if shifts:
-                    #         for shift in shifts:
-                    #             work_start_str, work_end_str = shift
-                    #             work_start = datetime.combine(self.start_day,
-                    #                                           datetime.strptime(work_start_str, "%H:%M").time())
-                    #             work_end = datetime.combine(self.start_day, datetime.strptime(work_end_str, "%H:%M").time())
-                    #
-                    #             # Calculate leave hours within the work shift
-                    #             if work_start < apply_to < work_end:
-                    #                 overtime_duration_time += (apply_to - max(apply_from, work_start)).seconds / 3600
-                    #             elif work_start < apply_from < work_end:
-                    #                 overtime_duration_time += (min(apply_from, work_end) - apply_to).seconds / 3600
-                    #             elif apply_from <= work_start and work_end <= apply_to:
-                    #                 overtime_duration_time += (work_end - work_start).seconds / 3600
                     overtime_duration_time = (apply_to - apply_from).total_seconds() / 3600
                     overtime_duration_time = overtime_duration_time - 1 if overtime_duration_time >= 5 else overtime_duration_time
                     if self.without_rest_time:
@@ -421,7 +678,7 @@ class StarryLordOvertimeApply(models.Model):
                 else:
                     # 平日加班的處理
                     total_overtime_hours = 0
-                    
+
                     if public_holiday and public_holiday.holiday_type == 'make_up_day':  # 補班日
                         worktime_list = self.env['hr.schedule.worktime'].sudo().search(
                             [('worktime_id', '=', self.employee_id.schedule_id.id),
@@ -434,7 +691,7 @@ class StarryLordOvertimeApply(models.Model):
                              ('date_type', 'in', ['schedule']),
                              ('dayofweek', '=', apply_from.weekday()),
                              ])
-                    
+
                     if worktime_list:
                         for worktime in worktime_list:
                             # 計算工作開始時間
@@ -445,14 +702,14 @@ class StarryLordOvertimeApply(models.Model):
                                     work_start_min = 0
                                     work_start_hour = work_start_hour + 1
                                 work_start_datetime = apply_from.replace(hour=work_start_hour, minute=work_start_min)
-                                
+
                                 # 計算提早上班的加班時數（在工作開始時間前）
                                 if apply_from < work_start_datetime:
                                     early_overtime_end = min(apply_to, work_start_datetime)
                                     if early_overtime_end > apply_from:
                                         early_overtime_hours = (early_overtime_end - apply_from).total_seconds() / 3600
                                         total_overtime_hours += early_overtime_hours
-                            
+
                             # 計算工作結束時間後的加班
                             if worktime.work_end:  # 有設定結束時間
                                 worktime_hour_part = math.floor(worktime.work_end)
@@ -461,7 +718,7 @@ class StarryLordOvertimeApply(models.Model):
                                     worktime_min_part = 0
                                     worktime_hour_part = worktime_hour_part + 1
                                 work_end_datetime = apply_from.replace(hour=worktime_hour_part, minute=worktime_min_part)
-                                
+
                                 # 計算下班後的加班時數
                                 if apply_to > work_end_datetime:
                                     late_overtime_start = max(apply_from, work_end_datetime)
@@ -471,11 +728,11 @@ class StarryLordOvertimeApply(models.Model):
                     else:
                         # 如果沒有找到班表，就直接計算總時數
                         total_overtime_hours = (apply_to - apply_from).total_seconds() / 3600
-                    
+
                     self.duration_time = total_overtime_hours
         else:
             self.duration_time = 0
-            
+
         # 計算完時數後，進行勞基法驗證
         if self.duration_time > 0 and self.overtime_type_id:
             try:
@@ -503,10 +760,10 @@ class StarryLordOvertimeApply(models.Model):
             elif min_overtime_unit == 'quarter':
                 if rec.duration_time % 0.25 != 0:
                     raise UserError('加班時數必須以十五分鐘為單位')
-        
+
         # 依照勞基法規定檢查單次加班時數上限
         self.check_labor_law_overtime_limit(rec)
-    
+
     def check_labor_law_overtime_limit(self, rec):
         """
         依照勞基法規定檢查單次加班時數上限
@@ -515,11 +772,11 @@ class StarryLordOvertimeApply(models.Model):
         """
         if not rec.overtime_type_id:
             return
-            
+
         # 判斷是否為平日或假日
         self.get_overtime_type()
         date_type = rec.overtime_type_id.date_type
-        
+
         if date_type == 'schedule':  # 平日加班
             if rec.duration_time > 4:
                 raise UserError('依勞基法規定，平日加班時數不得超過4小時\n您申請了%.2f小時，請調整加班時數' % rec.duration_time)
@@ -578,15 +835,15 @@ class StarryLordOvertimeApply(models.Model):
                 streak += 1
             else:
                 streak = 0
-                
+
             if streak >= 7:
                 over = True
 
             current_date += timedelta(days=1)
 
         return over
-        
-    
+
+
     def check_time_valid_or_overlap(self, rec):
         # 將加班開始跟結束時間轉換成小時
         request_start_half_hour = float(rec.hour_from) + float(rec.min_from)
@@ -594,17 +851,8 @@ class StarryLordOvertimeApply(models.Model):
 
         if request_end_half_hour < request_start_half_hour:
             raise UserError(_("開始時間不可大於結束時間"))
-            # # 檢查加班當天的班別
-            # worktime = self.env['hr.schedule.worktime'].sudo().search(
-            #     [('worktime_id', '=', self.employee_id.schedule_id.id),
-            #      ('date_type', '=', 'schedule'),
-            #      ('dayofweek', '=', rec.start_day.weekday()),
-            #      ])
-            # if worktime:
-            #     if worktime.work_start < rec.start_day or worktime.work_end < rec.start_day:
-            #         raise UserError(_("加班時段不在班別內"))
 
-        
+
         all_overtime = rec.env['starrylord.overtime.apply'].search([('employee_id', '=', rec.employee_id.id),
                                                                     ('start_day', '=', rec.start_day),
                                                                     ('id', '!=', rec.id),
@@ -620,14 +868,14 @@ class StarryLordOvertimeApply(models.Model):
                 error_msg += '單號' + in_time.name + '加班單 ' + str(in_time.hour_from) + '點至' + str(
                     in_time.hour_to) + '點加班\n'
             raise UserError(_("加班時間不可重複\n" + error_msg))
-        
+
 
     def to_f_approve(self):
         for rec in self:
             self.check_overtime_time_min_unit(rec)
             # 檢查有無員工id跟開始日期
             if rec.employee_id and rec.start_day:
-                self.check_time_valid_or_overlap(rec)            
+                self.check_time_valid_or_overlap(rec)
             if self.check_duty_over_6days():
                 raise UserError('已連續 7 天上班，違反勞基法！')
 
@@ -665,25 +913,25 @@ class StarryLordOvertimeApply(models.Model):
             self.check_time_valid_or_overlap(rec)
             if self.check_duty_over_6days():
                 raise UserError('已連續 7 天上班，違反勞基法！')
-    
+
             rec.state = 'agree'
             rec.hr_confirm_state = 'pending'
-    
+
             # 只建立加班行事曆（保留）
             start_date = rec.merge_date_time(
                 rec.start_day,
                 float(rec.hour_from) + float(rec.min_from)
             )
-    
+
             if rec.hour_to == '24':
                 end_day = rec.start_day + relativedelta(days=1)
                 end_time_float = float(rec.min_to)
             else:
                 end_day = rec.start_day
                 end_time_float = float(rec.hour_to) + float(rec.min_to)
-    
+
             end_date = rec.merge_date_time(end_day, end_time_float)
-    
+
             rec.hr_personal_calendar_id = self.env['hr.personal.calendar'].create({
                 'employee_id': rec.employee_id.id,
                 'date_type': 'overtime',
@@ -696,10 +944,78 @@ class StarryLordOvertimeApply(models.Model):
     # 20251219 添加人力資源人員的處理按鈕
     # 按鈕：未符合
     def action_hr_invalid(self):
-        for rec in self:
-            if rec.state != 'agree':
-                raise UserError('僅限主管已確認的加班單，才能進行人資確認')
-            rec.hr_confirm_state = 'invalid'
+        self.ensure_one()
+
+        if self.state != 'agree':
+            raise UserError('僅限主管已確認的加班單，才能進行人資確認')
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': '人資未符合說明',
+            'res_model': 'starrylord.overtime.hr.invalid.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_overtime_apply_id': self.id,
+            }
+        }
+
+    # 準備行為
+    def _prepare_holiday_allocation_from_overtime(self):
+        """
+        將加班時數正確拋轉為補休分配
+        規則：
+        1. 先依補休假別取得 request_unit (time_type)
+        2. 再依 time_type 寫入正確的分鐘欄位
+        3. 不更動既有欄位結構
+        """
+        self.ensure_one()
+
+        # 取得補休假別
+        setting = self.env['ir.config_parameter'].sudo()
+        holiday_comp_id = int(setting.get_param('sl_hrm_holiday.holiday_comp_id', default=False))
+        if not holiday_comp_id:
+            return False
+
+        holiday_type = self.env['starrylord.holiday.type'].browse(holiday_comp_id)
+        time_type = holiday_type.request_unit  # hour / half / quarter / day
+
+        # 拆解加班時數（小時制）
+        total = round(self.duration_time, 2)
+        hour_part = int(total)
+        minute_part = round(total - hour_part, 2)
+
+        allocation_data = {
+            'holiday_type_id': holiday_comp_id,
+            'sl_overtime_apply_id': self.id,
+            'employee_id': self.employee_id.id,
+            'year': str(self.start_day.year),
+            'duration_time': hour_part,
+            'validity_start': date.today() + relativedelta(
+                day=1,
+                month=self.start_day.month,
+                year=self.start_day.year
+            ),
+            'validity_end': self.allocation_validity_end,
+        }
+
+        # 分鐘單位正規化（只允許系統可接受的值）
+        if minute_part > 0:
+            if time_type == 'half':
+                # half 只允許 0 或 0.5
+                allocation_data['duration_min'] = '0.5' if minute_part >= 0.5 else '0'
+            else:
+                # hour / quarter / day → 使用 duration_min_quarter
+                minute_key = {
+                    0.25: '0.25',
+                    0.5: '0.5',
+                    0.75: '0.75',
+                }.get(round(minute_part, 2))
+                if minute_key:
+                    allocation_data['duration_min_quarter'] = minute_key
+
+        return allocation_data
+
 
 
     # 按鈕：確認加班
@@ -709,39 +1025,277 @@ class StarryLordOvertimeApply(models.Model):
                 raise UserError('加班單尚未主管確認')
             if rec.hr_confirm_state != 'pending':
                 raise UserError('此加班單已完成確認')
-    
+
             rec.hr_confirm_state = 'confirmed'
-    
+
             # 只有補休才建立分配
             if rec.type != 'holiday':
-                return
-    
-            # === 建立補休（沿用你原本 agree 裡的邏輯，但搬到這裡） ===
-            setting = self.env['ir.config_parameter'].sudo()
-            holiday_comp_id = int(setting.get_param('sl_hrm_holiday.holiday_comp_id', default=False))
-    
-            total = round(rec.duration_time, 2)
-            hour_part = int(total)
-            minute_part = round(total - hour_part, 2)
-    
-            allocation_data = {
-                'holiday_type_id': holiday_comp_id,
-                'sl_overtime_apply_id': rec.id,
-                'employee_id': rec.employee_id.id,
-                'year': str(rec.start_day.year),
-                'duration_time': hour_part,
-                'validity_start': date.today() + relativedelta(
-                    day=1,
-                    month=rec.start_day.month,
-                    year=rec.start_day.year
-                ),
-                'validity_end': rec.allocation_validity_end,
-            }
-    
-            # 小數一律寫 quarter（避免消失）
-            if minute_part:
-                allocation_data['duration_min_quarter'] = str(minute_part)
-    
-            rec.write({
-                'sl_holiday_allocation_ids': [(0, 0, allocation_data)]
-            })
+                continue
+
+            allocation_data = rec._prepare_holiday_allocation_from_overtime()
+            if allocation_data:
+                rec.write({
+                    'sl_holiday_allocation_ids': [(0, 0, allocation_data)]
+                })
+
+
+class HrAttendanceCheck(models.Model):
+    _inherit = 'hr.attendance.check'
+
+    overtime_apply_ids = fields.Many2many(
+        comodel_name='starrylord.overtime.apply',
+        string='加班單'
+    )
+
+    overtime_time_summary = fields.Char(
+        string='加班時段',
+        compute='_compute_overtime_time_summary',
+        store=True
+    )
+
+    @api.depends(
+        'overtime_apply_ids.hour_from',
+        'overtime_apply_ids.min_from',
+        'overtime_apply_ids.hour_to',
+        'overtime_apply_ids.min_to',
+        'overtime_apply_ids.state'
+    )
+    def _compute_overtime_time_summary(self):
+        for rec in self:
+            parts = []
+
+            for ot in rec.overtime_apply_ids.filtered(lambda x: x.state == 'agree'):
+                if not all([ot.hour_from, ot.min_from, ot.hour_to, ot.min_to]):
+                    continue
+
+                start_h = int(ot.hour_from)
+                start_m = int(float(ot.min_from) * 60)
+                end_h = int(ot.hour_to)
+                end_m = int(float(ot.min_to) * 60)
+
+                start = f"{start_h:02d}:{start_m:02d}"
+                end = f"{end_h:02d}:{end_m:02d}"
+
+                parts.append(f"{start}~{end}")
+
+            if parts:
+                rec.overtime_time_summary = f"加班：{' / '.join(parts)}"
+            else:
+                rec.overtime_time_summary = ''
+
+
+class StarryLordOvertimeComplianceWizard(models.TransientModel):
+    _name = 'starrylord.overtime.compliance.wizard'
+    _description = '加班合規判斷'
+
+    overtime_apply_id = fields.Many2one(
+        'starrylord.overtime.apply',
+        string='加班單',
+        required=True
+    )
+
+    compliance_state = fields.Selection(
+        [
+            ('ok', '合規'),
+            ('ng', '不合規'),
+        ],
+        string='合規判斷',
+        required=True
+    )
+
+    compliance_reason = fields.Text(
+        string='不合規原因'
+    )
+
+    @api.onchange('compliance_state')
+    def _onchange_compliance_state(self):
+        if self.compliance_state == 'ok':
+            self.compliance_reason = False
+
+    def action_confirm(self):
+        self.ensure_one()
+
+        if self.compliance_state == 'ng' and not self.compliance_reason:
+            raise UserError('請填寫不合規原因')
+
+        self.overtime_apply_id.write({
+            'compliance_state': self.compliance_state,
+            'compliance_reason': self.compliance_reason if self.compliance_state == 'ng' else False,
+        })
+
+
+class StarryLordOvertimeAttendanceAdjustWizard(models.TransientModel):
+    _name = 'starrylord.overtime.attendance.adjust.wizard'
+    _description = '加班異常處理'
+
+    overtime_apply_id = fields.Many2one(
+        'starrylord.overtime.apply',
+        string='加班單',
+        required=True
+    )
+
+    # === 處理模式 ===
+    adjust_mode = fields.Selection(
+        [
+            ('approve', '依核准時間'),
+            ('attendance', '依打卡時間'),
+            ('manual', '手動調整'),
+        ],
+        string='處理模式',
+        required=True,
+        default='approve'
+    )
+
+    # === 可選打卡紀錄（來源：加班單上的 m2m）===
+    attendance_id = fields.Many2one(
+        'hr.attendance',
+        string='打卡紀錄',
+        domain="[('id', 'in', attendance_ids)]"
+    )
+
+    attendance_ids = fields.Many2many(
+        'hr.attendance',
+        string='打卡紀錄',
+        readonly=True
+    )
+
+    # === 調整後時間 ===
+    adjust_hour_from = fields.Selection(
+        selection=lambda self: self.env['starrylord.overtime.apply']._get_hour_selection(),
+        string='開始小時'
+    )
+    adjust_min_from = fields.Selection(
+        [('0', '00'), ('0.25', '15'), ('0.5', '30'), ('0.75', '45')],
+        string='開始分鐘'
+    )
+    adjust_hour_to = fields.Selection(
+        selection=lambda self: self.env['starrylord.overtime.apply']._get_hour_selection(end=True),
+        string='結束小時'
+    )
+    adjust_min_to = fields.Selection(
+        [('0', '00'), ('0.25', '15'), ('0.5', '30'), ('0.75', '45')],
+        string='結束分鐘'
+    )
+
+    adjust_duration_time = fields.Float(
+        string='調整後加班時長',
+        compute='_compute_duration',
+        store=True
+    )
+
+    adjust_memo = fields.Char(string='調整說明')
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+
+        overtime_apply_id = self.env.context.get('default_overtime_apply_id')
+        if not overtime_apply_id:
+            return res
+
+        overtime = self.env['starrylord.overtime.apply'].browse(overtime_apply_id)
+
+        if 'attendance_ids' in fields_list:
+            res['attendance_ids'] = [(6, 0, overtime.attendance_ids.ids)]
+
+        return res
+
+
+    # === 模式切換時自動填值 ===
+    @api.onchange('adjust_mode', 'attendance_id')
+    def _onchange_adjust_mode(self):
+        ot = self.overtime_apply_id
+
+        # 依核准時間
+        if self.adjust_mode == 'approve':
+            self.adjust_hour_from = ot.hour_from
+            self.adjust_min_from = ot.min_from
+            self.adjust_hour_to = ot.hour_to
+            self.adjust_min_to = ot.min_to
+            self._compute_duration()
+
+        # === 手動調整：預設也帶入原始核准時間 ===
+        elif self.adjust_mode == 'manual':
+            self.adjust_hour_from = ot.hour_from
+            self.adjust_min_from = ot.min_from
+            self.adjust_hour_to = ot.hour_to
+            self.adjust_min_to = ot.min_to
+            self._compute_duration()
+
+        # 依打卡時間（保守）
+        elif self.adjust_mode == 'attendance' and self.attendance_id:
+            check_in = self.attendance_id.check_in + timedelta(hours=8)
+            check_out = self.attendance_id.check_out + timedelta(hours=8)
+
+            # 開始時間：往後補齊到 30 分
+            start_min = 30 if check_in.minute > 0 else 0
+            self.adjust_hour_from = str(check_in.hour)
+            self.adjust_min_from = '0.5' if start_min == 30 else '0'
+
+            # 結束時間：往前補齊到 30 分
+            end_min = 30 if check_out.minute >= 30 else 0
+            self.adjust_hour_to = str(check_out.hour)
+            self.adjust_min_to = '0.5' if end_min == 30 else '0'
+
+            self._compute_duration()
+
+    @api.depends(
+        'adjust_hour_from',
+        'adjust_min_from',
+        'adjust_hour_to',
+        'adjust_min_to'
+    )
+    def _compute_duration(self):
+        if not all([
+            self.adjust_hour_from,
+            self.adjust_min_from,
+            self.adjust_hour_to,
+            self.adjust_min_to
+        ]):
+            self.adjust_duration_time = 0
+            return
+
+        start = float(self.adjust_hour_from) + float(self.adjust_min_from)
+        end = float(self.adjust_hour_to) + float(self.adjust_min_to)
+        self.adjust_duration_time = max(end - start, 0)
+
+    # === 確認寫回 ===
+    def action_confirm(self):
+        self.ensure_one()
+        # 強制確保最新計算
+        self._compute_duration()
+        ot = self.overtime_apply_id
+
+        ot.write({
+            'adjust_hour_from': self.adjust_hour_from,
+            'adjust_min_from': self.adjust_min_from,
+            'adjust_hour_to': self.adjust_hour_to,
+            'adjust_min_to': self.adjust_min_to,
+            'adjust_duration_time': self.adjust_duration_time,
+            'overtime_attendance_process_state': 'done',
+            'overtime_adjust_memo': self.adjust_memo,
+        })
+
+
+class StarryLordOvertimeHrInvalidWizard(models.TransientModel):
+    _name = 'starrylord.overtime.hr.invalid.wizard'
+    _description = '人資未符合原因填寫'
+
+    overtime_apply_id = fields.Many2one(
+        'starrylord.overtime.apply',
+        string='加班單',
+        required=True
+    )
+
+    hr_invalid_reason = fields.Text(
+        string='未符合原因',
+        required=True
+    )
+
+    def action_confirm(self):
+        self.ensure_one()
+
+        self.overtime_apply_id.write({
+            'hr_confirm_state': 'invalid',
+            'hr_invalid_reason': self.hr_invalid_reason,
+        })

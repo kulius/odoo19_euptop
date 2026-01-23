@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 主選單 -->
+    <menuitem id="menu_customer_visit_root"
+              name="客戶管理"
+              sequence="25"
+              web_icon="ep_customer_visit,static/description/icon.png"/>
+
+    <!-- 客戶訪談子選單 -->
+    <menuitem id="menu_customer_visit"
+              name="客戶訪談"
+              parent="menu_customer_visit_root"
+              sequence="10"/>
+
+    <!-- 客戶訪談登錄 -->
+    <menuitem id="menu_customer_visit_form"
+              name="客戶訪談登錄作業"
+              parent="menu_customer_visit"
+              action="action_customer_visit"
+              sequence="10"/>
+
+    <!-- 訪談明細查詢 -->
+    <menuitem id="menu_customer_visit_line"
+              name="訪談明細查詢"
+              parent="menu_customer_visit"
+              action="action_customer_visit_line"
+              sequence="20"/>
+
+    <!-- 報表子選單 (預留) -->
+    <menuitem id="menu_customer_visit_report"
+              name="報表"
+              parent="menu_customer_visit_root"
+              sequence="90"/>
+
+    <!-- 設定子選單 -->
+    <menuitem id="menu_customer_visit_config"
+              name="設定"
+              parent="menu_customer_visit_root"
+              groups="base.group_system"
+              sequence="100"/>
+
+</odoo>

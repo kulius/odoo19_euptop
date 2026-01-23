@@ -1,0 +1,31 @@
+<odoo>
+    <!-- Action to open the view -->
+    <record model="ir.actions.act_window" id="action_hr_salary_tax_gap">
+        <field name="name">薪資扣繳稅額級距設定</field>
+        <field name="res_model">hr.salary.tax.gap</field>
+        <field name="view_mode">tree</field>
+    </record>
+    <!-- Tree view -->
+    <record model="ir.ui.view" id="view_hr_salary_tax_gap_tree">
+        <field name="name">hr.salary.tax.gap.tree</field>
+        <field name="model">hr.salary.tax.gap</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" default_order="start asc">
+                <field name="start"/>
+                <field name="end"/>
+                <field name="cost_0"/>
+                <field name="cost_1"/>
+                <field name="cost_2"/>
+                <field name="cost_3"/>
+                <field name="cost_4"/>
+                <field name="cost_5"/>
+                <field name="cost_6"/>
+                <field name="cost_7"/>
+                <field name="cost_8"/>
+                <field name="cost_9"/>
+                <field name="cost_10"/>
+                <field name="cost_11"/>
+            </tree>
+        </field>
+    </record>
+</odoo>

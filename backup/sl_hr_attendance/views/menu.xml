@@ -1,0 +1,68 @@
+<odoo>
+<!--             
+    <menuitem id="root_hr_attendance_check_action" name="出勤紀錄"
+        parent="hr_attendance.menu_hr_attendance_root"
+        groups="hr_attendance.group_hr_attendance_manager"
+        sequence="22"
+    /> -->
+
+    <menuitem id="sl_hr_attendance_setting_manager" name="系統管理"
+        parent="hr_attendance.menu_hr_attendance_root"
+        groups="hr_attendance.group_hr_attendance_manager"
+        sequence="50"
+    />
+
+    <menuitem id="hr_my_attendance_check_action" name="我的出勤記錄"
+        parent="hr_attendance.menu_hr_attendance_root"
+        action="hr_attendance_check_action"
+        groups="base.group_user"
+        sequence="9"
+    />
+
+
+    <!-- <menuitem id="hr_attendance_check_action_manager" name="出勤紀錄管理"
+        parent="sl_hr_attendance.root_hr_attendance_check_action"
+        action="hr_attendance_check_manager_action"
+        groups="hr_attendance.group_hr_attendance_manager"
+        sequence="10"
+    /> -->
+
+    <menuitem id="wizard_hr_attendance_check_action_manager" name="手動產生出勤紀錄"
+        parent="sl_hr_attendance_setting_manager"
+        action="wizard_hr_attendance_check_action"
+        groups="hr_attendance.group_hr_attendance_manager"
+        sequence="15"
+    />
+
+    <menuitem id="starrylord_hr_attendance_check" name="出勤紀錄管理"
+        parent="hr_attendance.menu_hr_attendance_root"
+        action="hr_attendance_check_manager_action"
+        groups="hr_attendance.group_hr_attendance_manager"
+        sequence="22"
+    />
+    <menuitem id="sl_hr_attendance_repair" name="我的出勤異常說明單"
+        parent="hr_attendance.menu_hr_attendance_root"
+        action="action_sl_attendance_repair"
+        sequence="23"
+    />
+    <menuitem id="sl_hr_attendance_repair_manager" name="出勤異常說明單管理"
+        parent="hr_attendance.menu_hr_attendance_root"
+        action="action_sl_attendance_repair_manager"
+        groups="hr_attendance.group_hr_attendance_manager"
+        sequence="24"
+    />
+
+    <!-- Menu -->
+    <menuitem id="menu_hr_attendance_raw"
+        name="原始打卡記錄"
+        parent="sl_hr_attendance.sl_hr_attendance_setting_manager"
+        action="hr_attendance_raw_action"
+        groups="hr_attendance.group_hr_attendance_manager"
+        sequence="41"/>
+
+    <menuitem id="menu_sl_attendance_import"
+              name="打卡資料匯入"
+              parent="sl_hr_attendance.sl_hr_attendance_setting_manager"
+              action="sl_attendance_import_action"
+              sequence="50"/>
+</odoo>

@@ -1,0 +1,23 @@
+<odoo>
+
+
+    <!-- Action to open the view -->
+    <record model="ir.actions.act_window" id="action_sl_license_check_setting">
+        <field name="name">教育訓練和在職回訓有效年限設定</field>
+        <field name="res_model">sl.license.check.setting</field>
+        <field name="view_mode">tree</field>
+    </record>
+    <!-- Tree view -->
+    <record model="ir.ui.view" id="view_tree_sl_license_check_setting">
+        <field name="name">sl.license.check.setting.tree</field>
+        <field name="model">sl.license.check.setting</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"/>
+                <field name="effective_year_interval"/>
+                <field name="training_hours"/>
+            </tree>
+        </field>
+    </record>
+
+</odoo>

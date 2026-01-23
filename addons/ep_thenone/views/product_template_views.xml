@@ -9,6 +9,9 @@
                 <field name="old_product_code"/>
                 <field name="supplier_code"/>
             </field>
+            <field name="barcode" position="after">
+                <field name="shopify_sku"/>
+            </field>
         </field>
     </record>
 
@@ -20,6 +23,9 @@
             <field name="type" position="after">
                 <field name="old_product_code"/>
                 <field name="supplier_code"/>
+            </field>
+            <field name="barcode" position="after">
+                <field name="shopify_sku"/>
             </field>
         </field>
     </record>
@@ -43,6 +49,7 @@
             <field name="categ_id" position="after">
                 <field name="old_product_code" string="舊產品編號"/>
                 <field name="supplier_code" string="供應商編號"/>
+                <field name="shopify_sku" string="Shopify SKU"/>
             </field>
         </field>
     </record>

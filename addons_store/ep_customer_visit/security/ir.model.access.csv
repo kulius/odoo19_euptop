@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_customer_visit_user,customer.visit.user,model_customer_visit,base.group_user,1,1,1,0
+access_customer_visit_manager,customer.visit.manager,model_customer_visit,base.group_system,1,1,1,1
+access_customer_visit_line_user,customer.visit.line.user,model_customer_visit_line,base.group_user,1,1,1,0
+access_customer_visit_line_manager,customer.visit.line.manager,model_customer_visit_line,base.group_system,1,1,1,1

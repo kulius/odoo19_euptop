@@ -6,7 +6,7 @@
     'website': "https://www.starrylord.com.tw",
     'category': 'HRM',
     'version': '19.0.0.1',
-    'depends': ['base', 'hr', 'sl_tier_validation', 'sl_hrm_holiday'],
+    'depends': ['base', 'hr', 'sl_tier_validation', 'sl_hrm_holiday', 'sl_hr_attendance'],
     'data': [
         'security/starrylord_overtime_security.xml',
         'security/ir.model.access.csv',

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="sl_hrm_payroll_res_config_setting_form">
+            <field name="name">starrylord_payroll_res_config_setting_form</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="100"/>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="inside">
+                    <app data-string="薪資" string="薪資設定" name="sl_hrm_payroll">
+                        <setting string="薪資所得扣繳稅額起扣點"
+                                 help="給付年終獎金、三節獎金等非固定薪資時，是否需要辦理扣繳">
+                            <div class="content-group">
+                                <div class="mt8">
+                                    <field name="tax_baseline_amount"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="薪資計算排除例假日"
+                                 help="例假日不列入薪資計算,額外結算">
+                            <div class="content-group">
+                                <div class="mt8">
+                                    <field name="regular_holiday_exclude_payroll"/>
+                                </div>
+                            </div>
+                        </setting>
+<!--                        <setting string="補休換算加班費假別" help="每月結算補休時數換算成加班費">-->
+<!--                            <div class="content-group">-->
+<!--                                <div class="mt8">-->
+<!--                                    <field name="sl_holiday_type_id"/>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </setting>-->
+
+                    </app>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

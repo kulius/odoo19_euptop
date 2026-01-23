@@ -9,7 +9,7 @@
                 <form>
                     <sheet>
                         <group>
-
+                            <field name="holiday_apply_name" readonly="1"/>
                             <field name="holiday_allocation_id" readonly="1"/>
                             <field name="employee_id" readonly="1"/>
                             <field name="holiday_apply_id" readonly="1"/>
@@ -28,6 +28,7 @@
             <field name="arch" type="xml">
                 <list>
                     <field name="employee_id" readonly="1"/>
+                    <field name="holiday_apply_name" readonly="1"/>
                     <field name="holiday_allocation_id" readonly="1"/>
                     <field name="holiday_day" readonly="1"/>
                     <field name="hours" readonly="1"/>
@@ -44,6 +45,7 @@
             <field name="arch" type="xml">
                 <list>
                     <field name="employee_id" readonly="1"/>
+                    <field name="holiday_apply_name" readonly="1"/>
                     <field name="holiday_allocation_id" readonly="1"/>
                     <field name="holiday_day" readonly="1"/>
                     <field name="hours" readonly="1" sum="總時數"/>

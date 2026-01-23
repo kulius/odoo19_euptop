@@ -1,0 +1,57 @@
+<odoo>
+    <record id="hr_schedule_tree_view" model="ir.ui.view">
+        <field name="name">hr.schedule.tree</field>
+        <field name="model">hr.schedule</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="hr_schedule_form_view" model="ir.ui.view">
+        <field name="name">hr.schedule.form</field>
+        <field name="model">hr.schedule</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="is_user_personal_calendar"/>
+                        <field name="is_control_personal_calendar"/>
+                    </group>
+                    <div>
+                        <a href="https://data.gov.tw/dataset/14718" target="_blank">中華民國政府行政機關辦公日曆表</a>
+                    </div>
+                    <notebook>
+                        <page string="工作時間">
+                            <field name="worktime_ids">
+                                <tree string="工作時間" editable="bottom" limit="100" >
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="date_type"/>
+                                    <field name="dayofweek"/>
+                                    <field name="work_start" widget="float_time"/>
+                                    <field name="work_end" widget="float_time"/>
+                                    <field name="am_start" widget="float_time"/>
+                                    <field name="am_end" widget="float_time"/>
+                                    <field name="pm_start" widget="float_time"/>
+                                    <field name="pm_end" widget="float_time"/>
+                                    <button name="copy_day" type="object" string="複製"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_schedule_action" model="ir.actions.act_window">
+        <field name="name">班別定義</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.schedule</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

@@ -25,6 +25,12 @@
               sequence="11"
     />
 
+    <menuitem id="menu_starrylord_holiday_cancel_employee" name="我的銷假單"
+              parent="starrylord_holiday_menu"
+              action="action_starrylord_holiday_cancel_employee"
+              groups="base.group_user" sequence="12"
+    />
+
     <menuitem id="starrylord_holiday_apply_portal_todo" name="請假單審核"
               parent="starrylord_holiday_menu"
               action="action_holiday_apply_portal_todo"
@@ -37,6 +43,13 @@
               action="starrylord_holiday_apply_manager_action"
               groups="sl_hrm_holiday.group_starrylord_holiday_manager"
               sequence="16"
+    />
+
+    <menuitem id="menu_starrylord_holiday_cancel" name="銷假單管理"
+              parent="starrylord_holiday_menu"
+              action="action_starrylord_holiday_cancel"
+              groups="sl_hrm_holiday.group_starrylord_holiday_manager"
+              sequence="17"
     />
 
     <menuitem id="starrylord_holiday_used_record_report" name="休假報表"

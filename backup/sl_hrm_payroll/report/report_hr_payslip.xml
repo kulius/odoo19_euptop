@@ -1,0 +1,322 @@
+<odoo>
+    <record id="sl_payroll_paper_format_custom" model="report.paperformat">
+            <field name="name">A4 Custom</field>
+            <field name="default" eval="True"/>
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">10</field>
+            <field name="margin_bottom">20</field>
+            <field name="margin_left">7</field>
+            <field name="margin_right">7</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">15</field>
+            <field name="dpi">90</field>
+        </record>
+    <record id="action_report_hr_payslip" model="ir.actions.report">
+        <field name="name">薪資單</field>
+        <field name="model">hr.payslip</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sl_hrm_payroll.report_hr_payslip</field>
+        <field name="report_file">sl_hrm_payroll.report_hr_payslip</field>
+        <field name="print_report_name">'薪資單 - %s' % (object.employee_id.name)</field>
+        <field name="binding_model_id" ref="sl_hrm_payroll.model_hr_payslip"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="sl_hrm_payroll.sl_payroll_paper_format_custom" />
+    </record>
+
+
+
+    <template id="report_hr_payslip">
+        <t t-call="web.html_container">
+            <t t-set="i" t-value="0"/>
+            <t t-foreach="docs" t-as="o">
+                <t t-call="sl_hrm_payroll.sl_external_layout_boxed_no_header">
+                    <style>
+                        .page {
+                        width: 210mm;
+                        margin: 0 auto;
+                        color: black;
+                        }
+                        .container {
+                        line-height: 10px;
+                        }
+                        .container td {
+                        padding: 3px;
+                        }
+                        .flex {
+                        flex-direction: row;
+                        display: -webkit-box; /* wkhtmltopdf uses this one */
+                        display: -webkit-flex;
+                        display: flex;
+                        -webkit-box-pack: left; /* wkhtmltopdf uses this one */
+                        -webkit-justify-content: left;
+                        justify-content: left;
+
+                        }
+
+                        .item {
+                        flex: 1;
+                        display: -webkit-box; /* wkhtmltopdf uses this one */
+                        display: -webkit-flex;
+                        display: flex;
+                        -webkit-box-pack: left; /* wkhtmltopdf uses this one */
+                        -webkit-justify-content: left;
+                        justify-content: left;
+                        padding:5px;
+                        }
+                    </style>
+                    <div class="page container">
+                        <center><span>電子薪給清單</span></center>
+                        <center>
+                            <span>姓名：<t t-esc="all_payslip[i]['employee_id']"/></span>
+                        </center>
+                            <div style="width:500px;margin: 0 auto;" class="flex">
+                                <div class="item" style="width:50%">
+                                    <span>薪資年月份：<t t-esc="all_payslip[i]['payroll_allocation_day']"/></span>
+                                </div>
+<!--                                <div class="item">-->
+<!--                                    <span>發放日：<t t-esc="all_payslip[i]['actual_pay_day']"/></span>-->
+<!--                                </div>-->
+                            </div>
+<!--                                <tr>-->
+<!--                                    <td width="60%">-->
+<!--                                        薪資年月份：<t t-esc="all_payslip[i]['payroll_allocation_day']"/>-->
+<!--                                    </td>-->
+<!--                                    <td width="40%">-->
+<!--                                        發放日：<t t-esc="all_payslip[i]['actual_pay_day']"/>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+                        <center>
+                            <table style="width:500px" class="table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th align="center" width="30%"><span>項目</span></th>
+                                        <th align="center" width="30%"><span>金額</span></th>
+                                        <th align="center" width="40%"><span>合計</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="all_payslip[i]['add_subtotal_line']" t-as="line">
+                                        <t t-if="line.amount != 0">
+                                            <tr>
+                                                <td>
+                                                    <span t-esc="line['name']"/>
+                                                </td>
+                                                <td style="text-align:right">
+                                                    <span><t t-esc="'{0:,.0f}'.format(int(line['amount']))"/></span>
+                                                </td>
+                                                <td style="text-align:left">
+                                                    <span><t t-esc="line['note']"/></span>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <t t-foreach="all_payslip[i]['other_add_subtotal_line']" t-as="line">
+                                        <t t-if="line.amount != 0">
+                                            <tr>
+                                                <td>
+                                                    <span t-esc="line['name']"/>
+                                                    <t t-if="line['note'] != ''">
+                                                        (<span t-esc="line['note']"/>)
+                                                    </t>
+                                                </td>
+                                                <td style="text-align:right">
+                                                    <span><t t-esc="'{0:,.0f}'.format(int(line['amount']))"/></span>
+                                                </td>
+                                                <td style="text-align:left">
+                                                    <span><t t-esc="line['note']"/></span>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <tr style="font-weight:bold;">
+                                        <td>
+                                            <span>薪資加項總計:</span>
+                                        </td>
+                                        <td align="right">
+
+                                        </td>
+                                        <td align="right">
+                                            <span><t t-esc="'{0:,.0f}'.format(int(all_payslip[i]['add_subtotal']))"/></span>
+                                        </td>
+                                    </tr>
+                                    <t t-foreach="all_payslip[i]['decrease_subtotal_line']" t-as="line">
+                                        <t t-if="line.amount != 0">
+                                            <tr>
+                                                <td>
+                                                    <span t-esc="line['name']"/>
+                                                    <t t-if="line['code'] == 'personal_tax'">
+                                                        <span>(超過$<t
+                                                            t-esc="'{0:,.0f}'.format(int(all_payslip[i]['over_tax_amount']))"/>
+                                                            )</span>
+                                                    </t>
+                                                </td>
+                                                <td style="text-align:right">
+                                                    <t t-esc="'{0:,.0f}'.format(int(line['amount']))"/>
+                                                </td>
+                                                <td style="text-align:left">
+                                                    <span><t t-esc="line['note']"/></span>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <t t-foreach="all_payslip[i]['other_decrease_subtotal_line']" t-as="line">
+                                        <t t-if="line.amount != 0">
+                                            <tr>
+                                                <td>
+                                                    <span t-esc="line['name']"/>
+                                                    <t t-if="line['note'] != ''">
+                                                        (<span t-esc="line['note']"/>)
+                                                    </t>
+                                                </td>
+                                                <td style="text-align:right">
+                                                    <t t-esc="'{0:,.0f}'.format(int(line['amount']))"/>
+                                                </td>
+                                                <td style="text-align:left">
+                                                    <span><t t-esc="line['note']"/></span>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <tr style="font-weight:bold;">
+                                        <td>
+                                            <span>薪資減項總計:</span>
+                                        </td>
+                                        <td style="font-weight:bold;" align="right">
+
+                                        </td>
+                                        <td  align="right">
+                                            <t t-esc="'{0:,.0f}'.format(int(all_payslip[i]['decrease_subtotal']))"/>
+                                        </td>
+                                    </tr>
+                                    <tr style="font-weight:bold;">
+                                        <td>
+                                            <span>實際發放</span>
+                                        </td>
+                                        <td style="font-weight:bold;text-align:right">
+
+                                        </td>
+                                        <td align="right">
+                                            <span><t t-esc="'{0:,.0f}'.format(int(all_payslip[i]['all_subtotal']))"/></span>
+
+                                        </td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+<!--                            <span>參考資料</span>-->
+
+<!--                            <table style="width:500px" class="table table-sm">-->
+<!--                                <thead>-->
+<!--                                    <tr>-->
+<!--                                        <th>名稱</th>-->
+<!--                                        <th>金額</th>-->
+<!--                                    </tr>-->
+<!--                                </thead>-->
+<!--                                <tbody>-->
+<!--                                    &lt;!&ndash; 確保正確遍歷 hr.payslip.line 資料 &ndash;&gt;-->
+<!--                            &lt;!&ndash;        <tr t-foreach="o.payslip_line_ids.filtered(lambda line: line.total != 0)" t-as="line">&ndash;&gt;-->
+<!--                                    <tr t-foreach="all_payslip[i]['payslip_line_ids'].filtered(lambda line: line.amount != 0)" t-as="line">-->
+<!--&lt;!&ndash;                                        <tr t-foreach="all_payslip[i]['payslip_line_ids']" t-as="line">&ndash;&gt;-->
+<!--                                        <td class="text-left">-->
+<!--                                            <span t-esc="line.name"/>-->
+<!--                                        </td>-->
+<!--                                        <td align="right">-->
+<!--                                            <span t-esc="line.amount"/>-->
+<!--                                            <span><t t-esc="'{0:,.0f}'.format(line.amount)"/></span>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                </tbody>-->
+<!--                            </table>-->
+
+<!--                            <table style="width:500px" class="table table-sm">-->
+<!--                                <tr>-->
+<!--                                    <td width="60%"><span>勞保級距</span></td>-->
+<!--                                    <td align="right">-->
+<!--                                        <span><t t-esc="'{0:,.0f}'.format(int(all_payslip[i]['labor_insurance_salary']))"/></span>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td><span>勞工職業災害保險級距</span></td>-->
+<!--                                    <td align="right">-->
+<!--                                        <span><t t-esc="'{0:,.0f}'.format(int(all_payslip[i]['labor_harm_insurance_salary']))"/></span>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td><span>健保級距</span></td>-->
+<!--                                    <td align="right">-->
+<!--                                        <span><t t-esc="'{0:,.0f}'.format(int(all_payslip[i]['health_insurance_salary']))"/></span>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td><span>勞退</span></td>-->
+<!--                                    <td align="right">-->
+<!--                                        <span><t t-esc="'{0:,.0f}'.format(int(all_payslip[i]['labor_pension_salary']))"/></span>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td><span>勞退提撥</span></td>-->
+<!--                                    <td align="right">-->
+<!--                                        <span><t t-esc="'{0:,.0f}'.format(int(all_payslip[i]['comp_labor_pension']))"/></span>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td><span>月薪</span></td>-->
+<!--                                    <td align="right">-->
+<!--                                        <span><t t-esc="'{0:,.0f}'.format(int(all_payslip[i]['basic_wage_sum']))"/></span>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                            </table>-->
+                        </center>
+                        <div style="width:500px;margin: 0 auto">
+                            <t t-esc="all_payslip[i]['note']"/>
+<!--                            <span>備註：</span>-->
+<!--                            <br/>-->
+<!--                            <span>1.年底獎金統一結算二代健保(獎金-健保投保薪資x4倍)x0.0211</span>-->
+<!--                            <br/>-->
+<!--                            <span>2.離職要先扣掉二代健保</span>-->
+                        </div>
+                    </div>
+                </t>
+                <t t-set="i" t-value="i + 1"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="sl_external_layout_boxed_no_header">
+        <t t-if="not o" t-set="o" t-value="doc"/>
+        <t t-if="not company">
+            <t t-if="company_id">
+                <t t-set="company" t-value="company_id"/>
+            </t>
+            <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                <t t-set="company" t-value="o.company_id.sudo()"/>
+            </t>
+            <t t-else="else">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+        </t>
+
+        <div t-attf-class="article o_report_layout_boxed o_company_#{company.id}_layout {{  'o_report_layout_background' if company.layout_background in ['Geometric', 'Custom']  else  '' }}"
+             t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"
+             t-att-data-oe-lang="o and o.env.context.get('lang')">
+            <t t-out="0"/>
+        </div>
+
+        <div t-attf-class="footer o_boxed_footer o_company_#{company.id}_layout">
+            <div class="text-center">
+                <div t-if="report_type == 'pdf'">
+                    Page:
+                    <span class="page"/>
+                    /
+                    <span class="topage"/>
+                </div>
+                <div t-if="report_type == 'pdf' and display_name_in_footer" class="text-muted">
+                    <span t-out="o.name">(document name)</span>
+                </div>
+            </div>
+        </div>
+    </template>
+</odoo>

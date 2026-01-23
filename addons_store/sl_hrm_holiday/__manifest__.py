@@ -24,6 +24,7 @@
         'views/starrylord_holiday_used_record.xml',
         'views/hr_public_holiday.xml',
         'views/starrylord_annual_leave_setting.xml',
+        'views/starrylord_holiday_cancel.xml',
         'wizard/wizard_holiday_batch_allocation.xml',
         'wizard/holiday_used_record_wizard_form.xml',
         'views/menu.xml',

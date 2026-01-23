@@ -1,0 +1,22 @@
+<odoo>
+    <!-- 多公司別資料存取規則 -->
+    <data noupdate="1">
+        <record id="sl_hrm_holiday_comp_rule" model="ir.rule">
+            <field name="name">Holiday multi company rule</field>
+            <field name="model_id" ref="model_starrylord_holiday_apply"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="sl_hrm_holiday_allocation_comp_rule" model="ir.rule">
+            <field name="name">Holiday Allocation multi company rule</field>
+            <field name="model_id" ref="model_starrylord_holiday_allocation"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="sl_hrm_holiday_use_record_comp_rule" model="ir.rule">
+            <field name="name">Holiday Allocation multi company rule</field>
+            <field name="model_id" ref="model_starrylord_holiday_used_record"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id', 'in', company_ids)]</field>
+        </record>
+    </data>
+</odoo>

@@ -13,6 +13,7 @@
                 <field name="completed_usage"/>
                 <field name="validity_start"/>
                 <field name="validity_end"/>
+                <field name="is_expired"/>
                 <field name="note"/>
             </list>
         </field>
@@ -43,6 +44,7 @@
                             <field name="duration_min"/>
                             <field name="duration_min_quarter"/>
                             <field name="completed_usage"/>
+                            <field name="is_expired"/>
                         </group>
 
                     </group>
@@ -96,8 +98,10 @@
                 <field name="validity_end" string="有效結束日"/>
                 <field name="duration_date" string="分配天數" sum="總天數"/>
                 <field name="duration_time" string="分配小時" sum="總小時"/>
+                <field name="duration_min" string="分配分鐘" sum="總分鐘"/>
                 <field name="last_time" string="剩餘時數" sum="總剩餘時數"/>
                 <field name="completed_usage" string="是否用完"/>
+                <field name="is_expired" string="是否過期"/>
                 <field name="note" string="備註"/>
             </list>
         </field>

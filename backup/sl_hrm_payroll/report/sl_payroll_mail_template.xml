@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="email_template_payroll_report" model="mail.template">
+        <field name="name">Payroll Reports: Send by mail</field>
+        <field name="model_id" ref="sl_hrm_payroll.model_hr_payslip"/>
+        <field name="email_from">service@kw.com.tw</field>
+        <field name="subject">{{object.salary_date.strftime('%Y-%m')}} - 薪資單</field>
+        <field name="body_html" type="html">
+            <div style="margin: 0px; padding: 0px;">
+                <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                    <t t-esc="object.salary_date.strftime('%Y-%m')"/>薪資單
+                </p>
+                <br/>
+
+                <br/>
+            </div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+</odoo>

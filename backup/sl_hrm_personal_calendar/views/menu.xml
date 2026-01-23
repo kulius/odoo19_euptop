@@ -1,0 +1,35 @@
+<odoo>
+
+	<menuitem id="starrylord_personal_calendar_menu" name="行事曆"
+			  groups="sl_hrm_holiday.group_starrylord_holiday_manager"
+			  web_icon="sl_hrm_personal_calendar,static/description/icon.png"
+			  sequence="250"
+	/>
+
+	<menuitem id="starrylord_personal_calendar" name="個人行事曆"
+			  parent="starrylord_personal_calendar_menu"
+			  action="hr_personal_calendar_action"
+			  groups="base.group_user"
+			  sequence="10"
+	/>
+
+	<menuitem id="starrylord_personal_calendar_manager" name="公司行事曆"
+			  parent="starrylord_personal_calendar_menu"
+			  action="hr_personal_calendar_manager_action"
+			  groups="sl_hrm_holiday.group_starrylord_holiday_manager"
+			  sequence="11"
+	/>
+
+	<menuitem id="starrylord_personal_calendar_setting" name="設定"
+			  parent="starrylord_personal_calendar_menu"
+			  groups="sl_hrm_holiday.group_starrylord_holiday_manager"
+			  sequence="20"
+	/>
+
+    <menuitem id="starrylord_hr_schedule" name="班別設定"
+              parent="hr.menu_human_resources_configuration"
+              action="hr_schedule_action"
+              sequence="12"
+    />
+
+</odoo>

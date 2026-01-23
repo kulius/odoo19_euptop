@@ -1,0 +1,33 @@
+<odoo>
+
+    <record id="wizard_hr_attendance_check_form_view" model="ir.ui.view">
+        <field name="name">wizard.hr.attendance.check.form</field>
+        <field name="model">wizard.hr.attendance.check</field>
+        <field name="arch" type="xml">
+            <form string="請輸入日期區間">
+                <group>
+                    <field name="start_day"/>
+                    <field name="end_day"/>
+                </group>
+                <div>
+                    註：報表資料依照日期重新產生
+                </div>
+                <footer>
+                    <button string="產生" class="btn-primary" name="add" type="object"/>
+                    <button string="刪除出勤紀錄" class="btn-primary" name="delete" type="object"/>
+                    <button string="關閉" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- <record id="wizard_hr_attendance_check_action" model="ir.actions.act_window">
+        <field name="name">刷卡紀錄報表-日期區間</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">wizard.hr.attendance.check</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="wizard_hr_attendance_check_form_view"/>
+        <field name="target">new</field>
+    </record> -->
+
+</odoo>

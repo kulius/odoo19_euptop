@@ -1,0 +1,34 @@
+<odoo>
+    <record id="wizard_health_insurance_change" model="ir.ui.view">
+        <field name="name">wizard.health.insurance.change</field>
+        <field name="model">wizard.health.insurance.change</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="start_date"/>
+                </group>
+                <group>
+                    <group>
+                        <field name="change_reason_selection_health_insurance"/>
+<!--                        <field name="health_rate" required="change_reason_selection_health_insurance == 'add'"-->
+<!--                               invisible="change_reason_selection_health_insurance != 'add'"/>-->
+                        <field name="health_insurance_gap_id"
+                               widget="selection"
+                               required="change_reason_selection_health_insurance in ['add', 'promote']"
+                               invisible="change_reason_selection_health_insurance not in ['add', 'promote']"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="add" string="新增" type="object" default_focus="1" class="oe_highlight"/>
+                    <button string="取消" class="oe_link" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_health_insurance_change" model="ir.actions.act_window">
+        <field name="name">健保異動</field>
+        <field name="res_model">wizard.health.insurance.change</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

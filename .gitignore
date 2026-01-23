@@ -5,7 +5,6 @@
 .vscode
 .venv
 備份
-backup
 odoo-19.0
 
 __pycache__/

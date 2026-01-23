@@ -10,3 +10,4 @@ from . import res_config_settings
 from . import starrylord_holiday_used_record
 from . import starrylord_tier_definition
 from . import starrylord_holiday_job
+from . import starrylord_holiday_cancel

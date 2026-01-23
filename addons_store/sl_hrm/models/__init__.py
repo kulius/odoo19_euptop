@@ -22,3 +22,4 @@ from . import hr_labor_pension_gap
 from . import hr_labor_pension_history
 from . import hr_insurance_doc
 from . import hr_salary_tax_gap
+from . import sl_res_bank

@@ -39,17 +39,31 @@
         <field name="model">hr.attendance.check</field>
         <field name="arch" type="xml">
             <list string="刷卡紀錄管理"
-                decoration-danger="warning_id == '1'">
+                decoration-danger="attendance_anomaly_level == '1'">
                 <field name="warning_id" column_invisible="1" />
                 <field name="employee_number" />
                 <field name="employee_id" />
                 <field name="department_id" />
                 <field name="date" />
                 <field name="day_of_week" />
-                <field name="work_check_start_str" />
-                <field name="work_check_end_str" />
+                <!-- 既有整體刷卡顯示 -->
+                <field name="work_check_start_str" string="打卡開始時間"/>
+                <field name="work_check_end_str" string="打卡結束時間"/>
+
+                <!-- ===== 新增：正常出勤 ===== -->
+                <field name="normal_check_start_str" string="正常上班" />
+                <field name="normal_check_end_str" string="正常下班" />
+
+                <!-- ===== 新增：加班 ===== -->
+                <field name="overtime_check_start_str" string="加班上班" />
+                <field name="overtime_check_end_str" string="加班下班" />
+
+                <!-- ===== 新增：異常狀況 ===== -->
+                <field name="attendance_anomaly_str" string="出勤異常內容" />
+                <field name="attendance_anomaly_level" string="是否異常" column_invisible="1"/>
+
                 <!-- <field name="time_diff" /> -->
-                <field name="work_memo" />
+                <field name="work_memo" column_invisible="1"/>
                 <field name="holiday_memo" />
             </list>
         </field>
@@ -60,16 +74,20 @@
         <field name="model">hr.attendance.check</field>
         <field name="arch" type="xml">
             <list string="我的刷卡紀錄"
-                decoration-danger="warning_id == '1'">
+                decoration-danger="attendance_anomaly_level == '1'">
                 <field name="warning_id" column_invisible="1" />
                 <field name="date" />
                 <field name="work_check_start_str" />
                 <field name="work_check_end_str" />
-                <field name="work_memo" />
+                <!-- ===== 新增：異常狀況 ===== -->
+                <field name="attendance_anomaly_str" string="出勤異常內容" />
+                <field name="attendance_anomaly_level" string="是否異常" column_invisible="1"/>
+
+                <field name="work_memo" column_invisible="1"/>
                 <field name="holiday_memo" />
                 <field name="warning_id" column_invisible="1" />
                 <button name="action_create_attendance_repair"
-                    string="補卡說明" type="object" invisible="warning_id == '0'" class="btn-primary" />
+                    string="補卡說明" type="object" invisible="attendance_anomaly_level == '0'" class="btn-primary" />
             </list>
         </field>
     </record>

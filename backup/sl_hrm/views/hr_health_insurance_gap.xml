@@ -1,0 +1,42 @@
+<odoo>
+    <!-- Action to open the view -->
+    <record model="ir.actions.act_window" id="action_hr_health_insurance_gap">
+        <field name="name">健保級距設定</field>
+        <field name="res_model">hr.health.insurance.gap</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <!-- Tree view -->
+    <record model="ir.ui.view" id="view_hr_health_insurance_gap_tree">
+        <field name="name">hr.health.insurance.gap.tree</field>
+        <field name="model">hr.health.insurance.gap</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom" default_order="year desc, insurance_level asc">
+                <field name="year"/>
+                <field name="insurance_level"/>
+                <field name="insurance_salary"/>
+                <!-- <field name="employee_pay"/>
+                <field name="company_pay"/>
+                <field name="government_pay"/>
+                <field name="legal_pay"/> -->
+            </tree>
+        </field>
+    </record>
+    <!-- Form view -->
+    <record model="ir.ui.view" id="view_hr_health_insurance_gap_form">
+        <field name="name">hr.health.insurance.gap.form</field>
+        <field name="model">hr.health.insurance.gap</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="year"/>
+                    <field name="insurance_level"/>
+                    <field name="insurance_salary"/>
+                    <!-- <field name="employee_pay"/>
+                    <field name="company_pay"/>
+                    <field name="government_pay"/>
+                    <field name="legal_pay"/> -->
+                </group>
+            </form>
+        </field>
+    </record>
+</odoo>

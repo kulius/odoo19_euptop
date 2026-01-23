@@ -1,0 +1,13 @@
+<odoo>
+    <record id="starrylord_view_work_location_form_inherit" model="ir.ui.view">
+        <field name="name">starrylord.work.location.form.inherit</field>
+        <field name="model">hr.work.location</field>
+        <field name="inherit_id" ref="hr.hr_work_location_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="code" string="代碼"/>
+                <field name="is_use_for_quotation"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

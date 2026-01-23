@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.module.category" id="module_category_sl_hrm">
+        <field name="name">SL-人資管理</field>
+        <field name="description">Starry Lord 人資管理</field>
+        <field name="sequence">15</field>
+    </record>
+
+    <record id="group_sl_hrm_director" model="res.groups">
+        <field name="name">人資專員</field>
+        <field name="category_id" ref="sl_hrm.module_category_sl_hrm"/>
+        <field name="comment">HR專員, 設定員工資料</field>
+    </record>
+
+    <record id="group_sl_hrm_manager" model="res.groups">
+        <field name="name">人資管理員</field>
+        <field name="category_id" ref="sl_hrm.module_category_sl_hrm"/>
+        <field name="comment">HR 管理人員</field>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+</odoo>

@@ -26,9 +26,9 @@
                         <field name="is_current_user" string="是否為目前使用者" invisible="1" />
                         <field name="is_readonly" string="是否維讀" invisible="1" />
                     </group>
-                    <group>
+                    <group string="正常出勤時間(調整後)" col="2">
                         <group>
-                            <label for="hour_from" />
+                            <label for="hour_from" string="上班打卡"/>
                             <div class="o_row o_row_readonly">
                                 <field name="hour_from" readonly="is_readonly" />
                                 <label for="hour_from" string=" : " />
@@ -36,7 +36,7 @@
                             </div>
                         </group>
                         <group>
-                            <label for="hour_to" />
+                            <label for="hour_to" string="下班打卡"/>
                             <div class="o_row o_row_readonly">
                                 <field name="hour_to" readonly="is_readonly" />
                                 <label for="hour_to" string=" : " />
@@ -44,10 +44,32 @@
                             </div>
                         </group>
                     </group>
-                    <group>
+                    <group string="加班時間(調整後)" col="2">
+
+                        <group>
+                            <label string="加班開始" for="ot_hour_from"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="ot_hour_from" readonly="is_readonly"/>
+                                <label for="ot_hour_from" string=" : "/>
+                                <field name="ot_min_from" readonly="is_readonly"/>
+                            </div>
+                        </group>
+
+                        <group>
+                            <label string="加班結束" for="ot_hour_to"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="ot_hour_to" readonly="is_readonly"/>
+                                <label for="ot_hour_to" string=" : "/>
+                                <field name="ot_min_to" readonly="is_readonly"/>
+                            </div>
+                        </group>
+
+                    </group>
+
+                    <group string="異常說明" col="2">
                         <group>
                             <field name="sl_attendance_check_id"
-                                domain="[('user_id', '=', uid),]"
+                                domain="[('employee_id', '=', employee_id)]"
                                 readonly="is_readonly"
                                 options="{'no_create': True, 'no_open': True}" />
                             <field name="notes" readonly="is_readonly" />
@@ -175,9 +197,9 @@
                         <field name="is_current_user" string="是否為目前使用者" invisible="1" />
                         <field name="is_readonly" string="是否維讀" invisible="1" />
                     </group>
-                    <group>
+                    <group string="正常出勤時間(調整後)" col="2">
                         <group>
-                            <label for="hour_from" />
+                            <label for="hour_from" string="上班打卡"/>
                             <div class="o_row o_row_readonly">
                                 <field name="hour_from" readonly="is_readonly" />
                                 <label for="hour_from" string=" : " />
@@ -185,7 +207,7 @@
                             </div>
                         </group>
                         <group>
-                            <label for="hour_to" />
+                            <label for="hour_to" string="下班打卡"/>
                             <div class="o_row o_row_readonly">
                                 <field name="hour_to" readonly="is_readonly" />
                                 <label for="hour_to" string=" : " />
@@ -193,7 +215,28 @@
                             </div>
                         </group>
                     </group>
-                    <group>
+                    <group string="加班時間(調整後)" col="2">
+
+                        <group>
+                            <label string="加班開始" for="ot_hour_from"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="ot_hour_from" readonly="is_readonly"/>
+                                <label for="ot_hour_from" string=" : "/>
+                                <field name="ot_min_from" readonly="is_readonly"/>
+                            </div>
+                        </group>
+
+                        <group>
+                            <label string="加班結束" for="ot_hour_to"/>
+                            <div class="o_row o_row_readonly">
+                                <field name="ot_hour_to" readonly="is_readonly"/>
+                                <label for="ot_hour_to" string=" : "/>
+                                <field name="ot_min_to" readonly="is_readonly"/>
+                            </div>
+                        </group>
+
+                    </group>
+                    <group string="異常說明" col="2">
                         <group>
                             <field name="sl_attendance_check_id" string="出勤紀錄"
                                 options="{'no_create': True, 'no_open': True}"

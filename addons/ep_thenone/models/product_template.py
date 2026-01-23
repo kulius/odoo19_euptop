@@ -14,6 +14,10 @@ class ProductTemplate(models.Model):
         string='供應商編號',
         help='供應商提供的產品編號'
     )
+    shopify_sku = fields.Char(
+        string='Shopify SKU',
+        help='Shopify 平台上的產品 SKU'
+    )
 
 class ProductProduct(models.Model):
     _inherit = 'product.product'

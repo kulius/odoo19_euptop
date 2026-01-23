@@ -37,7 +37,56 @@ class StarryLordHolidayAllocation(models.Model):
 
     employee_number = fields.Char(string='員工編號')
 
-    
+    is_expired = fields.Boolean(
+        string='已過期',
+        compute='_compute_is_expired',
+        store=True,
+        index=True,
+        help='依有效期限自動判斷，validity_end < 今日'
+    )
+
+    # 補上過期思考
+    @api.depends('validity_end')
+    def _compute_is_expired(self):
+        """
+        判斷休假分配是否已過期
+        規則：validity_end < today
+        """
+        today = fields.Date.today()
+        for rec in self:
+            if rec.validity_end:
+                rec.is_expired = rec.validity_end < today
+            else:
+                rec.is_expired = False
+
+    # =========================
+    # Cron：每日更新過期狀態
+    # =========================
+    def _cron_update_expired_allocation(self):
+        """
+        每日由 cron 呼叫，確保 is_expired 狀態正確
+        （避免 record 沒被讀取時 compute 不刷新）
+        """
+        today = fields.Date.today()
+
+        # 找出「理論上已過期，但狀態尚未更新」的 allocation
+        allocations = self.search([
+            ('validity_end', '<', today),
+            ('is_expired', '=', False),
+        ])
+
+        if allocations:
+            allocations.write({'is_expired': True})
+
+        # 同時保護性處理：若有效期限被延長，要能自動恢復為未過期
+        allocations_restore = self.search([
+            ('validity_end', '>=', today),
+            ('is_expired', '=', True),
+        ])
+
+        if allocations_restore:
+            allocations_restore.write({'is_expired': False})
+
     def _compute_display_name(self):
         for rec in self:
             name = rec.holiday_type_id.name

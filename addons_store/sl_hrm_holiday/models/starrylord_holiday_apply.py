@@ -3,6 +3,7 @@ from datetime import timedelta, time, date
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError, ValidationError
 from dateutil.relativedelta import relativedelta
+from collections import defaultdict
 
 
 class StarryLordHolidayApply(models.Model):
@@ -89,6 +90,230 @@ class StarryLordHolidayApply(models.Model):
     
     # 日曆視圖顯示名稱
     calendar_display_name = fields.Char(string='日曆顯示', compute='_compute_calendar_display_name')
+
+    # 添加銷假單
+    cancel_ids = fields.One2many(
+        'starrylord.holiday.cancel',
+        'holiday_apply_id',
+        string='銷假單'
+    )
+
+    # === HR 專用：已銷假總時數（只算 done 的銷假單）===
+    canceled_hours_total = fields.Float(
+        string='已銷假總時數',
+        compute='_compute_hr_hours',
+        store=False
+    )
+
+    # === HR 專用：淨請假時數（帳務實際值）===
+    net_leave_hours = fields.Float(
+        string='淨請假時數',
+        compute='_compute_hr_hours',
+        store=False
+    )
+
+    # 20260119 添加管控流程，勾稽出勤紀錄
+    # === 出勤反向檢核 ===
+    leave_attendance_check_state = fields.Selection(
+        [
+            ('pending', '尚未檢核'),
+            ('ok', '出勤正常'),
+            ('ng', '出勤異常'),
+        ],
+        string='出勤檢核結果',
+        default='pending',
+        tracking=True
+    )
+
+    leave_attendance_process_state = fields.Selection(
+        [
+            ('no_issue', '無需處理'),
+            ('pending', '待銷假'),
+            ('done', '已處理'),
+        ],
+        string='出勤異常處理狀態',
+        default='no_issue',
+        tracking=True
+    )
+
+    leave_attendance_abnormal_reason = fields.Text(
+        string='出勤異常說明',
+        tracking=True
+    )
+
+    leave_attendance_ids = fields.Many2many(
+        'hr.attendance',
+        string='請假期間打卡',
+        copy=False
+    )
+
+    # 20260119 檢查出勤的按鈕行為
+
+    # === 核心：請假出勤反向檢核（以 used.record 為真相）===
+    def action_check_leave_attendance(self):
+        """
+        請假出勤反向檢核（以 used.record 為真相）
+
+        檢核邏輯：
+        - 只檢查「帳上仍算請假」的日期
+        - 僅檢查該請假日「本地日曆日內」的打卡
+        """
+        Attendance = self.env['hr.attendance'].sudo()
+        Used = self.env['starrylord.holiday.used.record'].sudo()
+
+        for rec in self:
+            used_map = defaultdict(float)
+
+            used_recs = Used.search([
+                ('holiday_apply_id', '=', rec.id),
+            ])
+
+            for ur in used_recs:
+                if ur.holiday_day:
+                    used_map[ur.holiday_day] += (ur.hours or 0.0)
+
+            abnormal_days = []
+            abnormal_attendances = self.env['hr.attendance']
+
+            for day in sorted(used_map.keys()):
+                net_hours = used_map[day]
+                if net_hours <= 0:
+                    continue
+
+                # === 請假日「本地日曆日」轉 UTC ===
+                local_start = datetime.datetime.combine(day, time.min)
+                local_end = datetime.datetime.combine(day, time.max)
+
+                # 台灣時區 -> UTC
+                day_start_utc = local_start - timedelta(hours=8)
+                day_end_utc = local_end - timedelta(hours=8)
+
+                attends = Attendance.search([
+                    ('employee_id', '=', rec.employee_id.id),
+                    ('check_in', '>=', day_start_utc),
+                    ('check_in', '<=', day_end_utc),
+                ])
+
+                if attends:
+                    abnormal_days.append(day)
+                    abnormal_attendances |= attends
+
+            if abnormal_days:
+                rec.leave_attendance_check_state = 'ng'
+                rec.leave_attendance_process_state = 'pending'
+                rec.leave_attendance_ids = [(6, 0, abnormal_attendances.ids)]
+                rec.leave_attendance_abnormal_reason = rec._build_leave_abnormal_reason(
+                    abnormal_days=abnormal_days,
+                    used_map=used_map,
+                    abnormal_attendances=abnormal_attendances,
+                )
+            else:
+                rec.leave_attendance_check_state = 'ok'
+                rec.leave_attendance_process_state = 'no_issue'
+                rec.leave_attendance_ids = [(5, 0, 0)]
+                rec.leave_attendance_abnormal_reason = False
+
+    # === 組合異常說明 ===
+    def _build_leave_abnormal_reason(self, abnormal_days, used_map, abnormal_attendances):
+        """
+        逐日呈現請假出勤異常
+
+        abnormal_days: list[date]，實際有打卡的請假日期
+        used_map: dict {date: net_leave_hours}
+        abnormal_attendances: hr.attendance recordset
+        """
+        lines = []
+        lines.append('請假期間發現實際出勤紀錄')
+        lines.append('')
+
+        # === 將打卡依日期分組（以 check_in 為準）===
+        attendance_by_day = defaultdict(list)
+        for att in abnormal_attendances:
+            if not att.check_in or not att.check_out:
+                continue
+            day = (att.check_in + timedelta(hours=8)).date()
+            attendance_by_day[day].append(att)
+
+        # === 逐日輸出（僅異常日，依日期排序）===
+        for day in sorted(abnormal_days):
+            net_hours = round(used_map.get(day, 0.0), 2)
+
+            lines.append(
+                f'【{day.strftime("%Y-%m-%d")}｜帳上仍算請假 {net_hours:.1f} 小時】'
+            )
+
+            day_attendances = attendance_by_day.get(day)
+            if day_attendances:
+                lines.append('實際打卡：')
+                for att in day_attendances:
+                    cin = (att.check_in + timedelta(hours=8)).strftime('%H:%M')
+                    cout = (att.check_out + timedelta(hours=8)).strftime('%H:%M')
+                    lines.append(f'  - {cin} ~ {cout}')
+            else:
+                lines.append('實際打卡：無')
+
+            lines.append('')  # 日期區塊分隔
+
+        return '\n'.join(lines).strip()
+
+    # === 銷假完成後，由銷假單呼叫以標記處理完成 ===
+    def action_mark_leave_attendance_done(self):
+        for rec in self:
+            if rec.leave_attendance_check_state != 'ng':
+                continue
+            rec.leave_attendance_process_state = 'done'
+
+    # === 銷假完成後呼叫（建議在銷假單 done 時觸發）===
+    def mark_leave_attendance_done(self):
+        for rec in self:
+            if rec.leave_attendance_check_state == 'ng':
+                rec.leave_attendance_process_state = 'done'
+
+    @api.depends(
+        'cancel_ids.state',
+        'cancel_ids.cancel_hours',
+        'used_record_ids.hours'
+    )
+    def _compute_hr_hours(self):
+        """
+        HR 專用計算：
+        - canceled_hours_total：已生效銷假(done)的總時數
+        - net_leave_hours：used.record.hours 正負加總（帳務最準）
+        """
+        for rec in self:
+            # 1. 已銷假總時數（只算 done）
+            canceled = 0.0
+            for cancel in rec.cancel_ids:
+                if cancel.state == 'done':
+                    canceled += (cancel.cancel_hours or 0.0)
+            rec.canceled_hours_total = canceled
+
+            # 2. 淨請假時數（帳務實際）
+            # 正數 = 請假使用
+            # 負數 = 銷假沖銷
+            net = 0.0
+            for ur in rec.used_record_ids:
+                net += (ur.hours or 0.0)
+
+            # 理論上不會 < 0，但保護一下
+            rec.net_leave_hours = max(net, 0.0)
+
+    # 建立銷假單行為
+    def action_open_cancel_wizard(self):
+        self.ensure_one()
+
+        if self.state != 'agree':
+            raise UserError(_('只有已同意的請假單才能建立銷假單。'))
+
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'starrylord.holiday.cancel.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_holiday_apply_id': self.id,
+            }
+        }
 
     @api.depends('employee_id', 'holiday_allocation_id', 'state', 'holiday_time_total')
     def _compute_calendar_display_name(self):
@@ -473,104 +698,108 @@ class StarryLordHolidayApply(models.Model):
 
     def create_and_check_allocation(self):
         for rec in self:
-            for holiday_allocation in rec.used_record_ids:
-                holiday_allocation.unlink()
+            # 先清掉舊的使用紀錄
+            rec.used_record_ids.unlink()
 
-            all_time = rec.holiday_time_total  # 請假單申請總時數
-            apply_from = self.merge_day_hour_time(self.start_day, self.hour_from_m.hour, self.min_from_m.minute)
-            apply_to = self.merge_day_hour_time(self.end_day, self.hour_to_m.hour, self.min_to_m.minute)
+            all_time = rec.holiday_time_total
+            apply_from = rec.merge_day_hour_time(rec.start_day, rec.hour_from_m.hour, rec.min_from_m.minute)
+            apply_to = rec.merge_day_hour_time(rec.end_day, rec.hour_to_m.hour, rec.min_to_m.minute)
+
             not_completed_allocation = []
             if rec.holiday_allocation_id.is_distribute:
                 not_completed_allocation = self.env['starrylord.holiday.allocation'].sudo().search(
-                    [('employee_id', '=', rec.employee_id.id)]).filtered(
-                    lambda
-                        x: x.holiday_type_id == rec.holiday_allocation_id
-                           and x.validity_start <= rec.start_day and x.validity_end >= rec.end_day and x.completed_usage is False).sorted(key=lambda x: x.validity_start)
+                    [('employee_id', '=', rec.employee_id.id)]
+                ).filtered(
+                    lambda x: x.holiday_type_id == rec.holiday_allocation_id
+                    and x.validity_start <= rec.start_day
+                    and x.validity_end >= rec.end_day
+                    and not x.completed_usage
+                ).sorted(key=lambda x: x.validity_start)
 
-            # 產生休假使用紀錄
-            # 根據休假單的日期起迄每一天產生一筆休假使用明細
-            start = apply_from
-            end = apply_to
-            current_datetime = start
-            while current_datetime <= end:
+            current_datetime = apply_from
+
+            while current_datetime <= apply_to:
+                # === 新增：統一用行事曆判斷是否為工作日（含國定假日） ===
+                day_start = current_datetime.replace(hour=0, minute=0, second=0, microsecond=0)
+                day_end = day_start + timedelta(days=1)
+
+                day_work_hours = rec.employee_id.schedule_id.calc_personal_calendar_time(
+                    rec.employee_id, day_start, day_end
+                )
+
+                # 非工作日（國定假日 / 停班 / 未排班）-> 不扣假
+                if day_work_hours <= 0:
+                    current_datetime = day_end
+                    continue
+
+                # === 以下維持原本的逐日扣假邏輯 ===
                 current_leave_hours = 0
-                worktime = self.env['hr.schedule.worktime'].sudo().search(
-                    [('worktime_id', '=', self.employee_id.schedule_id.id),
-                     ('date_type', '=', 'schedule'),
-                     ('dayofweek', '=', current_datetime.date().weekday()),
-                     ])
+
+                worktime = self.env['hr.schedule.worktime'].sudo().search([
+                    ('worktime_id', '=', rec.employee_id.schedule_id.id),
+                    ('date_type', '=', 'schedule'),
+                    ('dayofweek', '=', current_datetime.date().weekday()),
+                ])
+
                 if worktime:
-                    # 你需要將 float 時間轉換為 'HH:MM' 格式的字符串
-                    am_start_time = self.convert_float_time_to_string(worktime.am_start)
-                    am_end_time = self.convert_float_time_to_string(worktime.am_end)
-                    pm_start_time = self.convert_float_time_to_string(worktime.pm_start)
-                    pm_end_time = self.convert_float_time_to_string(worktime.pm_end)
-                    # 添加上午和下午的工作時間
                     shifts = []
-                    if worktime.am_start and worktime.am_end:  # 有上午班
-                        shifts.append((am_start_time, am_end_time))
-                    if worktime.pm_start and worktime.pm_end:  # 有下午班
-                        shifts.append((pm_start_time, pm_end_time))
+                    if worktime.am_start and worktime.am_end:
+                        shifts.append((
+                            rec.convert_float_time_to_string(worktime.am_start),
+                            rec.convert_float_time_to_string(worktime.am_end)
+                        ))
+                    if worktime.pm_start and worktime.pm_end:
+                        shifts.append((
+                            rec.convert_float_time_to_string(worktime.pm_start),
+                            rec.convert_float_time_to_string(worktime.pm_end)
+                        ))
 
-                    if shifts:
-                        for shift in shifts:
-                            work_start_str, work_end_str = shift
-                            work_start = datetime.datetime.combine(current_datetime,
-                                                                   datetime.datetime.strptime(work_start_str,
-                                                                                              "%H:%M").time())
-                            work_end = datetime.datetime.combine(current_datetime,
-                                                                 datetime.datetime.strptime(work_end_str,
-                                                                                            "%H:%M").time())
+                    for start_str, end_str in shifts:
+                        work_start = datetime.datetime.combine(
+                            current_datetime.date(),
+                            datetime.datetime.strptime(start_str, "%H:%M").time()
+                        )
+                        work_end = datetime.datetime.combine(
+                            current_datetime.date(),
+                            datetime.datetime.strptime(end_str, "%H:%M").time()
+                        )
 
-                            # Calculate leave hours within the work shift
-                            if work_start < end < work_end:
-                                current_leave_hours += (end - max(start, work_start)).seconds / 3600
-                            elif work_start < start < work_end:
-                                current_leave_hours += (min(end, work_end) - start).seconds / 3600
-                            elif start <= work_start and work_end <= end:
-                                current_leave_hours += (work_end - work_start).seconds / 3600
-                                
-                    allocation_index = 0
-                    if rec.holiday_allocation_id.is_distribute:
-                        while current_leave_hours > 0 and allocation_index < len(not_completed_allocation):
-                            # if holiday_allocation.time_type == 'half':
-                            #     minutes = float(holiday_allocation.duration_min) / 60
-                            # else:
-                            #     minutes = float(holiday_allocation.duration_min_quarter)
-                            # 分配的時數
-                            # allocated_hours = ((holiday_allocation.duration_date * 8) + holiday_allocation.duration_time + minutes)
-                            # total_used_hours = 0  # 總使用時數
-                            # for use in holiday_allocation.used_record_ids:
-                            #     total_used_hours += use.hours
-                            # can_use: 剩餘可使用時數
-                            # can_use = allocated_hours - total_used_hours
-                            holiday_allocation = not_completed_allocation[allocation_index]
-                            can_use = holiday_allocation.last_time
+                        if work_start < apply_to < work_end:
+                            current_leave_hours += (apply_to - max(apply_from, work_start)).seconds / 3600
+                        elif work_start < apply_from < work_end:
+                            current_leave_hours += (min(apply_to, work_end) - apply_from).seconds / 3600
+                        elif apply_from <= work_start and work_end <= apply_to:
+                            current_leave_hours += (work_end - work_start).seconds / 3600
 
-                            if can_use >= current_leave_hours:
-                                self.env['starrylord.holiday.used.record'].sudo().create({
-                                    'holiday_allocation_id': holiday_allocation.id,
-                                    'holiday_apply_id': rec.id,
-                                    'hours': current_leave_hours,
-                                    'holiday_day': current_datetime.date()
-                                })
-                                holiday_allocation.last_time -= current_leave_hours
-                                all_time -= current_leave_hours
-                                current_leave_hours = 0  # 已經請完當天了
-                            else:
-                                self.env['starrylord.holiday.used.record'].sudo().create({
-                                    'holiday_allocation_id': holiday_allocation.id,
-                                    'holiday_apply_id': rec.id,
-                                    'hours': can_use,
-                                    'holiday_day': current_datetime.date()
-                                })
-                                current_leave_hours -= can_use
-                                all_time -= can_use
-                                holiday_allocation.last_time = 0
-                                allocation_index += 1  # 換下一筆 allocation
+                allocation_index = 0
+                while current_leave_hours > 0 and allocation_index < len(not_completed_allocation):
+                    allocation = not_completed_allocation[allocation_index]
+                    can_use = allocation.last_time
 
-                current_datetime = current_datetime + timedelta(days=1)
-                current_datetime = current_datetime.replace(hour=0, minute=0, second=0, microsecond=0)
+                    if can_use >= current_leave_hours:
+                        self.env['starrylord.holiday.used.record'].sudo().create({
+                            'holiday_allocation_id': allocation.id,
+                            'holiday_apply_id': rec.id,
+                            'hours': current_leave_hours,
+                            'holiday_day': current_datetime.date(),
+                        })
+                        allocation.last_time -= current_leave_hours
+                        all_time -= current_leave_hours
+                        current_leave_hours = 0
+                    else:
+                        self.env['starrylord.holiday.used.record'].sudo().create({
+                            'holiday_allocation_id': allocation.id,
+                            'holiday_apply_id': rec.id,
+                            'hours': can_use,
+                            'holiday_day': current_datetime.date(),
+                        })
+                        allocation.last_time = 0
+                        current_leave_hours -= can_use
+                        all_time -= can_use
+                        allocation_index += 1
+
+                current_datetime = day_end
+
             if rec.holiday_allocation_id.is_distribute and all_time > 0:
                 raise UserError('該休假類型剩餘時數不足')
 

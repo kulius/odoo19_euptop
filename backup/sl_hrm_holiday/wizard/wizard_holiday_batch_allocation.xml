@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="wizard_holiday_batch_allocation_form_view" model="ir.ui.view">
+        <field name="name">wizard.holiday.batch.allocation.form</field>
+        <field name="model">wizard.holiday.batch.allocation</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="year"/>
+                </group>
+                <group>
+                    <group>
+                        <field name="holiday_type_id"/>
+                        <field name="duration_date" required="time_type == 'day'"/>
+                        <field name="duration_time" invisible="time_type == 'day'"
+                               required="time_type == 'hour'"/>
+                        <field name="duration_min"
+                               invisible="time_type != 'half'"
+                               required="time_type == 'half'"/>
+                        <field name="duration_min_quarter"
+                               invisible="time_type != 'quarter'"
+                               required="time_type == 'quarter'"
+                        />
+                        <field name="time_type"/>
+                    </group>
+                    <group>
+                        <field name="employee_ids" widget="many2many_tags"/>
+                        <field name="distribute_time"/>
+                        <field name="validity_start"/>
+                        <field name="validity_end"/>
+                    </group>
+                </group>
+                <label for="note"/>
+                <field name="note"/>
+                <footer>
+                    <button string="產生" class="btn-primary" name="allocation_add" type="object"/>
+                    <button string="關閉" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="wizard_holiday_batch_allocation_action" model="ir.actions.act_window">
+        <field name="name">批次新增休假分配</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">wizard.holiday.batch.allocation</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="wizard_holiday_batch_allocation_form_view"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

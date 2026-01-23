@@ -460,6 +460,7 @@ class HrPayslip(models.Model):
                 [
                     ('employee_id', '=', payslip.employee_id.id),
                     ('state', '=', 'agree'),
+                    ('hr_confirm_state', '=', 'confirmed'),  # 新增條件：需人資確認
                     ('start_day', '>=', payslip.date_from),
                     ('start_day', '<=', payslip.date_to),
                     '|',
@@ -470,7 +471,7 @@ class HrPayslip(models.Model):
                     # type = 'cash' 不檢查 allocation_validity_end
                     ('type', '=', 'cash'),
                 ]
-            ) 
+            )
 
             # 遍历加班申请列表并累加每个日期和employee_id的小时数
             for overtime_apply in on_day_overtime_holiday_apply:
@@ -606,6 +607,7 @@ class HrPayslip(models.Model):
                     [
                         ('employee_id', '=', payslip.employee_id.id),
                         ('state', '=', 'agree'),
+                        ('hr_confirm_state', '=', 'confirmed'),  # 新增條件：需人資確認
                         ('start_day', '>=', payslip.date_from),
                         ('start_day', '<=', payslip.date_to),
                         '|',

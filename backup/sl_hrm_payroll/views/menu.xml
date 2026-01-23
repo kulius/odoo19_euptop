@@ -1,0 +1,145 @@
+<odoo>
+    <menuitem id="sl_hrm_payroll_menu" name="薪資"
+              groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"
+              web_icon="sl_hrm_payroll,static/description/payroll.png"
+              sequence="275" >
+    </menuitem>
+
+<!--    <menuitem-->
+<!--            id="menu_hr_payslip_user"-->
+<!--            name="我的薪資單"-->
+<!--            parent="sl_hrm_payroll_menu"-->
+<!--            action="hr_payslip_user_action"-->
+<!--            groups="sl_hrm_payroll.group_sl_hrm_payroll"-->
+<!--            sequence="2"/>-->
+
+    <menuitem
+            id="menu_hr_payslip_sheet_manager"
+            name="薪資管理"
+            parent="sl_hrm_payroll_menu"
+            action="action_sl_hr_payslip_sheet_manager"
+            sequence="3"
+            groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"/>
+
+    <menuitem
+            id="menu_hr_payslip_manager"
+            name="員工薪資單管理"
+            parent="sl_hrm_payroll_menu"
+            action="hr_payslip_manager_action"
+            sequence="5"
+            groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"/>
+
+    <menuitem
+            id="menu_hr_payslip_report_manager"
+            name="員工薪資報表"
+            parent="sl_hrm_payroll_menu"
+            action="action_payslip_sheet_report_wizard"
+            sequence="5"
+            groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"/>
+    <!-- <menuitem
+            id="menu_hr_payslip_sheet_report_manager"
+            name="薪資單報表"
+            parent="menu_hr_payslip_report_manager"
+            sequence="5"
+            groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"/> -->
+    <!-- <menuitem
+            id="menu_hr_payslip_detail_pivot_manager"
+            name="薪資分析報表"
+            parent="menu_hr_payslip_report_manager"
+            action="hr_payslip_line_pivot_action"
+            sequence="6"
+            groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"/> -->
+<menuitem
+        id="menu_starrylord_employee_payslip_setting"
+        name="薪資設定"
+        parent="sl_hrm_payroll_menu"
+        action="starrylord_employee_payslip_setting_action"
+        groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"
+        sequence="6"/>
+
+<menuitem id="menu_sl_payroll_adjustment"
+        name="薪資批次調整"
+        parent="sl_hrm_payroll_menu"
+        action="action_sl_payroll_adjustment"
+        groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"
+        sequence="7" />
+
+    <menuitem
+            id="menu_sl_bonus"
+            name="獎金發放"
+            parent="sl_hrm_payroll_menu"
+            groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"
+            sequence="8"/>
+
+    <menuitem
+            id="menu_sl_bonus_record"
+            name="獎金發放紀錄"
+            parent="menu_sl_bonus"
+            action="action_sl_bonus_record"
+            groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"
+            sequence="8"/>
+
+    <menuitem
+            id="menu_sl_bonus_record_payslip"
+            name="獎金發放管理"
+            parent="menu_sl_bonus"
+            action="action_sl_hr_bonus_payslip_sheet_manager"
+            groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"
+            sequence="9"/>
+
+    <menuitem
+            id="menu_hr_payslip_bonus_report_manager"
+            name="獎金發放報表"
+            parent="menu_sl_bonus"
+            action="action_payslip_bonus_sheet_report_wizard"
+            sequence="10"
+            groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"/>
+
+    <menuitem
+            id="menu_hr_payroll_withholding_statement" name="所得申報"
+            parent="sl_hrm_payroll_menu"
+            groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"
+            sequence="9">
+    </menuitem>
+    <menuitem
+            id="menu_hr_payroll_withholding_statement_sheet" name="所得申報總表"
+            parent="menu_hr_payroll_withholding_statement"
+            groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"
+            action="action_payslip_withholding_statement_sheet"
+            sequence="10">
+    </menuitem>
+    <menuitem
+            id="menu_hr_payroll_withholding_statement_record" name="所得申報紀錄"
+            parent="menu_hr_payroll_withholding_statement"
+            groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"
+            action="action_payslip_withholding_statement"
+            sequence="10">
+    </menuitem>
+
+    <menuitem
+            id="menu_hr_payroll_setting" name="設置"
+            parent="sl_hrm_payroll_menu"
+            groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"
+            sequence="11">
+    </menuitem>
+
+    <menuitem
+            id="menu_hr_payroll_structure"
+            action="hr_payroll_structure_action"
+            name="薪資結構"
+            parent="menu_hr_payroll_setting"
+            groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"
+            sequence="2"/>
+
+    <menuitem
+            id="menu_hr_salary_rule_category"
+            action="hr_salary_rule_category_action"
+            name="薪資規則分類"
+            parent="menu_hr_payroll_setting"
+            sequence="11"/>
+
+    <menuitem id="menu_action_hr_salary_rule_form"
+              name="薪資規則"
+              action="action_salary_rule_form"
+              parent="menu_hr_payroll_setting" sequence="12"/>
+</odoo>

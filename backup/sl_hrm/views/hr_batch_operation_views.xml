@@ -1,0 +1,22 @@
+<odoo>
+    <!-- Action to open the view -->
+    <record model="ir.actions.act_window" id="action_hr_batch_operation">
+        <field name="name">批次操作功能頁面</field>
+        <field name="res_model">hr.batch.operation</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record model="ir.ui.view" id="view_hr_batch_operation_form">
+        <field name="name">hr.batch.operation.form</field>
+        <field name="model">hr.batch.operation</field>
+        <field name="arch" type="xml">
+            <form string="批次操作功能頁面">
+                    <button name="action_update_all_labor_current_year_insurance_interval" type="object" string="勞健保級距批次更新" class="oe_highlight" style="width: 100%;"/>
+                <footer>
+                    <button string="關閉" special="cancel" class="oe_secondary" style="width: 100%;"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

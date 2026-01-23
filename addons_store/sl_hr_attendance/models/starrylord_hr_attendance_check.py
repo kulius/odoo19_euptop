@@ -35,7 +35,7 @@ class HrAttendanceCheck(models.Model):
     user_id = fields.Many2one('res.users', string='User', related='employee_id.user_id', related_sudo=True,
                               compute_sudo=True, store=True, readonly=True)
     # schedule_id = fields.Many2one('hr.schedule', related='employee_id.schedule_id', string='班別')
-    employee_number = fields.Char(string='員工編號', related='employee_id.employee_number', store=True, related_sudo=True)
+    employee_number = fields.Char(string='員工編號', related='employee_id.employee_id.employee_number', store=True, related_sudo=True)
     department_id = fields.Many2one('hr.department', string="部門", store=True,
                                     related="employee_id.department_id")
     job_id = fields.Many2one('hr.job', string="職稱", related="employee_id.job_id", store=True, related_sudo=True)
@@ -64,6 +64,365 @@ class HrAttendanceCheck(models.Model):
         inverse_name='sl_attendance_check_id',
         string='出勤異常說明單'
     )
+
+    # 20260118 添加正常上班與加班的拆開的紀錄
+
+    # ========= 正常出勤 =========
+    normal_work_start_str = fields.Char(
+        string="正常上班時間",
+        compute="_compute_attendance_segments"
+    )
+    normal_work_end_str = fields.Char(
+        string="正常下班時間",
+        compute="_compute_attendance_segments"
+    )
+    normal_check_in_str = fields.Char(
+        string="正常上班開始",
+        compute="_compute_attendance_segments"
+    )
+    normal_check_out_str = fields.Char(
+        string="正常下班結束",
+        compute="_compute_attendance_segments"
+    )
+    normal_check_start_str = fields.Char(
+        string="正常上班（規則/實際）",
+        compute="_compute_attendance_segments"
+    )
+    normal_check_end_str = fields.Char(
+        string="正常下班（規則/實際）",
+        compute="_compute_attendance_segments"
+    )
+
+    # ========= 加班 =========
+    overtime_work_start_str = fields.Char(
+        string="加班起算時間",
+        compute="_compute_attendance_segments"
+    )
+    overtime_check_in_str = fields.Char(
+        string="加班上班開始",
+        compute="_compute_attendance_segments"
+    )
+    overtime_check_out_str = fields.Char(
+        string="加班下班結束",
+        compute="_compute_attendance_segments"
+    )
+    overtime_check_start_str = fields.Char(
+        string="加班上班（規則/實際）",
+        compute="_compute_attendance_segments"
+    )
+    overtime_check_end_str = fields.Char(
+        string="加班下班",
+        compute="_compute_attendance_segments"
+    )
+    # ========= 新的出勤異常欄位 =========
+    attendance_anomaly_str = fields.Char(
+        string="出勤異常（新）",
+        compute="_compute_attendance_anomaly"
+    )
+
+    attendance_anomaly_level = fields.Selection(
+        [
+            ('0', '正常'),
+            ('1', '異常'),
+        ],
+        string="出勤狀態（新）",
+        compute="_compute_attendance_anomaly"
+    )
+
+    # 20260118 正常上班與加班分開的計算
+
+    def _compute_attendance_segments(self):
+        for rec in self:
+            # ---------- 初始化 ----------
+            rec.normal_work_start_str = ''
+            rec.normal_work_end_str = ''
+            rec.normal_check_in_str = ''
+            rec.normal_check_out_str = ''
+            rec.normal_check_start_str = ''
+            rec.normal_check_end_str = ''
+
+            rec.overtime_work_start_str = ''
+            rec.overtime_check_in_str = ''
+            rec.overtime_check_out_str = ''
+            rec.overtime_check_start_str = ''
+            rec.overtime_check_end_str = ''
+
+            if not rec.employee_id or not rec.date:
+                continue
+
+            user_tz = self.env.user.tz or 'UTC'
+            local_tz = pytz.timezone(user_tz)
+
+            # ===== 當日開始 =====
+            day_start_local = local_tz.localize(
+                datetime.combine(rec.date, time.min)
+            )
+
+            # ===== 判斷國定假日 =====
+            is_holiday = bool(self.env['hr.public.holiday'].sudo().search([
+                ('date', '=', rec.date),
+                ('holiday_type', '=', 'holiday')
+            ], limit=1))
+
+            # ===== 班表時間 =====
+            work_start_local = None
+            work_end_local = None
+            work_start_str = ''
+            work_end_str = ''
+
+            if not is_holiday and rec.employee_id.schedule_id:
+                worktime = self.env['hr.schedule.worktime'].sudo().search([
+                    ('worktime_id', '=', rec.employee_id.schedule_id.id),
+                    ('dayofweek', '=', rec.date.weekday()),
+                    ('date_type', '=', 'schedule')
+                ], limit=1)
+
+                if worktime:
+                    work_start_str = self.convert_float_time_to_string(worktime.work_start)
+                    work_end_str = self.convert_float_time_to_string(worktime.work_end)
+
+                    work_start_local = local_tz.localize(
+                        datetime.combine(rec.date, datetime.strptime(work_start_str, "%H:%M").time())
+                    )
+                    work_end_local = local_tz.localize(
+                        datetime.combine(rec.date, datetime.strptime(work_end_str, "%H:%M").time())
+                    )
+
+            # ===== 跨天加班截止（制度）=====
+            if work_end_local:
+                overtime_end_local = work_end_local + timedelta(hours=8)
+            else:
+                overtime_end_local = local_tz.localize(
+                    datetime.combine(rec.date + timedelta(days=1), time(hour=6, minute=0))
+                )
+
+            # ===== UTC 轉換 =====
+            day_start_utc = day_start_local.astimezone(pytz.UTC)
+            overtime_end_utc = overtime_end_local.astimezone(pytz.UTC)
+
+            # ===== 規則時間顯示 =====
+            rec.normal_work_start_str = '國定假日' if is_holiday else (work_start_str or '無')
+            rec.normal_work_end_str = '國定假日' if is_holiday else (work_end_str or '無')
+            rec.overtime_work_start_str = '國定假日' if is_holiday else (work_end_str or '無')
+
+            # ===== 抓打卡資料 =====
+            attendance_model = self.env['hr.attendance']
+
+            check_in_records = attendance_model.search([
+                ('employee_id', '=', rec.employee_id.id),
+                ('check_in', '>=', day_start_utc),
+                ('check_in', '<=', overtime_end_utc),
+            ])
+
+            check_out_records = attendance_model.search([
+                ('employee_id', '=', rec.employee_id.id),
+                ('check_out', '>=', day_start_utc),
+                ('check_out', '<=', overtime_end_utc),
+            ])
+
+            check_ins = [
+                pytz.UTC.localize(att.check_in).astimezone(local_tz)
+                for att in check_in_records if att.check_in
+            ]
+            check_outs = [
+                pytz.UTC.localize(att.check_out).astimezone(local_tz)
+                for att in check_out_records if att.check_out
+            ]
+
+            check_ins.sort()
+            check_outs.sort()
+
+            last_check_out = check_outs[-1] if check_outs else None
+
+            # ===== 正常上班開始 =====
+            normal_check_in = None
+            if not is_holiday and work_end_local:
+                for ci in check_ins:
+                    if ci <= work_end_local:
+                        normal_check_in = ci
+                        break
+
+            # ===== 正常下班結束（初始）=====
+            normal_check_out = None
+            if not is_holiday and work_end_local:
+                for co in check_outs:
+                    if co >= work_end_local:
+                        normal_check_out = co
+                        break
+
+            # ===== 加班上班開始（分段型）=====
+            overtime_check_in = None
+            if check_ins:
+                if is_holiday:
+                    overtime_check_in = check_ins[0]
+                elif work_end_local:
+                    for ci in check_ins:
+                        if ci > work_end_local:
+                            overtime_check_in = ci
+                            break
+
+            # ===== 是否「應該有加班紀錄」=====
+            should_have_overtime = False
+            if work_end_local and last_check_out:
+                if last_check_out > (work_end_local + timedelta(minutes=30)):
+                    should_have_overtime = True
+
+            # ===== 加班下班結束 =====
+            overtime_check_out = None
+            if overtime_check_in:
+                for co in check_outs:
+                    if co > overtime_check_in:
+                        overtime_check_out = co
+                        break
+
+            # ===== 延伸型加班處理 =====
+            if should_have_overtime and not overtime_check_in and last_check_out:
+                normal_check_out = None
+                overtime_check_out = last_check_out
+
+            # ===== 寫回字串 =====
+            rec.normal_check_in_str = normal_check_in.strftime('%H:%M') if normal_check_in else '無'
+            rec.normal_check_out_str = normal_check_out.strftime('%H:%M') if normal_check_out else '無'
+            rec.overtime_check_in_str = overtime_check_in.strftime('%H:%M') if overtime_check_in else '無'
+            rec.overtime_check_out_str = overtime_check_out.strftime('%H:%M') if overtime_check_out else '無'
+
+            # ===== 組合呈現 =====
+            rec.normal_check_start_str = f"{rec.normal_work_start_str} / {rec.normal_check_in_str}"
+            rec.normal_check_end_str = f"{rec.normal_work_end_str} / {rec.normal_check_out_str}"
+
+            if overtime_check_in:
+                rec.overtime_check_start_str = f"{rec.overtime_work_start_str} / {rec.overtime_check_in_str}"
+                rec.overtime_check_end_str = rec.overtime_check_out_str
+            else:
+                rec.overtime_check_start_str = f"{rec.overtime_work_start_str} / 無"
+                rec.overtime_check_end_str = rec.overtime_check_out_str or '無'
+
+    # =================================================
+    # 新的出勤異常計算（只依賴正常/加班四個欄位）
+    # =================================================
+    @api.depends(
+        'normal_check_start_str',
+        'normal_check_end_str',
+        'overtime_check_start_str',
+        'overtime_check_end_str',
+    )
+    def _compute_attendance_anomaly(self):
+        for rec in self:
+            anomalies = []
+            flags = []  # 非異常提示（如：有加班時間）
+            rec.attendance_anomaly_str = ''
+            rec.attendance_anomaly_level = '0'
+
+            # ===============================
+            # 正常上班異常
+            # ===============================
+            if rec.normal_check_start_str:
+                try:
+                    rule, actual = rec.normal_check_start_str.split(' / ')
+                except ValueError:
+                    rule, actual = None, None
+
+                if rule and rule not in ('無', '國定假日'):
+                    if actual == '無':
+                        anomalies.append('上班未刷卡')
+                    else:
+                        try:
+                            rule_t = datetime.strptime(rule, '%H:%M').time()
+                            actual_t = datetime.strptime(actual, '%H:%M').time()
+                            if actual_t > rule_t:
+                                anomalies.append('遲到')
+                        except Exception:
+                            pass
+
+            # ===============================
+            # 提早出勤（提示，不算異常）
+            # 正常上班前 4 小時 ~ 30 分鐘
+            # ===============================
+            if rec.normal_check_start_str:
+                try:
+                    rule, actual = rec.normal_check_start_str.split(' / ')
+                except ValueError:
+                    rule, actual = None, None
+
+                if rule and actual and rule not in ('無', '國定假日') and actual != '無':
+                    try:
+                        rule_t = datetime.strptime(rule, '%H:%M').time()
+                        actual_t = datetime.strptime(actual, '%H:%M').time()
+
+                        rule_dt = datetime.combine(rec.date, rule_t)
+                        actual_dt = datetime.combine(rec.date, actual_t)
+
+                        if (
+                            rule_dt - timedelta(hours=4)
+                            <= actual_dt
+                            < rule_dt - timedelta(minutes=30)
+                        ):
+                            flags.append('提早出勤')
+                    except Exception:
+                        pass
+            # ===============================
+            # 正常下班異常
+            # ===============================
+            if rec.normal_check_end_str:
+                try:
+                    rule, actual = rec.normal_check_end_str.split(' / ')
+                except ValueError:
+                    rule, actual = None, None
+
+                if rule and rule not in ('無', '國定假日'):
+                    if actual == '無':
+                        anomalies.append('下班未刷卡')
+                    else:
+                        try:
+                            rule_t = datetime.strptime(rule, '%H:%M').time()
+                            actual_t = datetime.strptime(actual, '%H:%M').time()
+                            if actual_t < rule_t:
+                                anomalies.append('早退')
+                        except Exception:
+                            pass
+
+            # ===============================
+            # 加班結構判斷
+            # ===============================
+            has_overtime_end = bool(
+                rec.overtime_check_end_str
+                and rec.overtime_check_end_str not in ('無', '國定假日')
+            )
+
+            if has_overtime_end:
+                flags.append('有加班時間')
+
+            # ===============================
+            # 加班異常（制度不完整）
+            # ===============================
+            if has_overtime_end:
+                # 解析加班上班
+                try:
+                    _, overtime_actual = rec.overtime_check_start_str.split(' / ')
+                except Exception:
+                    overtime_actual = None
+
+                # 延伸型加班：有結束，沒開始
+                if not overtime_actual or overtime_actual == '無':
+                    anomalies.append('加班上班未刷卡')
+
+            # ===============================
+            # 組合結果
+            # ===============================
+            result = []
+
+            if anomalies:
+                result.extend(anomalies)
+                rec.attendance_anomaly_level = '1'
+
+            if flags:
+                result.extend(flags)
+
+            if result:
+                rec.attendance_anomaly_str = ' '.join(dict.fromkeys(result))
+            else:
+                rec.attendance_anomaly_str = '正常'
+                rec.attendance_anomaly_level = '0'
 
     def _compute_display_name(self):
         for rec in self:
@@ -425,8 +784,37 @@ class HrAttendanceCheck(models.Model):
         #                 'employee_id': employee_id
         #             })
 
+    def _split_time(self, time_str):
+        """
+        '09:05' -> ('9', '5')
+        '18:00' -> ('18', '0')
+        '無' / None -> (False, False)
+        """
+        if not time_str or time_str in ('無', '國定假日'):
+            return False, False
+        try:
+            h, m = time_str.split(':')
+            return str(int(h)), str(int(m))
+        except Exception:
+            return False, False
+
+
     def action_create_attendance_repair(self):
         self.ensure_one()
+
+        # ===== 拆正常上班 =====
+        _, normal_in = self.normal_check_start_str.split(' / ') if self.normal_check_start_str else (None, None)
+        _, normal_out = self.normal_check_end_str.split(' / ') if self.normal_check_end_str else (None, None)
+
+        hour_from, min_from = self._split_time(normal_in)
+        hour_to, min_to = self._split_time(normal_out)
+
+        # ===== 拆加班 =====
+        _, ot_in = self.overtime_check_start_str.split(' / ') if self.overtime_check_start_str else (None, None)
+        ot_hour_from, ot_min_from = self._split_time(ot_in)
+
+        ot_hour_to, ot_min_to = self._split_time(self.overtime_check_end_str)
+
         return {
             'type': 'ir.actions.act_window',
             'name': '新增出勤異常說明單',
@@ -438,8 +826,18 @@ class HrAttendanceCheck(models.Model):
                 'default_user_id': self.user_id.id if self.user_id else False,
                 'default_sl_attendance_check_id': self.id,
                 'default_start_date': self.date,
-                'default_hour_from': '9',
-                'default_hour_to': '18',
+
+                # ===== 正常上班 =====
+                'default_hour_from': hour_from,
+                'default_min_from': min_from,
+                'default_hour_to': hour_to,
+                'default_min_to': min_to,
+
+                # ===== 加班 =====
+                'default_ot_hour_from': ot_hour_from,
+                'default_ot_min_from': ot_min_from,
+                'default_ot_hour_to': ot_hour_to,
+                'default_ot_min_to': ot_min_to,
             }
         }
 

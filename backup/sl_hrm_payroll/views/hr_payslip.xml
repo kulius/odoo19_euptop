@@ -1,0 +1,473 @@
+<odoo>
+    <record id="view_tree_sl_hr_payslip_sheet" model="ir.ui.view">
+        <field name="name">sl.hr.payslip.sheet.tree</field>
+        <field name="model">sl.hr.payslip.sheet</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" />
+                <field name="pay_date" />
+                <field name="company_id" />
+                <!-- <field name="over_tax_amount" /> -->
+                <field name="actual_total_amount" />
+                <field name="state" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_form_sl_hr_payslip_sheet" model="ir.ui.view">
+        <field name="name">sl.hr.payslip.sheet.form</field>
+        <field name="model">sl.hr.payslip.sheet</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button string="批次產生PDF" type="object" class="btn-primary"
+                        name="action_generate_pdf_bath" confirm="所有員工產生PDF, 是否繼續執行?" />
+                    <button string="批次寄送E-mail" type="object" class="btn-primary"
+                        name="action_send_payroll_mail_bath" confirm="所有員工寄出E-mail, 是否繼續執行?" />
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,confirm" />
+                    <!--                    <button string="重置為草稿" type="object" class="btn-primary"-->
+                    <!--                        name="action_payslip_sheet_draft" confirm="所有員工薪資明細同步更新為草稿, 是否繼續執行?"-->
+                    <!--                        invisible="state != 'confirm'" />-->
+                    <!--                    <button string="確認支付" type="object" class="btn-primary"-->
+                    <!--                        name="action_payslip_sheet_done" confirm="確認支付後無法再次修改薪資明細, 是否繼續執行?"-->
+                    <!--                        invisible="state != 'draft'" />-->
+                    <!--                    <button string="轉傳票" type="object" class="btn-primary"-->
+                    <!--                        name="transfer_to_accounting" confirm="是否進入傳票作業"-->
+                    <!--                        invisible="state != 'confirm'" />-->
+
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="company_id" readonly="state == 'confirm'" />
+                            <field name="salary_date" widget="month" readonly="state == 'confirm'" />
+                            <label for="date_from" string="薪資起迄日期" readonly="state == 'confirm'" />
+                            <div>
+                                <field nolabel="1"
+                                    name="date_from"
+                                    widget="daterange"
+                                    class="oe_inline"
+                                    options="{'related_end_date': 'date_to'}"
+                                    force_save="1"
+                                    readonly="1"
+                                    placeholder="薪資計算日-起" /> ~ <field nolabel="1"
+                                    name="date_to"
+                                    widget="daterange"
+                                    class="oe_inline"
+                                    options="{'related_start_date': 'date_from'}"
+                                    force_save="1"
+                                    readonly="1"
+                                    placeholder="薪資計算日-迄" />
+                            </div>
+                        </group>
+                        <group>
+                            <field name="pay_date" readonly="state == 'confirm'" />
+                            <!-- <field name="over_tax_amount" readonly="state == 'confirm'" /> -->
+                            <field name="actual_total_amount" />
+                        </group>
+                    </group>
+                    <group>
+                        <!--                                                     -->
+                        <field name="employee_ids" widget="many2many_tags"
+                            options="{'no_create': True}" readonly="state == 'confirm'"
+                            string="選擇員工">
+                            <tree>
+                                <field name="employee_number" />
+                                <field name="name" />
+                            </tree>
+                        </field>
+                        <!--                        <field name="included_employee_ids" invisible="1"/>-->
+                    </group>
+                    <button type="object" name="compute_payslip" string="批次產生薪資表"
+                        invisible="state != 'draft'" />
+
+                    <field name="payslip_ids" readonly="1" context="{'form_view_ref': 'sl_hrm_payroll.hr_payslip_form_view'}">
+                        <tree default_order="employee_number">
+                            <field name="employee_number" />
+                            <field name="employee_id" />
+                            <field name="basic_wage" sum="Total" />
+                            <field name="payable_add_subtotal" sum="Total" />
+                            <field name="taxable_add_subtotal" string="應稅加項" sum="Total" />
+                            <field name="taxable_decrease_subtotal" string="應稅減項" sum="Total" />
+                            <field name="taxfree_add_subtotal" string="免稅加項" sum="Total" />
+                            <field name="taxfree_decrease_subtotal" string="免稅減項" sum="Total" />
+                            <field name="deduction_subtotal" sum="Total" />
+                            <field name="all_subtotal" sum="Total" />
+                            <field name="company_cost" sum="Total" />
+                            <field name="state" />
+                            <button string="檢視" type="object" class="btn-primary"
+                                name="action_payslip_form" />
+                            <!--                            <button string="確認" type="object" class="btn-primary"-->
+                            <!--                                name="action_payslip_done" invisible="state != 'draft'" />-->
+
+                            <field name="is_payslip_sent" />
+                            <field name="payslip_sent_date" />
+
+                            <button string="寄送E-mail" type="object" class="btn-primary"
+                                name="send_mail_report" />
+                            <field name="payroll_report_attachment_ids" widget="many2many_binary" />
+                        </tree>
+
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="hr_payslip_tree" model="ir.ui.view">
+        <field name="name">hr.payslip.tree</field>
+        <field name="model">hr.payslip</field>
+        <field eval="20" name="priority" />
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" />
+                <field name="employee_id" />
+                <field name="basic_wage" />
+                <field name="payable_add_subtotal" />
+                <field name="deduction_subtotal" />
+                <field name="all_subtotal" />
+                <!-- <field name="computed_withholding_salary" /> -->
+                <field name="computed_taxable_non_recurring_salary" string="當月獎金總計" />
+                <field name="computed_year_taxable_non_recurring_salary" string="當年度獎金累計" />
+                <field name="payroll_structure_id" column_invisible="1" />
+                <field name="state" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="hr_payslip_form_view" model="ir.ui.view">
+        <field name="name">hr.payslip.form</field>
+        <field name="model">hr.payslip</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,confirm,cancel" />
+
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="已寄送" invisible="not is_payslip_sent" />
+                    <h1>
+                        <field name="employee_id" placeholder="員工" readonly="1"
+                            options="{'no_open': True}" />
+                    </h1>
+                    <group>
+                        <group>
+                            <field name="sl_hr_payslip_sheet_id" readonly="1"
+                                groups="sl_hrm_payroll.group_sl_hrm_payroll_manager" />
+                            <field name="name" placeholder="自動編碼" readonly="1" />
+                            <field name="note" />
+                            <field name="registration_date" readonly="1" />
+                            <field name="resignation_date" readonly="1" invisible="resignation_date == False" />
+                        </group>
+                        <group>
+
+                            <!--                            <label for="attendance_date_from" string="考勤起迄日期"/>-->
+                            <!--                            <div>-->
+                            <!--                                <field nolabel="1"-->
+                            <!--                                       name="attendance_date_from"-->
+                            <!--                                       widget="daterange"-->
+                            <!--                                       class="oe_inline"-->
+                            <!--                                       options="{'related_end_date': 'attendance_date_to'}"-->
+                            <!--                                       force_save="1"-->
+                            <!--                                       readonly="state == 'confirm'"-->
+                            <!--                                       placeholder="考勤計算日-起"/>-->
+                            <!--                                ~-->
+                            <!--                                <field nolabel="1"-->
+                            <!--                                       name="attendance_date_to"-->
+                            <!--                                       widget="daterange"-->
+                            <!--                                       class="oe_inline"-->
+                            <!--                                       options="{'related_start_date': 'attendance_date_from'}"-->
+                            <!--                                       force_save="1"-->
+                            <!--                                       readonly="state == 'confirm'"-->
+                            <!--                                       placeholder="考勤計算日-迄"/>-->
+                            <!--                            </div>-->
+                            <field name="salary_date" readonly="1" />
+                            <label for="date_from" string="薪資起迄日期" />
+                            <div>
+                                <field nolabel="1"
+                                    name="date_from"
+                                    widget="daterange"
+                                    class="oe_inline"
+                                    options="{'related_end_date': 'date_to'}"
+                                    force_save="1"
+                                    readonly="1"
+                                    placeholder="薪資計算日-起" /> ~ <field nolabel="1"
+                                    name="date_to"
+                                    widget="daterange"
+                                    class="oe_inline"
+                                    options="{'related_start_date': 'date_from'}"
+                                    force_save="1"
+                                    readonly="1"
+                                    placeholder="薪資計算日-迄" />
+                            </div>
+
+                            <field name="actual_pay_day" readonly="state == 'confirm'" />
+                            <field name="payroll_report_attachment_ids" widget="many2many_binary" />
+                            <field name="is_payslip_sent" />
+                            <field name="payslip_sent_date"
+                                groups="sl_hrm_payroll.group_sl_hrm_payroll_manager" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="computation" string="薪資明細">
+                            <div>
+                                <button name="open_salary_rule_add_wizard"
+                                    string="新增薪資規則"
+                                    type="object"
+                                    class="btn-primary"
+                                    icon="fa-plus" />
+                            </div>
+                            <field name="payslip_line_ids"
+                                colspan="4"
+                                force_save="1">
+                                <tree string="薪資規則" create="false" editable="bottom">
+                                    <field name="sequence" readonly="1" options="{'no_open': True}" />
+                                    <field name="name" options="{'no_open': True}" />
+                                    <field name="salary_rule_id" string="薪資規則" readonly="1"
+                                        options="{'no_open': True, 'no_create': True}" />
+                                    <field name="code" column_invisible="1" readonly="1"
+                                        options="{'no_open': True}" />
+                                    <field name="category_id" readonly="1"
+                                        options="{'no_open': True}" />
+                                    <field name="amount" />
+                                    <field name="note" width="30%" />
+                                    <button name="open_edit_dialog"
+                                        string="變更"
+                                        type="object"
+                                        class="btn-primary"
+                                        icon="fa-edit" />
+                                    <button name="recalculate_payslip_line"
+                                        string="重新計算"
+                                        type="object"
+                                        class="btn-primary"
+                                        icon="fa-edit" />
+                                    <field name="manual" />
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="computation_custom" string="其他薪資">
+                            <field name="payslip_line_other_ids"
+                                colspan="4"
+                                force_save="1"
+                                readonly="state == 'confirm'">
+                                <tree string="其他薪資" editable="bottom">
+                                    <field name="name" />
+                                    <field name="company_id" column_invisible="1" />
+                                    <field name="salary_rule_id" string="薪資規則"
+                                        options="{'no_open': True, 'no_create': True}" />
+                                    <field name="code" column_invisible="1" readonly="1"
+                                        options="{'no_open': True}" />
+                                    <field name="category_id" readonly="1"
+                                        options="{'no_open': True}" />
+                                    <field name="source" width="10%" />
+                                    <field name="amount" />
+                                    <field name="note" width="10%" />
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="勞健保明細暨稅費基準資訊">
+                            <group col="4">
+                                <field name="labor_insurance_salary" readonly="1" />
+                                <field name="health_insurance_salary" readonly="1" />
+                                <field name="labor_harm_insurance_salary" readonly="1" />
+                                <field name="computed_taxable_income" readonly="1" />
+                                <field name="computed_taxable_recurring_salary" readonly="1" />
+                                <field name="computed_pre_taxable_non_recurring_salary" readonly="1" />
+                                <field name="computed_taxable_non_recurring_salary" readonly="1" />
+                                <field name="computed_year_taxable_non_recurring_salary"
+                                    readonly="1" />
+                                <field name="computed_health2_base" readonly="1" />
+                                <!-- <field name="computed_withholding_salary" readonly="1" /> -->
+                            </group>
+                        </page>
+                        <page name="input" string="薪資異動與出缺勤明細"
+                            groups="sl_hrm_payroll.group_sl_hrm_payroll_manager">
+                            <separator name="other" string="本薪變化" />
+                            <field name="employee_payslip_salary_setting_ids" readonly="1">
+                                <tree editable="top">
+                                    <field name="start_date" />
+                                    <field name="end_date" />
+                                    <field name="amount" />
+                                    <field name="hour_amount" />
+                                </tree>
+                            </field>
+                            <separator name="other" string="請假明細" />
+                            <field name="holiday_ids" colspan="5" nolabel="1"
+                                readonly="1">
+                                <tree editable="bottom">
+                                    <field name="start_day" />
+                                    <field name="holiday_total_time" />
+                                    <field name="holiday_type_id" />
+                                    <field name="holiday_apply_id" />
+                                </tree>
+                            </field>
+                            <!--                            <separator name="other" string="加班明細"/>-->
+                            <field name="overtime_ids" colspan="4" nolabel="1" invisible="1"
+                                readonly="1">
+                                <tree>
+                                    <field name="overtime_type_id" />
+                                    <field name="date_from" />
+                                    <field name="days_no_tmp" />
+                                    <field name="type" />
+                                    <field name="overtime_apply_id" />
+                                </tree>
+                            </field>
+
+                            <separator name="overtime_holiday" string="加班折薪明細" />
+                            <field name="overtime_holiday_ids" colspan="4" nolabel="1"
+                                readonly="1">
+                                <tree>
+                                    <field name="overtime_type_id" />
+                                    <field name="date_from" />
+                                    <field name="days_no_tmp" />
+                                    <field name="rate" />
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+
+                    <group class="oe_subtotal_footer oe_right">
+                        <field name="taxable_add_subtotal" readonly="[('state', '=', 'confirm')]" />
+                        <field name="taxfree_add_subtotal" readonly="[('state', '=', 'confirm')]" />
+                        <field name="taxable_decrease_subtotal"
+                            readonly="[('state', '=', 'confirm')]" />
+                        <field name="taxfree_decrease_subtotal"
+                            readonly="[('state', '=', 'confirm')]" />
+                        <field name="all_subtotal"
+                            readonly="[('state', '=', 'confirm')]" />
+                        <field name="company_cost"
+                            readonly="[('state', '=', 'confirm')]" />
+                    </group>
+                </sheet>
+
+
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_payslip_view_form_inherit" model="ir.ui.view">
+        <field name="name">hr.payslip.view.form.inherit</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="sl_hrm_payroll.hr_payslip_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="before">
+                <button
+                    string="重新試算薪資"
+                    name="compute_sheet"
+                    type="object"
+                    state="draft"
+                    invisible="state not in ['draft']"
+                    confirm="確定重新試算薪資"
+                    groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"
+                />
+                <button
+                    string="確認"
+                    name="action_payslip_done"
+                    type="object"
+                    state="draft"
+                    invisible="state != 'draft'"
+                    groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"
+                />
+                <button
+                    string="設為草稿"
+                    name="action_payslip_draft"
+                    type="object"
+                    state="cancel"
+                    invisible="state != 'confirm'"
+                    groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"
+                />
+
+                <!--                <button name="print_payslip" type="object" string="列印薪資單" data-hotkey="o"-->
+                <!--                        title="列印薪資單" groups="sl_hrm_payroll.group_sl_hrm_payroll_manager"/>-->
+                <button name="action_generate_pdf" type="object" string="產生PDF"
+                    confirm="確定要重新產生PDF檔案?" groups="sl_hrm_payroll.group_sl_hrm_payroll_manager" />
+                <button name="send_mail_report" type="object" string="寄送PDF" confirm="確定要寄發薪資單?"
+                    invisible="state != 'confirm'"
+                    groups="sl_hrm_payroll.group_sl_hrm_payroll_manager" />
+
+                <!--                <button string="刪除" type="object" name="unlink" confirm="確定刪除此筆薪資單?"
+                invisible="state != 'draft'"/>-->
+
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="payroll_structure_id"
+                    placeholder="薪資結構" options="{'no_open': True}"
+                    groups="sl_hrm_payroll.group_sl_hrm_payroll_manager" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_search_hr_payslip" model="ir.ui.view">
+        <field name="name">hr.payslip.search</field>
+        <field name="model">hr.payslip</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="sl_hr_payslip_sheet_id" />
+                <field name="date_from" />
+                <separator />
+                <filter string="草稿" name="is_draft" domain="[('state', '=', 'draft')]" />
+                <filter string="薪資日期分組" name="salary_date_group" domain="[]"
+                    context="{'group_by': 'date_from'}" />
+                <separator />
+                <searchpanel>
+                    <field name="state" icon="fa-address-book-o" enable_counters="1" />
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_pivot_hr_payslip_line" model="ir.ui.view">
+        <field name="name">hr.payslip.line.pivot</field>
+        <field name="model">hr.payslip.line</field>
+        <field name="arch" type="xml">
+            <pivot string="員工薪資明細分析表">
+                <field name="department_id" type="row" />
+                <field name="employee_id" type="row" />
+                <field name="salary_rule_id" type="col" expand="True" />
+                <field name="amount" type="measure" />
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_sl_hr_payslip_sheet_manager" model="ir.actions.act_window">
+        <field name="name">薪資管理</field>
+        <field name="res_model">sl.hr.payslip.sheet</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('is_salary_sheet', '=', True)]</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('view_tree_sl_hr_payslip_sheet')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_form_sl_hr_payslip_sheet')})]"/>
+    </record>
+
+    <record id="hr_payslip_user_action" model="ir.actions.act_window">
+        <field name="name">我的薪資單</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.payslip</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('user_id','=',uid), ('state', '=', 'confirm')]</field>
+    </record>
+
+    <record id="hr_payslip_manager_action" model="ir.actions.act_window">
+        <field name="name">員工薪資單管理</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.payslip</field>
+        <field name="view_mode">tree,form,pivot</field>
+        <field name="view_id" ref="hr_payslip_tree" />
+        <field name="context">{'edit': 1,'create': 0, 'search_default_order': 'employee_number asc',
+            'group_by' : 'sl_hr_payslip_sheet_id'}</field>
+    </record>
+
+    <record id="hr_payslip_line_pivot_action" model="ir.actions.act_window">
+        <field name="name">員工薪資明細分析表</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.payslip.line</field>
+        <field name="view_mode">pivot</field>
+        <field name="context">{'edit': 1,'create': 0, 'search_default_order': 'employee_number asc'}</field>
+    </record>
+
+</odoo>

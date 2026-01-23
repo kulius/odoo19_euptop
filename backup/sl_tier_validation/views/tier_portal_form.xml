@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Tree View -->
+  <record id="view_tier_portal_form_tree" model="ir.ui.view">
+      <field name="name">tier.portal.form.tree</field>
+      <field name="model">tier.portal.form</field>
+      <field name="arch" type="xml">
+          <tree string="新增電子簽核">
+              <button string="新增表單" type="object" name="action_open_form" class="btn-primary"/>
+              <field name="name"/>
+              <field name="notes"/>
+              <button string="未送簽表單" type="object" name="action_open_tree_draft" class="btn-primary"/>
+              <button string="簽核中表單" type="object" name="action_open_tree_review" class="btn-primary"/>
+<!--              <field name="model_id"/>-->
+<!--              <field name="model"/>-->
+          </tree>
+      </field>
+  </record>
+
+  <!-- Form View -->
+  <record id="view_tier_portal_form_form" model="ir.ui.view">
+      <field name="name">tier.portal.form.form</field>
+      <field name="model">tier.portal.form</field>
+      <field name="arch" type="xml">
+          <form string="新增電子簽核">
+              <sheet>
+                  <group>
+                    <field name="name"/>
+                    <field name="model_id"/>
+                    <field name="model"/>
+                    <field name="notes"/>
+                  </group>
+              </sheet>
+          </form>
+      </field>
+  </record>
+
+  <!-- Action -->
+  <record id="action_tier_portal_form" model="ir.actions.act_window">
+      <field name="name">新增電子簽核</field>
+      <field name="res_model">tier.portal.form</field>
+      <field name="view_mode">tree,form</field>
+  </record>
+
+
+</odoo>

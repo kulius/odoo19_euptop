@@ -143,6 +143,11 @@ class StarryLordHrAttendance(models.Model):
 class HrEmployeeInherit(models.Model):
     _inherit = "hr.employee"
 
+    is_no_need_check_in = fields.Boolean(
+        string='無需打卡',
+        readonly=True
+    )
+    employee_number = fields.Char(string="員工編號", stored=False)
     attendance_ids = fields.One2many(
         'hr.attendance', 'employee_id', groups="hr_attendance.group_hr_attendance_user,hr.group_hr_user")
     last_attendance_id = fields.Many2one(

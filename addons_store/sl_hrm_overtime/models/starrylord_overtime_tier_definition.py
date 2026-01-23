@@ -109,8 +109,25 @@ class StarryLordOvertimeApplyValidation(models.Model):
     def _get_under_validation_exceptions(self):
         """Extend for more field exceptions."""
         editable_fields = ["message_follower_ids", "access_token", "has_overtime_meal_allowance", 'overtime_type_id', 'without_rest_time', 'duration_time', 'start_day',
-                           'hour_from', 'hour_to', 'min_from', 'min_to', 'apply_from', 'apply_to','attached', 'desc', 'time_type']
-        # return ["message_follower_ids", "access_token", "has_overtime_meal_allowance", 'without_rest_time', 'duration_time', '']
+                           'hour_from', 'hour_to', 'min_from', 'min_to', 'apply_from', 'apply_to','attached', 'desc', 'time_type',
+                # === 本次新增：出勤勾稽 ===
+                "attendance_ids",
+                "attendance_check_ids",
+                "attendance_check_result",
+                "overtime_attendance_process_state",
+
+                # === 本次新增：人工調整後加班資料 ===
+                "adjust_hour_from",
+                "adjust_min_from",
+                "adjust_hour_to",
+                "adjust_min_to",
+                "adjust_duration_time",
+
+                # === 若你前面已加合規判斷（一併放行，避免被擋）===
+                "compliance_state",
+                "compliance_reason",
+                        ]
+
         return editable_fields
 
     def _notify_accepted_reviews(self):

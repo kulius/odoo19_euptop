@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 考勤表單視圖擴充 - 顯示 GPS 座標 -->
+    <record id="view_attendance_form_inherit_gps" model="ir.ui.view">
+        <field name="name">hr.attendance.form.inherit.gps</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.view_attendance_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="after">
+                <group string="GPS 定位資訊">
+                    <group string="上班打卡位置">
+                        <field name="check_in_latitude"/>
+                        <field name="check_in_longitude"/>
+                        <field name="check_in_accuracy"/>
+                    </group>
+                    <group string="下班打卡位置">
+                        <field name="check_out_latitude"/>
+                        <field name="check_out_longitude"/>
+                        <field name="check_out_accuracy"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 考勤列表視圖擴充 -->
+    <record id="view_attendance_tree_inherit_gps" model="ir.ui.view">
+        <field name="name">hr.attendance.tree.inherit.gps</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.view_attendance_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='check_out']" position="after">
+                <field name="check_in_latitude" optional="hide"/>
+                <field name="check_in_longitude" optional="hide"/>
+                <field name="check_out_latitude" optional="hide"/>
+                <field name="check_out_longitude" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,35 @@
+<odoo>
+    <record id="hr_public_holiday_tree_view" model="ir.ui.view">
+        <field name="name">hr.public.holiday.tree</field>
+        <field name="model">hr.public.holiday</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"/>
+                <field name="holiday_type"/>
+                <field name="date"/>
+                <field name="start_date" column_invisible="1" readonly="1"/>
+                <field name="end_date" column_invisible="1" readonly="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="hr_public_holiday_form_view" model="ir.ui.view">
+        <field name="name">hr.public.holiday.form</field>
+        <field name="model">hr.public.holiday</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="name"/>
+                <field name="holiday_type"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_public_holiday_action" model="ir.actions.act_window">
+        <field name="name">公眾假日</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.public.holiday</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

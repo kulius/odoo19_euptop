@@ -1,0 +1,149 @@
+<odoo>   
+  <template id="payslip_withholding_statement_template">
+    <t t-call="web.html_container">
+      <t t-call="web.external_layout">
+        <div class="page">
+          <div class="mb-3">
+            <button type="button" class="btn btn-secondary me-2" onclick="exportTableToExcel()">匯出 Excel</button>
+            <button type="button" class="btn btn-success" onclick="exportTableToCSV()">匯出 CSV</button>
+          </div>
+          <h2 t-esc="sheet_name" t-att-data-sheet-name="sheet_name" />
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>部門</th>
+                <th colspan="2">員工</th>
+                <t t-foreach="salary_rules" t-as="rule">
+                  <th>
+                    <t t-esc="rule.name" />
+                  </th>
+                </t>
+                <th>給付總額</th>
+                <th>扣繳稅額</th>
+                <th>實付金額</th>
+                <th>勞退自提總額</th>
+                <t t-foreach="form_string" t-as="label">
+                  <th>
+                    <t t-esc="label" />
+                  </th>
+                </t>
+              </tr>
+            </thead>
+            <tbody>
+              <t t-foreach="employees" t-as="row">
+                <tr>
+                  <td>
+                    <t t-esc="row['department']" />
+                  </td>
+                  <td>
+                    <t t-esc="row['employee_number']" />
+                  </td>
+                  <td>
+                    <t t-esc="row['employee'].name" />
+                  </td>
+                  <t t-foreach="computeds" t-as="name">
+                    <td>
+                      <t t-esc="row['computeds'].get(name, '')" />
+                    </td>
+                  </t>
+                  <t t-foreach="form_fields" t-as="field">
+                    <td>
+                      <t t-esc="row['row_data'].get(field, '')" />
+                    </td>
+                  </t>
+                </tr>
+              </t>
+            </tbody>
+          </table>
+          <style>
+            table.table th, table.table td {
+              white-space: nowrap;
+            }
+          </style>
+          <style type="text/css" media="print">
+            body {
+              overflow: visible !important;
+            }
+          
+            .o_report_layout,
+            .table-responsive {
+              overflow: visible !important;
+            }
+          
+            table {
+              page-break-inside: auto;
+            }
+          
+            tr {
+              page-break-inside: avoid;
+              page-break-after: auto;
+            }
+          
+            thead {
+              display: table-header-group;
+            }
+          
+            tfoot {
+              display: table-footer-group;
+            }
+          </style>
+        </div>
+        <script type="text/javascript" src="/sl_hrm_payroll/static/src/js/xlsx.full.min.js"></script>
+        <script type="text/javascript">
+          function exportTableToExcel() {
+            const table = document.querySelector("table");
+            const sheetName = document.querySelector("h2[data-sheet-name]").getAttribute("data-sheet-name");
+            const wb = XLSX.utils.table_to_book(table, {sheet: sheetName});
+            XLSX.writeFile(wb, sheetName + '.xlsx');
+          }
+
+          function exportTableToCSV() {
+            const table = document.querySelector("table");
+            const sheetName = document.querySelector("h2[data-sheet-name]").getAttribute("data-sheet-name");
+            let csvContent = "";
+            
+            // 處理表頭
+            const headers = table.querySelectorAll("thead tr th");
+            const headerRow = [];
+            headers.forEach(header => {
+              const colspan = header.getAttribute("colspan");
+              const text = header.textContent.trim();
+              if (colspan &amp;&amp; parseInt(colspan) > 1) {
+                // 對於colspan > 1的欄位，重複添加該欄位名稱
+                for (let i = 0; i &lt; parseInt(colspan); i++) {
+                  headerRow.push(text);
+                }
+              } else {
+                headerRow.push(text);
+              }
+            });
+            csvContent += headerRow.map(header => `"${header}"`).join(",") + "\n";
+            
+            // 處理資料行
+            const rows = table.querySelectorAll("tbody tr");
+            rows.forEach(row => {
+              const cells = row.querySelectorAll("td");
+              const rowData = [];
+              cells.forEach(cell => {
+                const text = cell.textContent.trim();
+                rowData.push(`"${text}"`);
+              });
+              csvContent += rowData.join(",") + "\n";
+            });
+            
+            // 創建下載連結
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", sheetName + ".csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }
+        </script>
+      </t>
+    </t>
+  </template>
+</odoo>

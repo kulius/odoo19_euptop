@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Email Template for Manager -->
+    <record id="email_template_attendance_anomaly_manager" model="mail.template">
+        <field name="name">考勤異常通知 - 管理員</field>
+        <field name="model_id" ref="model_hr_attendance_check"/>
+        <field name="subject">【考勤異常通知】${ctx.get('start_date_str')} ~ ${ctx.get('end_date_str')} 當月異常統計</field>
+        <field name="email_from">${(object.company_id.email or user.email or 'noreply@example.com')}</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
+    <h2 style="color: #d9534f; border-bottom: 2px solid #d9534f; padding-bottom: 10px;">
+        ⚠️ 考勤異常通知
+    </h2>
+    
+    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <p><strong>統計期間：</strong>${ctx.get('start_date_str')} ~ ${ctx.get('end_date_str')}</p>
+        <p><strong>異常員工數：</strong><span style="color: #d9534f; font-size: 18px; font-weight: bold;">${ctx.get('employee_count', 0)}</span> 人</p>
+        <p><strong>異常記錄數：</strong><span style="color: #d9534f; font-size: 18px; font-weight: bold;">${ctx.get('total_anomaly_count', 0)}</span> 筆</p>
+    </div>
+    
+    <h3 style="color: #333; margin-top: 30px;">異常明細：</h3>
+    
+    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+        <thead>
+            <tr style="background-color: #007bff; color: white;">
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">員工編號</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">姓名</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">部門</th>
+                <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">異常次數</th>
+            </tr>
+        </thead>
+        <tbody>
+            % for emp_data in ctx.get('employee_list', []):
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">${emp_data['employee_number']}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${emp_data['name']}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${emp_data['department']}</td>
+                <td style="padding: 10px; border: 1px solid #ddd; text-align: center; color: #d9534f; font-weight: bold;">${emp_data['anomaly_count']}</td>
+            </tr>
+            % endfor
+        </tbody>
+    </table>
+    
+    <div style="margin-top: 30px; padding: 15px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px;">
+        <p style="margin: 0;"><strong>📌 提醒：</strong></p>
+        <ul style="margin: 10px 0; padding-left: 20px;">
+            <li>請督促相關員工儘快提交補卡說明單或請假單</li>
+            <li>異常記錄包含：遲到、早退、未刷卡等情況</li>
+            <li>您可以登入系統查看詳細的異常記錄</li>
+        </ul>
+    </div>
+    
+    <div style="margin-top: 30px; text-align: center; padding: 20px; background-color: #f8f9fa; border-radius: 5px;">
+        <a href="${object.get_base_url()}/web#action=sl_hr_attendance.hr_attendance_check_manager_action&amp;view_type=list" 
+           style="display: inline-block; padding: 12px 30px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            查看出勤記錄
+        </a>
+    </div>
+    
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px;">
+        <p>此郵件由系統自動發送，請勿直接回覆。</p>
+        <p>如有疑問，請聯繫人資單位。</p>
+    </div>
+</div>
+        </field>
+    </record>
+
+    <!-- Email Template for Employee -->
+    <record id="email_template_attendance_anomaly_employee" model="mail.template">
+        <field name="name">考勤異常通知 - 員工</field>
+        <field name="model_id" ref="model_hr_attendance_check"/>
+        <field name="subject">【考勤異常提醒】您有 ${ctx.get('anomaly_count', 0)} 筆待處理的異常記錄</field>
+        <field name="email_from">${(object.company_id.email or user.email or 'noreply@example.com')}</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px;">
+    <h2 style="color: #ff9800; border-bottom: 2px solid #ff9800; padding-bottom: 10px;">
+        ⚠️ 考勤異常提醒
+    </h2>
+    
+    <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107;">
+        <p style="margin: 0; font-size: 16px;">親愛的 <strong>${ctx.get('employee_name')}</strong>，您好：</p>
+    </div>
+    
+    <p style="line-height: 1.8;">
+        系統檢測到您在 <strong>${ctx.get('start_date_str')} ~ ${ctx.get('end_date_str')}</strong> 
+        期間有 <span style="color: #d9534f; font-size: 18px; font-weight: bold;">${ctx.get('anomaly_count', 0)}</span> 筆考勤異常記錄。
+    </p>
+    
+    <h3 style="color: #333; margin-top: 30px;">異常明細：</h3>
+    
+    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+        <thead>
+            <tr style="background-color: #ff9800; color: white;">
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">日期</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">星期</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">上班打卡</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">下班打卡</th>
+                <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">異常說明</th>
+            </tr>
+        </thead>
+        <tbody>
+            % for record in ctx.get('anomaly_list', []):
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">${record['date']}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${record['day_of_week']}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${record['check_in']}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${record['check_out']}</td>
+                <td style="padding: 10px; border: 1px solid #ddd; color: #d9534f;">${record['memo']}</td>
+            </tr>
+            % endfor
+        </tbody>
+    </table>
+    
+    <div style="margin-top: 30px; padding: 15px; background-color: #d1ecf1; border-left: 4px solid #17a2b8; border-radius: 5px;">
+        <p style="margin: 0;"><strong>📌 處理方式：</strong></p>
+        <ul style="margin: 10px 0; padding-left: 20px;">
+            <li>如為漏打卡，請登入系統提交「補卡說明單」</li>
+            <li>如為請假，請確認是否已提交請假單</li>
+            <li>如有疑問，請聯繫您的主管或人資單位</li>
+        </ul>
+    </div>
+    
+    <div style="margin-top: 30px; text-align: center; padding: 20px; background-color: #f8f9fa; border-radius: 5px;">
+        <a href="${object.get_base_url()}/web#action=sl_hr_attendance.hr_attendance_check_action&amp;view_type=list" 
+           style="display: inline-block; padding: 12px 30px; background-color: #ff9800; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-right: 10px;">
+            查看我的出勤記錄
+        </a>
+        <a href="${object.get_base_url()}/web#action=sl_hr_attendance.action_sl_attendance_repair&amp;view_type=form" 
+           style="display: inline-block; padding: 12px 30px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            提交補卡說明
+        </a>
+    </div>
+    
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px;">
+        <p>此郵件由系統自動發送，請勿直接回覆。</p>
+        <p>如有疑問，請聯繫人資單位。</p>
+    </div>
+</div>
+        </field>
+    </record>
+</odoo>

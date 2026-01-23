@@ -1,0 +1,48 @@
+<odoo>
+    <data>
+        <record id="hr_employee_form_inherit" model="ir.ui.view">
+            <field name="name">hr.employee.form</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <!-- <xpath expr="//page[@name='hr_settings']" position="after"> -->
+                <xpath expr="//page[@name='hr_settings']" position="before">
+<!--                    <page string="薪資現況" groups="sl_hrm_payroll.group_sl_hrm_payroll_manager">-->
+<!--                        <sheet>-->
+
+<!--                        </sheet>-->
+
+
+
+<!--                    </page>-->
+                    <page string="薪資設定" groups="sl_hrm_payroll.group_sl_hrm_payroll_manager">
+                        <group>
+                            <group>
+                                <field name="payroll_structure_id" placeholder="請選擇薪資結構" style="width: 50%;"/>
+                            </group>
+                            <button name="action_generate_salary_rules"
+                                string="生成對應薪資明細"
+                                type="object"
+                                class="btn-primary oe_inline"
+                                style="margin: 0 20px"/>
+                        </group>
+                        <seperator/>
+                        <field name="payslip_setting_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="start_date"/>
+                                    <field name="change_date"/>
+                                    <field name="change_reason"/>
+                                    <field name="salary_rule_id" 
+                                        domain="[('id', 'in', available_rule_ids)]"/>
+                                    <field name="available_rule_ids" column_invisible="1"/>
+                                    <field name="salary_amount"/>
+                                </tree>
+                        </field>
+                    </page>
+
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

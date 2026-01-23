@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.module.category" id="module_category_starrylord_holiday">
+        <field name="name">SL-休假</field>
+        <field name="description">Helps you manage the holidays.</field>
+        <field name="sequence">14</field>
+    </record>
+
+    <record id="group_starrylord_holiday" model="res.groups">
+        <field name="name">休假單申請人員</field>
+        <field name="category_id" ref="sl_hrm_holiday.module_category_starrylord_holiday"/>
+        <field name="comment">一般休假申請人員</field>
+    </record>
+
+    <record id="group_starrylord_holiday_director" model="res.groups">
+        <field name="name">休假單簽核人員</field>
+        <field name="category_id" ref="sl_hrm_holiday.module_category_starrylord_holiday"/>
+        <field name="implied_ids" eval="[(4, ref('sl_hrm_holiday.group_starrylord_holiday'))]"/>
+        <field name="comment">休假單簽核人員</field>
+    </record>
+
+    <record id="group_starrylord_holiday_manager" model="res.groups">
+        <field name="name">休假單管理人員</field>
+        <field name="category_id" ref="sl_hrm_holiday.module_category_starrylord_holiday"/>
+        <field name="implied_ids" eval="[(4, ref('sl_hrm_holiday.group_starrylord_holiday'))]"/>
+        <field name="comment">休假單管理人員</field>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <record id="group_starrylord_holiday_developer" model="res.groups">
+        <field name="name">休假設定</field>
+        <field name="category_id" ref="sl_hrm_holiday.module_category_starrylord_holiday"/>
+        <field name="implied_ids" eval="[(4, ref('sl_hrm_holiday.group_starrylord_holiday'))]"/>
+        <field name="comment">可設定休假相關參數</field>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+</odoo>

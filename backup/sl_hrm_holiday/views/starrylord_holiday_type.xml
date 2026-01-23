@@ -1,0 +1,48 @@
+<odoo>
+    <record id="starrylord_holiday_type_tree_view" model="ir.ui.view">
+        <field name="name">starrylord.holiday.type.tree</field>
+        <field name="model">starrylord.holiday.type</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="request_unit"/>
+                <field name="salary_calculation"/>
+                <field name="note"/>
+                <field name="is_distribute"/>
+                <field name="is_com_allocation"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="starrylord_holiday_type_form_view" model="ir.ui.view">
+        <field name="name">starrylord.holiday.type.form</field>
+        <field name="model">starrylord.holiday.type</field>
+        <field name="arch" type="xml">
+            <form>
+                <h1>
+                    <field name="name" string="假別"/>
+                </h1>
+                <group>
+                    <field name="request_unit"/>
+                    <field name="salary_calculation"/>
+                    <field name="note"/>
+                    <field name="is_distribute"/>
+                    <field name="is_com_allocation"/>
+                    <field name="is_holiday_comp" invisible="1"/>
+                </group>
+                <group>
+                    <div style="font-weight:bold; color:red;"
+                         invisible="[('is_holiday_comp', '=', False)]"
+                         >注意 ! 此休假類型為加班補休，如變更最小單位大於加班單位會同步變更</div>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="starrylord_holiday_type_action" model="ir.actions.act_window">
+        <field name="name">休假類型</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">starrylord.holiday.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

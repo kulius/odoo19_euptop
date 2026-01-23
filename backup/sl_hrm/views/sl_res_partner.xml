@@ -1,0 +1,87 @@
+<odoo>
+    <record id="view_form_sl_res_partner" model="ir.ui.view">
+        <field name="name">view.sl.res.partner.form.inherited</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field eval="605" name="priority"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='function']" position="before">
+                <field name="full_name"/>
+            </xpath>
+<!--            <xpath expr="//field[@name='mobile']" position="after">-->
+<!--                <label for="fax" class="oe_inline"/>-->
+<!--                    <div class="o_row o_row_readonly">-->
+<!--                        <field name="fax"/>-->
+<!--                    </div>-->
+<!--            </xpath>-->
+            <xpath expr="//field[@name='vat']" position="after">
+                <field name="invoice_address"/>
+            </xpath>
+            <xpath expr="//page[@name='sales_purchases']" position="attributes">
+                <attributte name="invisible">1</attributte>
+            </xpath>
+            <xpath expr="//page[@name='sales_purchases']" position="after">
+                <page name="plant_area" string="廠區" invisible="not is_company">
+                    <field name="plant_area_line_ids">
+                        <tree editable="bottom">
+                            <field name="name"/>
+                            <field name="code"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <field name="plant_area_id" domain="[('res_partner_id','=', parent_id)]"
+                       placeholder="請選擇廠區"
+                       invisible="((is_company and not parent_id) or company_name) and company_name != ''"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_tree_sl_res_partner" model="ir.ui.view">
+        <field name="name">view.sl.res.partner.tree.inherited</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field eval="600" name="priority"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//tree" position="replace">
+                <tree string="Contacts" sample="1" multi_edit="1">
+                    <field name="is_company" column_invisible="True"/>
+                    <field name="company_type"/>
+                    <field name="display_name" string="Name"/>
+                    <field name="function" column_invisible="True"/>
+                    <field name="phone" class="o_force_ltr" optional="show"/>
+                    <field name="mobile" optional="show"/>
+                    <field name="email" optional="show"/>
+                    <field name="user_id" optional="show" widget="many2one_avatar_user" domain="[('share', '=', False)]" string="負責窗口"/>
+                    <field name="city" optional="show" column_invisible="1"/>
+                    <field name="state_id" optional="hide" readonly="1" column_invisible="1"/>
+                    <field name="country_id" optional="show" readonly="1" column_invisible="1"/>
+                    <field name="vat" optional="hide" readonly="1" column_invisible="1"/>
+                    <field name="category_id" optional="show" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                    <field name="company_id" groups="base.group_multi_company" readonly="1" column_invisible="1"/>
+                    <field name="parent_id" readonly="1" string="所屬公司"/>
+                    <field name="plant_area_id"/>
+                    <field name="active" column_invisible="True"/>
+                </tree>
+
+            </xpath>
+
+
+        </field>
+    </record>
+
+<!--    <record id="view_search_sl_res_partner" model="ir.ui.view">-->
+<!--        <field name="name">view.sl.res.partner.search.inherited</field>-->
+<!--        <field name="model">res.partner</field>-->
+<!--        <field name="inherit_id" ref="base.view_res_partner_filter"/>-->
+<!--        <field eval="600" name="priority"/>-->
+<!--        <field name="arch" type="xml">-->
+<!--            <xpath expr="//filter[@name='inactive']" position="after">-->
+<!--                <filter string="本公司聯絡人" name="my_company" domain="[('company_id','=', uid.employee_id.company_id.id)]"/>-->
+<!--            </xpath>-->
+<!--        </field>-->
+<!--    </record>-->
+
+</odoo>
