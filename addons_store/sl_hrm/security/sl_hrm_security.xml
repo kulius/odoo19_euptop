@@ -1,47 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="0">
-        <!-- SL HRM Security Groups -->
+        <!-- ========== 權限分類 (Privileges) ========== -->
+
+        <!-- 基本資料 分類 -->
+        <record model="res.groups.privilege" id="res_groups_privilege_sl_hrm_basic">
+            <field name="name">基本資料</field>
+            <field name="sequence">30</field>
+            <field name="category_id" ref="base.module_category_human_resources"/>
+        </record>
+
+        <!-- 請休假 分類 -->
+        <record model="res.groups.privilege" id="res_groups_privilege_sl_hrm_holiday">
+            <field name="name">請休假</field>
+            <field name="sequence">31</field>
+            <field name="category_id" ref="base.module_category_human_resources"/>
+        </record>
+
+        <!-- 加班 分類 -->
+        <record model="res.groups.privilege" id="res_groups_privilege_sl_hrm_overtime">
+            <field name="name">加班</field>
+            <field name="sequence">32</field>
+            <field name="category_id" ref="base.module_category_human_resources"/>
+        </record>
+
+        <!-- 考勤 分類 (擴充) -->
+        <record model="res.groups.privilege" id="res_groups_privilege_sl_hrm_attendance">
+            <field name="name">SL 考勤</field>
+            <field name="sequence">33</field>
+            <field name="category_id" ref="base.module_category_human_resources"/>
+        </record>
+
+        <!-- ========== 基本資料群組 ========== -->
         <record id="group_sl_hrm_user" model="res.groups">
-            <field name="name">SL HRM User</field>
+            <field name="name">使用者</field>
+            <field name="sequence">10</field>
+            <field name="privilege_id" ref="res_groups_privilege_sl_hrm_basic"/>
             <field name="implied_ids" eval="[(4, ref('hr.group_hr_user'))]"/>
+            <field name="comment">可以檢視人資基本資料</field>
         </record>
 
         <record id="group_sl_hrm_manager" model="res.groups">
-            <field name="name">SL HRM Manager</field>
+            <field name="name">管理員</field>
+            <field name="sequence">20</field>
+            <field name="privilege_id" ref="res_groups_privilege_sl_hrm_basic"/>
             <field name="implied_ids" eval="[(4, ref('group_sl_hrm_user'))]"/>
+            <field name="comment">可以管理人資基本資料、勞健保等設定</field>
         </record>
 
-        <!-- ========== 請假群組 (從 sl_hrm_holiday 合併) ========== -->
+        <!-- ========== 請假群組 ========== -->
         <record id="group_starrylord_holiday_director" model="res.groups">
-            <field name="name">請假主管(審核)</field>
+            <field name="name">主管(審核)</field>
+            <field name="sequence">10</field>
+            <field name="privilege_id" ref="res_groups_privilege_sl_hrm_holiday"/>
             <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">可以審核請假單</field>
         </record>
 
         <record id="group_starrylord_holiday_manager" model="res.groups">
-            <field name="name">請假管理員</field>
+            <field name="name">管理員</field>
+            <field name="sequence">20</field>
+            <field name="privilege_id" ref="res_groups_privilege_sl_hrm_holiday"/>
             <field name="implied_ids" eval="[(4, ref('group_starrylord_holiday_director'))]"/>
+            <field name="comment">可以管理所有請假單、假別設定</field>
         </record>
 
         <record id="group_starrylord_holiday_developer" model="res.groups">
-            <field name="name">請假系統管理員</field>
+            <field name="name">系統管理員</field>
+            <field name="sequence">30</field>
+            <field name="privilege_id" ref="res_groups_privilege_sl_hrm_holiday"/>
             <field name="implied_ids" eval="[(4, ref('group_starrylord_holiday_manager'))]"/>
+            <field name="comment">可以管理請假系統設定</field>
         </record>
 
-        <!-- ========== 加班群組 (從 sl_hrm_overtime 合併) ========== -->
+        <!-- ========== 加班群組 ========== -->
         <record id="group_starrylord_overtime_director" model="res.groups">
-            <field name="name">加班主管(審核)</field>
+            <field name="name">主管(審核)</field>
+            <field name="sequence">10</field>
+            <field name="privilege_id" ref="res_groups_privilege_sl_hrm_overtime"/>
             <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">可以審核加班單</field>
         </record>
 
         <record id="group_starrylord_overtime_manager" model="res.groups">
-            <field name="name">加班管理員</field>
+            <field name="name">管理員</field>
+            <field name="sequence">20</field>
+            <field name="privilege_id" ref="res_groups_privilege_sl_hrm_overtime"/>
             <field name="implied_ids" eval="[(4, ref('group_starrylord_overtime_director'))]"/>
+            <field name="comment">可以管理所有加班單、加班類型設定</field>
         </record>
 
         <record id="group_starrylord_overtime_developer" model="res.groups">
-            <field name="name">加班系統管理員</field>
+            <field name="name">系統管理員</field>
+            <field name="sequence">30</field>
+            <field name="privilege_id" ref="res_groups_privilege_sl_hrm_overtime"/>
             <field name="implied_ids" eval="[(4, ref('group_starrylord_overtime_manager'))]"/>
+            <field name="comment">可以管理加班系統設定</field>
+        </record>
+
+        <!-- ========== 考勤群組 (擴充) ========== -->
+        <record id="group_sl_attendance_user" model="res.groups">
+            <field name="name">使用者</field>
+            <field name="sequence">10</field>
+            <field name="privilege_id" ref="res_groups_privilege_sl_hrm_attendance"/>
+            <field name="implied_ids" eval="[(4, ref('hr_attendance.group_hr_attendance_user'))]"/>
+            <field name="comment">可以檢視考勤記錄</field>
+        </record>
+
+        <record id="group_sl_attendance_manager" model="res.groups">
+            <field name="name">管理員</field>
+            <field name="sequence">20</field>
+            <field name="privilege_id" ref="res_groups_privilege_sl_hrm_attendance"/>
+            <field name="implied_ids" eval="[(4, ref('group_sl_attendance_user')), (4, ref('hr_attendance.group_hr_attendance_manager'))]"/>
+            <field name="comment">可以管理考勤記錄、匯入打卡資料</field>
         </record>
     </data>
 </odoo>
