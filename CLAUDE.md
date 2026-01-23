@@ -31,6 +31,42 @@ odoo19_euptop/
 
 # 模組文件
 
+## sl_hrm (Starry Lord HRM 人資管理)
+
+> **詳細文件**: 請參考 `addons_store/sl_hrm/CLAUDE.md`
+
+### 基本資訊
+
+| 項目 | 值 |
+|------|-----|
+| 模組名稱 | Starry Lord HRM 人資管理 |
+| 技術名稱 | sl_hrm |
+| 版本 | 19.0.2.0.0 |
+| 路徑 | addons_store/sl_hrm |
+
+### 功能概述
+
+此為整合模組，包含以下功能:
+
+| 功能 | 原模組 | 文件 |
+|------|--------|------|
+| 核心人資 (員工、保險) | sl_hrm | [docs/01_core_hr.md](addons_store/sl_hrm/docs/01_core_hr.md) |
+| 請休假管理 | sl_hrm_holiday | [docs/02_holiday.md](addons_store/sl_hrm/docs/02_holiday.md) |
+| 加班管理 | sl_hrm_overtime | [docs/03_overtime.md](addons_store/sl_hrm/docs/03_overtime.md) |
+| 考勤管理 | sl_hr_attendance | [docs/04_attendance.md](addons_store/sl_hrm/docs/04_attendance.md) |
+| 個人行事曆 | sl_hrm_personal_calendar | [docs/05_personal_calendar.md](addons_store/sl_hrm/docs/05_personal_calendar.md) |
+| OWL 前端元件 | - | [docs/06_owl_components.md](addons_store/sl_hrm/docs/06_owl_components.md) |
+
+### 模組合併說明 (2026-01-23)
+
+為解決循環相依問題，已將以下模組合併至 sl_hrm:
+- sl_hrm_holiday
+- sl_hrm_overtime
+- sl_hrm_personal_calendar
+- sl_hr_attendance
+
+---
+
 ## ep_thenone (諾內客製化)
 
 ### 基本資訊
@@ -330,6 +366,9 @@ class MyModel(models.Model):
 | 2026-01-13 | sl_hrm_payroll | Many2many 關聯表名稱衝突 |
 | 2026-01-13 | sl_hrm_payroll | 報表模型缺少 _description |
 | 2026-01-13 | sl_hrm_payroll | Search View group 元素屬性變更 |
+| 2026-01-23 | sl_hrm | 合併 sl_hrm_holiday, sl_hrm_overtime, sl_hrm_personal_calendar, sl_hr_attendance |
+| 2026-01-23 | sl_hrm | OWL Dashboard 升級至 Odoo 19 |
+| 2026-01-23 | base_tier_validation | groups_id 改為 group_ids (res.users) |
 
 ---
 

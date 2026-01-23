@@ -154,7 +154,7 @@ class TierReview(models.Model):
         group_users = self.env["res.users"]
         if self.reviewer_group_id:
             group_users = self.env["res.users"].search([
-                ("groups_id", "in", self.reviewer_group_id.id)
+                ("group_ids", "in", self.reviewer_group_id.id)
             ])
         if self.reviewer_id or group_users:
             return self.reviewer_id + group_users
@@ -165,7 +165,7 @@ class TierReview(models.Model):
                 if reviewer_field._name == "res.groups":
                     # Odoo 19: search users with group
                     return self.env["res.users"].search([
-                        ("groups_id", "in", reviewer_field.ids)
+                        ("group_ids", "in", reviewer_field.ids)
                     ])
                 elif reviewer_field._name == "res.users":
                     return reviewer_field
